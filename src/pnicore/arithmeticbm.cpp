@@ -40,6 +40,7 @@
 
 using namespace pni::core;
 
+//define the timer 
 typedef chrono_timer<std::chrono::high_resolution_clock,std::chrono::nanoseconds> bmtimer_t;
 
 template<typename ATYPE,bool use_ptr_flag> struct inplace_benchmark_type;
@@ -232,6 +233,12 @@ int main(int argc,char **argv)
         return 1;
     }
 
+    //obtain basic benchmark parameters
+    auto nx = conf.value<size_t>("nx");
+    auto ny = conf.value<size_t>("ny");
+    shape_t shape{nx,ny};
+    size_t nruns = conf.value<size_t>("nruns");
+
 
     //type definitions
     typedef numarray<darray<float64> > nf64array;
@@ -239,21 +246,21 @@ int main(int argc,char **argv)
 
     if(conf.value<size_t>("nthreads") == 1)
     {
-        nf64array a(shape_t({conf.value<size_t>("nx"),conf.value<size_t>("ny")}));
+        nf64array a(shape);
 
         if(conf.value<bool>("binary"))
         {
             if(conf.value<bool>("use-ptr"))
-                run_binary_benchmark<true>(conf.value<size_t>("nruns"),a);
+                run_binary_benchmark<true>(nruns,a);
             else
-                run_binary_benchmark<false>(conf.value<size_t>("nruns"),a);
+                run_binary_benchmark<false>(nruns,a);
         }
         else
         {
             if(conf.value<bool>("use-ptr"))
-                run_inplace_benchmark<true>(conf.value<size_t>("nruns"),std::move(a));
+                run_inplace_benchmark<true>(nruns,std::move(a));
             else
-                run_inplace_benchmark<false>(conf.value<size_t>("nruns"),std::move(a));
+                run_inplace_benchmark<false>(nruns,std::move(a));
         }
     }
     else
@@ -269,16 +276,15 @@ int main(int argc,char **argv)
         pnicore_config.n_arithmetic_threads(conf.value<size_t>("nthreads"));
 
         //allocate memory
-        nf64array_mt a(shape_t({conf.value<size_t>("nx"),
-                               conf.value<size_t>("ny")}));
+        nf64array_mt a(shape);
         if(conf.value<bool>("binary"))
         {
             nf64array_mt b(a.shape<shape_t>());
             nf64array_mt c(a.shape<shape_t>());
-            run_binary_benchmark<false>(conf.value<size_t>("nruns"),a);
+            run_binary_benchmark<false>(nruns,a);
         }
         else
-            run_inplace_benchmark<false>(conf.value<size_t>("nruns"),std::move(a));
+            run_inplace_benchmark<false>(nruns,std::move(a));
     }
 
     return 0;
