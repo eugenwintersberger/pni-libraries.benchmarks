@@ -22,7 +22,7 @@
  */
 #pragma once
 
-#include "uniform_distribution.hpp"
+#include "../common/uniform_distribution.hpp"
 
 template<typename ATYPE> class binary_arithmetic_benchmark
 {

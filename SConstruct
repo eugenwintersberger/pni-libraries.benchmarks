@@ -31,5 +31,7 @@ except:
 
 
 Export('pnicore_build')
+Export('pniio_build')
 #build pnicore benchmarks
 SConscript('src/pnicore/SConscript')
+SConscript('src/pniio/SConscript')

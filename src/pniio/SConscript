@@ -1,0 +1,3 @@
+Import('pniio_build')
+
+pniio_build.Program('pniiobm',Glob('*.cpp'))

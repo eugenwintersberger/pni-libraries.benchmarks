@@ -5,6 +5,6 @@ pnicore_build.Program("iteratorbm.cpp")
 pnicore_build.Program("multiindexbm.cpp")
 
 fobjs = filter(lambda o: str(o)[-4:] != '.mod', 
-               test_env.Object(["farithmeticbm.f90","benchmark/benchmark.f90","benchmark/arithmetic_benchmark.f90"],LIBS=[],F90FLAGS=["-O3","-J./test"]))
-farithmeticbm = test_env.Program("farithmeticbm",fobjs,F90FLAGS=["-O3","-I./test"])
+               pnicore_build.Object(["farithmeticbm.f90","benchmark.f90","arithmetic_benchmark.f90"],LIBS=[],F90FLAGS=["-O3","-J./src/pnicore"]))
+farithmeticbm = pnicore_build.Program("farithmeticbm",fobjs,F90FLAGS=["-O3","-I./test"])
 
