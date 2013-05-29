@@ -167,6 +167,17 @@ void run_inplace_benchmark(size_t nruns,ATYPE &&a)
 
 //-----------------------------------------------------------------------------
 
+/*!
+\brief run binary arithmetics benchmark
+
+This template function runs the binary arithmetics benchmark. 
+
+\tparam use_ptr_flag true if pointer version should be used
+\tparam ATYPE array type
+\param nruns number of runs 
+\param a instance of ATYPE with initial data
+\param o output stream for benchmark results
+*/
 template<bool use_ptr_flag,typename ATYPE> 
 void run_binary_benchmark(size_t nruns,ATYPE &a,std::ostream &o)
 {
@@ -183,9 +194,10 @@ void run_binary_benchmark(size_t nruns,ATYPE &a,std::ostream &o)
     mult_func = std::bind(&bm_t::mult,benchmark);
     all_func = std::bind(&bm_t::all,benchmark);
     
-    //run benchmarks
+    //define benchmark runners
     benchmark_runner add_bm,mult_bm,div_bm,sub_bm,all_bm;
 
+    //run the benchmarks
     add_bm.run<bmtimer_t>(nruns,add_func);
     sub_bm.run<bmtimer_t>(nruns,sub_func);
     div_bm.run<bmtimer_t>(nruns,div_func);
