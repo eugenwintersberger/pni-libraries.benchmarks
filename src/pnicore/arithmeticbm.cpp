@@ -21,6 +21,8 @@
  *      Author: Eugen Wintersberger <eugen.wintersberger@desy.de>
  */
 
+#include <iostream>
+#include <fstream>
 #include <pni/core/types.hpp>
 #include <pni/core/arrays.hpp>
 #include <pni/core/math/mt_inplace_arithmetics.hpp>
@@ -171,7 +173,7 @@ template<typename ATYPE> void reset_array(ATYPE &a)
 }
 
 template<bool use_ptr_flag,typename ATYPE> 
-void run_binary_benchmark(size_t nruns,ATYPE &a)
+void run_binary_benchmark(size_t nruns,ATYPE &a,std::ostream &o)
 {
     //define benchmark type
     typedef typename binary_benchmark_type<ATYPE,use_ptr_flag>::benchmark_type bm_t; 
@@ -194,14 +196,16 @@ void run_binary_benchmark(size_t nruns,ATYPE &a)
     div_bm.run<bmtimer_t>(nruns,div_func);
     mult_bm.run<bmtimer_t>(nruns,mult_func);
     all_bm.run<bmtimer_t>(nruns,all_func);
-    
-    //print benchmark results 
-    std::cout<<"c=a+b:           "; print_result(std::cout,add_bm)<<std::endl;
-    std::cout<<"c=a-b:           "; print_result(std::cout,sub_bm)<<std::endl;
-    std::cout<<"c=a/b:           "; print_result(std::cout,div_bm)<<std::endl;
-    std::cout<<"c=a*b:           "; print_result(std::cout,mult_bm)<<std::endl;
-    std::cout<<"c=a*b + (d-e)/f: "; print_result(std::cout,all_bm)<<std::endl;
 
+    o<<"#c=a+b\tc=a-b\tc=a/b\tc=a*b\tc=a*b+(d-e)/f"<<std::endl;
+    for(auto add_iter = add_bm.begin(),sub_iter = sub_bm.begin(),
+             div_iter = div_bm.begin(),mul_iter = mult_bm.begin(),
+             all_iter = all_bm.begin();
+        add_iter != add_bm.end();
+        ++add_iter,++sub_iter,++div_iter,++mul_iter,++all_iter)
+        o<<add_iter->time()<<"\t"<<sub_iter->time()<<"\t"<<
+           div_iter->time()<<"\t"<<mul_iter->time()<<"\t"<<
+           all_iter->time()<<std::endl;
 }
 //-----------------------------------------------------------------------------
 int main(int argc,char **argv)
@@ -223,6 +227,8 @@ int main(int argc,char **argv)
                     "run binary arithmetics",false));
     conf.add_option(config_option<size_t>("nthreads","",
                     "number of threads",1));
+    conf.add_option(config_option<string>("logfile","l",
+                "write to logfile instead of stdout"));
    
     std::vector<string> args = cliargs2vector(argc,argv);
     parse(conf,args,true);
@@ -239,6 +245,10 @@ int main(int argc,char **argv)
     shape_t shape{nx,ny};
     size_t nruns = conf.value<size_t>("nruns");
 
+    //get output stream
+    std::ostream *ostream = &std::cout;
+    if(conf.has_option("logfile"))
+        ostream = new std::ofstream(conf.value<string>("logfile"));
 
     //type definitions
     typedef numarray<darray<float64> > nf64array;
@@ -251,9 +261,9 @@ int main(int argc,char **argv)
         if(conf.value<bool>("binary"))
         {
             if(conf.value<bool>("use-ptr"))
-                run_binary_benchmark<true>(nruns,a);
+                run_binary_benchmark<true>(nruns,a,*ostream);
             else
-                run_binary_benchmark<false>(nruns,a);
+                run_binary_benchmark<false>(nruns,a,*ostream);
         }
         else
         {
@@ -281,7 +291,7 @@ int main(int argc,char **argv)
         {
             nf64array_mt b(a.shape<shape_t>());
             nf64array_mt c(a.shape<shape_t>());
-            run_binary_benchmark<false>(nruns,a);
+            run_binary_benchmark<false>(nruns,a,*ostream);
         }
         else
             run_inplace_benchmark<false>(nruns,std::move(a));
