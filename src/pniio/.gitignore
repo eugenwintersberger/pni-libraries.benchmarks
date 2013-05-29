@@ -1,2 +1,4 @@
 pniiobm
 *.o
+*.log
+*.h5
