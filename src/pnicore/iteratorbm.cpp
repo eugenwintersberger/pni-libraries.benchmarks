@@ -21,6 +21,7 @@
  *      Author: Eugen Wintersberger <eugen.wintersberger@desy.de>
  */
 #include <iostream>
+#include <fstream>
 #include <chrono>
 #include <ratio>
 #include <ctime>
@@ -41,7 +42,7 @@
 using namespace pni::core;
 
 template<typename CLKT,typename BMARKT> 
-void run_benchmark(size_t nruns,const BMARKT &bmark)
+void run_benchmark(size_t nruns,const BMARKT &bmark,std::ostream &o)
 {
     std::cout<<"Benchmark: "<<bmark.name()<<std::endl;
     std::cout<<"Timer: "<<CLKT::name<<std::endl;
@@ -55,12 +56,14 @@ void run_benchmark(size_t nruns,const BMARKT &bmark)
     write_bm.run<CLKT>(nruns,write_func);
     read_bm.run<CLKT>(nruns,read_func);
 
-    benchmark_result write_result = average(write_bm);
-    benchmark_result read_result  = average(read_bm);
-
-    std::cout<<"Write result: "<<write_result<<std::endl;
-    std::cout<<"Read result:  "<<read_result<<std::endl;
-    std::cout<<std::endl;
+    o<<"#write\tread"<<std::endl;
+    for(auto witer = write_bm.begin(),
+             riter = read_bm.begin();
+        witer!=write_bm.end();
+        ++witer,++riter)
+        o<<std::scientific<<
+           witer->time()<<"\t"<<
+           riter->time()<<std::endl;
 }
 
 
@@ -75,6 +78,8 @@ int main(int argc,char **argv)
                     "number of double elements to allocate",size_t(0)));
     conf.add_option(config_option<size_t>("nruns","r",
                     "number of runs",1));
+    conf.add_option(config_option<string>("logfile","l",
+                    "write data to logfile instead of stdout"));
     conf.add_option(config_option<string>("type","t",
                     "container type","dbuffer"));
 
@@ -92,35 +97,44 @@ int main(int argc,char **argv)
         return 1;
     }
 
-    typedef linear_io_container_iterator<dbuffer<double> > dbuffer_bm_t;
-    typedef linear_io_container_iterator<darray<double,dbuffer<double> > > darray_bm_t;
-    typedef linear_io_container_iterator<numarray<
-                                               darray<double,dbuffer<double> > 
-                                              > 
-                                     >  narray_bm_t;
-    typedef linear_io_pointer_benchmark<double> ptr_bm_t;
+    //define container types
+    typedef dbuffer<float64>          dbuffer_t;
+    typedef darray<float64,dbuffer_t> darray_t;
+    typedef numarray<darray_t>        narray_t;
+
+    //define container benchmark types
+    typedef linear_io_container_iterator<dbuffer_t> dbuffer_bm_t;
+    typedef linear_io_container_iterator<darray_t>  darray_bm_t;
+    typedef linear_io_container_iterator<narray_t>  narray_bm_t;
+    typedef linear_io_pointer_benchmark<double>     ptr_bm_t;
+
+    //obtain basic benchmark parameters
+    size_t size = conf.value<size_t>("size");
+    size_t nruns = conf.value<size_t>("nruns");
+    //shape for array types
+    shape_t shape{2,size/2};
+
+    //determine output stream
+    std::ostream *ostream = &std::cout;
+    if(conf.has_option("logfile"))
+    {
+        ostream = new std::ofstream(conf.value<string>("logfile"));
+    }
    
-
+    //run the benchmarks
     if(conf.value<string>("type")=="ptr")
-        run_benchmark<bmtimer_t>(conf.value<size_t>("nruns"),
-                                 ptr_bm_t(conf.value<size_t>("size")));
-
+        run_benchmark<bmtimer_t>(nruns, ptr_bm_t(size),*ostream);
     else if(conf.value<string>("type")=="dbuffer")
-        run_benchmark<bmtimer_t>(conf.value<size_t>("nruns"),
-                                 dbuffer_bm_t(dbuffer<double>(conf.value<size_t>("size"))));
+        run_benchmark<bmtimer_t>(nruns,dbuffer_bm_t(dbuffer_t(size)),*ostream);
     else if(conf.value<string>("type")=="darray")
-        run_benchmark<bmtimer_t>(conf.value<size_t>("nruns"),
-                                 darray_bm_t(darray<double,dbuffer<double> >(shape_t{2,conf.value<size_t>("size")/2})));
+        run_benchmark<bmtimer_t>(nruns,darray_bm_t(darray_t(shape)),*ostream);
     else if(conf.value<string>("type")=="numarray")
-        run_benchmark<bmtimer_t>(conf.value<size_t>("nruns"),narray_bm_t(
-                numarray<darray<double,dbuffer<double> >
-                >(shape_t{2,conf.value<size_t>("size")/2})));
+        run_benchmark<bmtimer_t>(nruns,narray_bm_t(narray_t(shape)),*ostream);
     else
     {
         std::cerr<<"unknow storage container!"<<std::endl;
         return 1;
     }
-
 
     return 0;
 }
