@@ -80,11 +80,32 @@ class file_io_benchmark
         void filename(const string &f) { _filename = f; }
 
         //---------------------------------------------------------------------
-        //the run function of the benchmark
-        virtual void run() {};
+        /*!
+        \brief the run function of the benchmark
 
-        virtual void create() {}
+        This member function starts the benchmark for the particular
+        implementation.
+        */
+        virtual void run() = 0;
 
-        virtual void close() {}
+        //---------------------------------------------------------------------
+        /*!
+        \brief create data structures
+
+        This class method is intended to run before each benchmark and creates
+        the file as well as al data structures that are required to run the
+        code.
+        */
+        virtual void create() = 0;
+
+        //---------------------------------------------------------------------
+        /*!
+        \brief destroy all data structures
+
+        This class method is intended to run after each benchmark run and should
+        destroy all data structures that have been used during the benchmark and
+        closes the file.
+        */
+        virtual void close() = 0; 
 
 };

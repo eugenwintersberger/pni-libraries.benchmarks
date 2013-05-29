@@ -36,6 +36,13 @@
 
 using namespace pni::core;
 
+void output_result(std::ostream &ostream,const benchmark_runner &r)
+{
+    ostream<<"#"<<r.begin()->unit()<<std::endl;
+    for(auto iter=r.begin();iter!=r.end();++iter)
+        ostream<<std::scientific<<iter->time()<<std::endl;
+}
+
 int main(int argc,char **argv)
 {
     typedef chrono_timer<std::chrono::high_resolution_clock,
@@ -44,7 +51,7 @@ int main(int argc,char **argv)
     //setup program configuration
     config.add_option(config_option<bool>("help","h","show help",false));
     config.add_option(config_option<string>("backend","b",
-                      "HDF5 or PNINX backend","pninx"));
+                      "HDF5 (=hdf5) or PNIIO (=pniio) backend","pniio"));
     config.add_option(config_option<size_t>("nx","x",
                       "number of point along first dimension",1024));
     config.add_option(config_option<size_t>("ny","y",
@@ -86,29 +93,30 @@ int main(int argc,char **argv)
     //create the benchmark runner instance
     benchmark_runner runner;
 
+    //set the benchmark function
     benchmark_runner::function_t f = std::bind(&file_io_benchmark::run,bmptr.get());
+    //create the pre- and post-run functions
     benchmark_runner::function_t pre_run =
         std::bind(&file_io_benchmark::create,bmptr.get());
     benchmark_runner::function_t post_run = 
         std::bind(&file_io_benchmark::close,bmptr.get());
 
+    //set the pre and post run functions
     runner.prerun(pre_run);
     runner.postrun(post_run);
+    //run the benchmark
     runner.run<bm_timer_t>(config.value<size_t>("nruns"),f);
 
+    
+    //create the output stream
     if(config.has_option("logfile"))
     {
         //open log file for writting
         std::ofstream logfile(config.value<string>("logfile").c_str());
-        
-        //write header
-        logfile<<"#"<<runner.begin()->unit()<<std::endl;
-        for(auto iter=runner.begin();iter!=runner.end();++iter)
-            logfile<<iter->time()<<std::endl;
+        output_result(logfile,runner);
     }
+    else
+        output_result(std::cout,runner);
 
-    //need to evaluate the results
-    benchmark_result av_result = average(runner);
-    std::cout<<av_result<<std::endl;
     return 0;
 }

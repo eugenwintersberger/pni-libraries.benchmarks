@@ -94,7 +94,7 @@ std::unique_ptr<file_io_benchmark>
 benchmark_factory::create(const string &type,
                           const string &backend,bool random_fill) const
 {
-    if(backend == "pninx")
+    if(backend == "pniio")
         return create_pninx_benchmark(type,random_fill);
     else if(backend == "hdf5")
         return create_hdf5_benchmark(type,random_fill);
