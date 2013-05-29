@@ -167,11 +167,6 @@ void run_inplace_benchmark(size_t nruns,ATYPE &&a)
 
 //-----------------------------------------------------------------------------
 
-template<typename ATYPE> void reset_array(ATYPE &a)
-{
-    std::fill(a.begin(),a.end(),typename ATYPE::value_type(0));
-}
-
 template<bool use_ptr_flag,typename ATYPE> 
 void run_binary_benchmark(size_t nruns,ATYPE &a,std::ostream &o)
 {
@@ -197,6 +192,7 @@ void run_binary_benchmark(size_t nruns,ATYPE &a,std::ostream &o)
     mult_bm.run<bmtimer_t>(nruns,mult_func);
     all_bm.run<bmtimer_t>(nruns,all_func);
 
+    //output result
     o<<"#c=a+b\tc=a-b\tc=a/b\tc=a*b\tc=a*b+(d-e)/f"<<std::endl;
     for(auto add_iter = add_bm.begin(),sub_iter = sub_bm.begin(),
              div_iter = div_bm.begin(),mul_iter = mult_bm.begin(),
