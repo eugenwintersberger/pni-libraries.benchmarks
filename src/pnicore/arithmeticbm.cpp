@@ -120,8 +120,6 @@ int main(int argc,char **argv)
         nf64array_mt a(shape);
         if(conf.value<bool>("binary"))
         {
-            nf64array_mt b(a.shape<shape_t>());
-            nf64array_mt c(a.shape<shape_t>());
             //run multithreaded binary benchmark with arrays
             run_binary_benchmark<false>(nruns,a,*ostream);
         }

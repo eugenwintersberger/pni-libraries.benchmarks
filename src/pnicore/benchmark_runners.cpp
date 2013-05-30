@@ -29,7 +29,7 @@ void plot_inplace_result(const arithmetic_runners &s,
                          const arithmetic_runners &a,
                          std::ostream &o)
 {
-    o<<"A +=scalar\tA-=scalar\tA/=scalar\tA*=scalar\t"<<
+    o<<"#A +=scalar\tA-=scalar\tA/=scalar\tA*=scalar\t"<<
        "A +=array \tA-=array \tA/=array \tA*=array"<<std::endl;
 
     for(auto as_iter = s.add.begin(),ss_iter = s.sub.begin(),
