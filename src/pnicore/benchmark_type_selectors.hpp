@@ -20,7 +20,7 @@
  *  Created on: May 30, 2013
  *      Author: Eugen Wintersberger <eugen.wintersberger@desy.de>
  */
-
+#pragma once
 #include "inplace_arithmetic_benchmark.hpp"
 #include "inplace_arithmetic_benchmark_ptr.hpp"
 #include "binary_arithmetic_benchmark.hpp"

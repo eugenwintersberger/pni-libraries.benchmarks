@@ -30,6 +30,8 @@
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/uniform_real.hpp>
 #include <boost/random/mersenne_twister.hpp>
+#else 
+#include <random>
 #endif
 
 using namespace pni::core;

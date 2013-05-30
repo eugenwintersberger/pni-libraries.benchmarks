@@ -9,9 +9,9 @@ env.AppendUnique(CPPFLAGS=['-O3'])
 
 
 try:
-    env['ENV']['PKG_CONFIG_PATH'] = os.env['PKG_CONFIG_PATH']
+    env['ENV']['PKG_CONFIG_PATH'] = os.environ['PKG_CONFIG_PATH']
 except:
-    pass
+    print "no custom pkg-config path found ..."
 
 pnicore_build = env.Clone()
 pniio_build = env.Clone()

@@ -1,6 +1,6 @@
 Import('pnicore_build')
 
-pnicore_build.Program("arithmeticbm.cpp")
+pnicore_build.Program("arithmeticbm",["arithmeticbm.cpp","benchmark_runners.cpp"])
 pnicore_build.Program("iteratorbm.cpp")
 pnicore_build.Program("multiindexbm.cpp")
 

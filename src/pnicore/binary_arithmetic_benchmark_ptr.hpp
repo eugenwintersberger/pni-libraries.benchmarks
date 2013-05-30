@@ -22,6 +22,8 @@
  */
 #pragma once
 
+#include "../common/uniform_distribution.hpp"
+
 template<typename ATYPE> class binary_arithmetic_benchmark_ptr
 {
     public:
