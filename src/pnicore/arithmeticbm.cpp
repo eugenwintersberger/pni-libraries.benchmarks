@@ -78,7 +78,7 @@ int main(int argc,char **argv)
 
     //type definitions
     typedef numarray<darray<float64> > nf64array;
-    typedef numarray<darray<float64>,mt_inplace_arithmetics,true> nf64array_mt;
+    typedef numarray<darray<float64>,int,mt_inplace_arithmetics,true> nf64array_mt;
 
     if(conf.value<size_t>("nthreads") == 1)
     {
