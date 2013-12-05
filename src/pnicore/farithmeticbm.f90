@@ -2,14 +2,18 @@ program farithmeticbm
     use benchmark
     use arithmetic_benchmark
     implicit none
-    real(kind=8),dimension(:),allocatable :: results
-    integer :: nx,ny,nruns
+    real(kind=8),dimension(:),allocatable :: add_results
+    real(kind=8),dimension(:),allocatable :: sub_results
+    real(kind=8),dimension(:),allocatable :: div_results
+    real(kind=8),dimension(:),allocatable :: mult_results
+    real(kind=8),dimension(:),allocatable :: mix_results
+    integer :: nx,ny,nruns,i
     integer :: ai !argument index
     character(len=256) :: arg
 
     !set default values
-    nx = 2000
-    ny = 2000
+    nx = 4096
+    ny = 4096
     nruns = 10
 
     !parse command line arguments
@@ -36,37 +40,41 @@ program farithmeticbm
 
 
     !allocate memory
-    call allocate_benchmark_results(nruns,results)
+    call allocate_benchmark_results(nruns,add_results)
+    call allocate_benchmark_results(nruns,sub_results)
+    call allocate_benchmark_results(nruns,div_results)
+    call allocate_benchmark_results(nruns,mult_results)
+    call allocate_benchmark_results(nruns,mix_results)
     call allocate_arithmetics(nx,ny)
 
     !run the add benchmarks    
-    call run_benchmarks(run_add,results)
-    call print_result('c=(a+b)',results)
-    results = 0.d0
+    call run_benchmarks(run_add,add_results)
         
     !run the sub benchmarks
-    call run_benchmarks(run_sub,results)
-    call print_result('c=(a-b)',results)
-    results = 0.d0
+    call run_benchmarks(run_sub,sub_results)
 
     !run the div benchmarks
-    call run_benchmarks(run_div,results)
-    call print_result('c=(a/b)',results)
-    results = 0.d0
+    call run_benchmarks(run_div,div_results)
 
     !run the mult benchmarks
-    call run_benchmarks(run_mult,results)
-    call print_result('c=a*b',results)
-    results = 0.d0
+    call run_benchmarks(run_mult,mult_results)
 
     !run the all benchmark
-    call run_benchmarks(run_all,results)
-    call print_result('c=a*b+(d-e)/f',results)
-    results = 0.d0
+    call run_benchmarks(run_all,mix_results)
+
+    !print all the results
+    do i=1,nruns
+    write(*,*) add_results(i),sub_results(i),div_results(i),mult_results(i),mix_results(i)
+    end do
 
 
     !in the end we have to free everything
-    call deallocate_benchmark_results(results)
+    call deallocate_benchmark_results(add_results)
+    call deallocate_benchmark_results(sub_results)
+    call deallocate_benchmark_results(div_results)
+    call deallocate_benchmark_results(mult_results)
+    call deallocate_benchmark_results(mix_results)
+
     call deallocate_arithmetics()
 
 end program farithmeticbm
