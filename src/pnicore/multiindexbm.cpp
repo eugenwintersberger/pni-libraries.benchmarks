@@ -4,23 +4,21 @@
 #include <chrono>
 #include <ratio>
 #include <ctime>
+#include <utility>
+
 #include <pni/core/container_iterator.hpp>
-#include <pni/core/dbuffer.hpp>
 #include <pni/core/darray.hpp>
 #include <pni/core/arrays.hpp>
-
 #include <pni/core/benchmark/benchmark_result.hpp>
 #include <pni/core/benchmark/benchmark_runner.hpp>
 #include <pni/core/benchmark/chrono_timer.hpp>
 #include <pni/core/benchmark/clock_timer.hpp>
-
 #include <pni/core/config/configuration.hpp>
 #include <pni/core/config/config_parser.hpp>
 
 #include "multiindex_io_pointer.hpp"
 #include "multiindex_io_array.hpp"
 
-#include <utility>
 using namespace pni::core;
 
 template<typename CLKT,typename BMARKT> 
@@ -47,27 +45,27 @@ void run_benchmark(size_t nruns,const BMARKT &bmark)
     }
 }
 
+typedef darray<double>                 darray_t;    //DArray type
+typedef sarray<double,500,500>         sarray_t;
+typedef numarray<darray_t>             ndarray_t;   //numerical array type
+typedef multiindex_io_array<darray_t>  darray_bm_t; //darray multiindex benchmark type
+typedef multiindex_io_array<ndarray_t> narray_bm_t; //ndarray multiindex benchmark type
+typedef multiindex_io_array<sarray_t>  sarray_bm_t;
+typedef multiindex_io_pointer<double>  ptr_bm_t;    //pointer muldiindex benchmark type
 
 typedef chrono_timer<std::chrono::high_resolution_clock,std::chrono::nanoseconds> bmtimer_t;
 
 int main(int argc,char **argv)
 {
-    typedef darray<double,dbuffer<double> > darray_t; //DArray type
-    typedef sarray<double,5000,5000> sarray_t;
-    typedef numarray<darray_t> ndarray_t;             //numerical array type
-    typedef multiindex_io_array<darray_t> darray_bm_t;  //darray multiindex benchmark type
-    typedef multiindex_io_array<ndarray_t> narray_bm_t; //ndarray multiindex benchmark type
-    typedef multiindex_io_array<sarray_t> sarray_bm_t;
-    typedef multiindex_io_pointer<double> ptr_bm_t;     //pointer muldiindex benchmark type
 
     //-------------------setup user configuration-----------------------------
     configuration config;
     config.add_option(config_option<string>("array-type","t",
                       "array type to be used","darray"));
     config.add_option(config_option<size_t>("nx","x",
-                      "number of elements along first dimension",100));
+                      "number of elements along first dimension",500));
     config.add_option(config_option<size_t>("ny","y",
-                      "number of elements along second dimension",100));
+                      "number of elements along second dimension",500));
     config.add_option(config_option<size_t>("nruns","r",
                       "number of runs",1));
     config.add_option(config_option<bool>("help","h",

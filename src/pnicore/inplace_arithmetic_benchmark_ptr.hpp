@@ -33,7 +33,7 @@ template<typename ATYPE> class inplace_arithmetic_benchmark_ptr
             _array(std::move(a))
         {
             _ptr = const_cast<typename ATYPE::value_type *>
-                   (_array.storage().storage().ptr()); 
+                   (_array.storage().data()); 
             _size = _array.size();
         }
 
@@ -45,7 +45,7 @@ template<typename ATYPE> class inplace_arithmetic_benchmark_ptr
         void add(const ATYPE &a)
         {
             typedef typename ATYPE::value_type* ptr_t;
-            ptr_t a_ptr = const_cast<ptr_t>(a.storage().storage().ptr());
+            ptr_t a_ptr = const_cast<ptr_t>(a.storage().data());
 
             for(size_t i=0;i<_size;++i)
                 _ptr[i] += a_ptr[i];
@@ -60,7 +60,7 @@ template<typename ATYPE> class inplace_arithmetic_benchmark_ptr
         void sub(const ATYPE &a)
         {
             typedef typename ATYPE::value_type* ptr_t;
-            ptr_t a_ptr = const_cast<ptr_t>(a.storage().storage().ptr());
+            ptr_t a_ptr = const_cast<ptr_t>(a.storage().data());
 
             for(size_t i=0;i<_size;++i)
                 _ptr[i] -= a_ptr[i];
@@ -75,7 +75,7 @@ template<typename ATYPE> class inplace_arithmetic_benchmark_ptr
         void mult(const ATYPE &a)
         {
             typedef typename ATYPE::value_type* ptr_t;
-            ptr_t a_ptr = const_cast<ptr_t>(a.storage().storage().ptr());
+            ptr_t a_ptr = const_cast<ptr_t>(a.storage().data());
 
             for(size_t i=0;i<_size;++i)
                 _ptr[i] *= a_ptr[i];
@@ -89,7 +89,7 @@ template<typename ATYPE> class inplace_arithmetic_benchmark_ptr
         void div(const ATYPE &a)
         {
             typedef typename ATYPE::value_type* ptr_t;
-            ptr_t a_ptr = const_cast<ptr_t>(a.storage().storage().ptr());
+            ptr_t a_ptr = const_cast<ptr_t>(a.storage().data());
 
             for(size_t i=0;i<_size;++i)
                 _ptr[i] /= a_ptr[i];

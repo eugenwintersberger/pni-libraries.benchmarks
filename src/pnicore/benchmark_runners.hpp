@@ -22,6 +22,7 @@
  */
 #pragma once
 #include <iostream>
+#include <iomanip>
 
 #include <pni/core/benchmark/benchmark_runner.hpp>
 #include <pni/core/benchmark/chrono_timer.hpp>
@@ -72,47 +73,50 @@ void plot_inplace_result(const arithmetic_runners &s,
 
 //-----------------------------------------------------------------------------
 template<bool use_ptr_flag,typename ATYPE> 
-void run_inplace_benchmark(size_t nruns,ATYPE &&a,std::ostream &o)
+void run_inplace_benchmark(size_t nruns,const shape_t &shape,std::ostream &o)
 {
     //define benchmark type
-    typedef typename inplace_benchmark_type<ATYPE,use_ptr_flag>::benchmark_type bm_t; 
-    typedef typename ATYPE::value_type value_type;
+    typedef ATYPE array_type;
+    typedef typename inplace_benchmark_type<array_type,use_ptr_flag>::benchmark_type 
+                     benchmark_type; 
+    typedef typename array_type::value_type value_type;
+    typedef benchmark_runner::function_t function_type;
+    typedef array_factory<array_type> array_factory;
     
     //run benchmarks
     arithmetic_runners array_run,scalar_run;
 
     //scalar benchmark functions
-    benchmark_runner::function_t bm_function;
+    function_type bm_function;
 
     //run array benchmarks
-    ATYPE b(a.template shape<shape_t>());
-    //setup benchmark
-    bm_t benchmark(std::move(a));
+    auto b = array_factory::create(shape);
+    benchmark_type benchmark(array_factory::create(shape));
 
     //run scalar benchmark functions
-    bm_function = SFUNC(bm_t,benchmark,add,value_type,100);
+    bm_function = SFUNC(benchmark_type,benchmark,add,value_type,100);
     scalar_run.add.run<bmtimer_t>(nruns,bm_function);
     
-    bm_function = SFUNC(bm_t,benchmark,sub,value_type,10);
+    bm_function = SFUNC(benchmark_type,benchmark,sub,value_type,10);
     scalar_run.sub.run<bmtimer_t>(nruns,bm_function);
 
-    bm_function = SFUNC(bm_t,benchmark,div,value_type,10);
+    bm_function = SFUNC(benchmark_type,benchmark,div,value_type,10);
     scalar_run.div.run<bmtimer_t>(nruns,bm_function);
 
-    bm_function = SFUNC(bm_t,benchmark,mult,value_type,1.23);
+    bm_function = SFUNC(benchmark_type,benchmark,mult,value_type,1.23);
     scalar_run.mult.run<bmtimer_t>(nruns,bm_function);
 
     //run array benchmarks
-    AFUNC(bm_function,bm_t,benchmark,add,b,value_type,100);
+    AFUNC(bm_function,benchmark_type,benchmark,add,b,value_type,100);
     array_run.add.run<bmtimer_t>(nruns,bm_function);
 
-    AFUNC(bm_function,bm_t,benchmark,sub,b,value_type,10);
+    AFUNC(bm_function,benchmark_type,benchmark,sub,b,value_type,10);
     array_run.sub.run<bmtimer_t>(nruns,bm_function);
 
-    AFUNC(bm_function,bm_t,benchmark,div,b,value_type,10);
+    AFUNC(bm_function,benchmark_type,benchmark,div,b,value_type,10);
     array_run.div.run<bmtimer_t>(nruns,bm_function);
 
-    AFUNC(bm_function,bm_t,benchmark,mult,b,value_type,1.23);
+    AFUNC(bm_function,benchmark_type,benchmark,mult,b,value_type,1.23);
     array_run.mult.run<bmtimer_t>(nruns,bm_function);
 
     //print benchmark results 
@@ -133,20 +137,25 @@ This template function runs the binary arithmetics benchmark.
 \param o output stream for benchmark results
 */
 template<bool use_ptr_flag,typename ATYPE> 
-void run_binary_benchmark(size_t nruns,ATYPE &a,std::ostream &o)
+void run_binary_benchmark(size_t nruns,const shape_t &shape,std::ostream &o)
 {
     //define benchmark type
-    typedef typename binary_benchmark_type<ATYPE,use_ptr_flag>::benchmark_type bm_t; 
+    typedef ATYPE array_type;
+    typedef typename array_type::value_type value_type;
+    typedef typename binary_benchmark_type<array_type,use_ptr_flag>::benchmark_type 
+                     benchmark_type; 
+    typedef benchmark_runner::function_t function_type;
+    typedef array_factory<array_type> array_factory;
 
-    benchmark_runner::function_t add_func,mult_func,div_func,sub_func,all_func;
-    bm_t benchmark(a);
+    function_type add_func,mult_func,div_func,sub_func,all_func;
+    benchmark_type benchmark(array_factory::create(shape));
 
     //define benchmark functions
-    add_func = std::bind(&bm_t::add,benchmark);
-    sub_func = std::bind(&bm_t::sub,benchmark);
-    div_func = std::bind(&bm_t::div,benchmark);
-    mult_func = std::bind(&bm_t::mult,benchmark);
-    all_func = std::bind(&bm_t::all,benchmark);
+    add_func = std::bind(&benchmark_type::add,benchmark);
+    sub_func = std::bind(&benchmark_type::sub,benchmark);
+    div_func = std::bind(&benchmark_type::div,benchmark);
+    mult_func = std::bind(&benchmark_type::mult,benchmark);
+    all_func = std::bind(&benchmark_type::all,benchmark);
     
     //define benchmark runners
     benchmark_runner add_bm,mult_bm,div_bm,sub_bm,all_bm;
@@ -160,6 +169,7 @@ void run_binary_benchmark(size_t nruns,ATYPE &a,std::ostream &o)
 
     //output result
     o<<"#c=a+b\tc=a-b\tc=a/b\tc=a*b\tc=a*b+(d-e)/f"<<std::endl;
+    o<<std::scientific<<std::setprecision(16);
     for(auto add_iter = add_bm.begin(),sub_iter = sub_bm.begin(),
              div_iter = div_bm.begin(),mul_iter = mult_bm.begin(),
              all_iter = all_bm.begin();

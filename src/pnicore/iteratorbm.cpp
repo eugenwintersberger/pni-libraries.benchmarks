@@ -26,7 +26,6 @@
 #include <ratio>
 #include <ctime>
 #include <pni/core/container_iterator.hpp>
-#include <pni/core/dbuffer.hpp>
 #include <pni/core/darray.hpp>
 #include <pni/core/arrays.hpp>
 
@@ -98,12 +97,10 @@ int main(int argc,char **argv)
     }
 
     //define container types
-    typedef dbuffer<float64>          dbuffer_t;
-    typedef darray<float64,dbuffer_t> darray_t;
+    typedef darray<float64> darray_t;
     typedef numarray<darray_t>        narray_t;
 
     //define container benchmark types
-    typedef linear_io_container_iterator<dbuffer_t> dbuffer_bm_t;
     typedef linear_io_container_iterator<darray_t>  darray_bm_t;
     typedef linear_io_container_iterator<narray_t>  narray_bm_t;
     typedef linear_io_pointer_benchmark<double>     ptr_bm_t;
@@ -124,8 +121,6 @@ int main(int argc,char **argv)
     //run the benchmarks
     if(conf.value<string>("type")=="ptr")
         run_benchmark<bmtimer_t>(nruns, ptr_bm_t(size),*ostream);
-    else if(conf.value<string>("type")=="dbuffer")
-        run_benchmark<bmtimer_t>(nruns,dbuffer_bm_t(dbuffer_t(size)),*ostream);
     else if(conf.value<string>("type")=="darray")
         run_benchmark<bmtimer_t>(nruns,darray_bm_t(darray_t(shape)),*ostream);
     else if(conf.value<string>("type")=="numarray")

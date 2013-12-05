@@ -22,7 +22,7 @@
  */
 #pragma once
 
-#include "../common/uniform_distribution.hpp"
+#include "../common/data_generator.hpp"
 
 template<typename ATYPE> class binary_arithmetic_benchmark_ptr
 {
@@ -43,36 +43,28 @@ template<typename ATYPE> class binary_arithmetic_benchmark_ptr
         value_type *_e_ptr;
         value_type *_f_ptr;
     public:
-        binary_arithmetic_benchmark_ptr(ATYPE &a):
+        binary_arithmetic_benchmark_ptr(const ATYPE &a):
             _a(a),_b(a),_c(a),
             _d(a),_e(a),_f(a),_size(a.size()),
-            _a_ptr(const_cast<value_type*>(_a.storage().storage().ptr())),
-            _b_ptr(const_cast<value_type*>(_b.storage().storage().ptr())),
-            _c_ptr(const_cast<value_type*>(_c.storage().storage().ptr())),
-            _d_ptr(const_cast<value_type*>(_d.storage().storage().ptr())),
-            _e_ptr(const_cast<value_type*>(_e.storage().storage().ptr())),
-            _f_ptr(const_cast<value_type*>(_f.storage().storage().ptr()))
+            _a_ptr(const_cast<value_type*>(_a.storage().data())),
+            _b_ptr(const_cast<value_type*>(_b.storage().data())),
+            _c_ptr(const_cast<value_type*>(_c.storage().data())),
+            _d_ptr(const_cast<value_type*>(_d.storage().data())),
+            _e_ptr(const_cast<value_type*>(_e.storage().data())),
+            _f_ptr(const_cast<value_type*>(_f.storage().data()))
         {
             //initialize the data 
+            
+            //initialize the data 
+            typedef typename ATYPE::value_type value_type;
+    
+            std::generate(_a.begin(),_a.end(),random_generator<value_type>());
+            std::generate(_b.begin(),_b.end(),random_generator<value_type>());
+            std::generate(_c.begin(),_c.end(),random_generator<value_type>());
+            std::generate(_d.begin(),_d.end(),random_generator<value_type>());
+            std::generate(_e.begin(),_e.end(),random_generator<value_type>());
+            std::generate(_f.begin(),_f.end(),random_generator<value_type>());
 
-            uniform_distribution<typename ATYPE::value_type> random_dist;
-
-            auto a_iter = _a.begin();
-            auto b_iter = _b.begin();
-            auto c_iter = _c.begin();
-            auto d_iter = _d.begin();
-            auto e_iter = _e.begin();
-            auto f_iter = _f.begin();
-
-            for(;a_iter!=_a.end();)
-            {
-                *(a_iter++) = random_dist();
-                *(b_iter++) = random_dist();
-                *(c_iter++) = random_dist();
-                *(d_iter++) = random_dist();
-                *(e_iter++) = random_dist();
-                *(f_iter++) = random_dist();
-            }
         }
 
         void add()

@@ -63,8 +63,13 @@ program farithmeticbm
     call run_benchmarks(run_all,mix_results)
 
     !print all the results
+    add_results = add_results*1.d+9;
+    sub_results = sub_results*1.d+9;
+    div_results = div_results*1.d+9;
+    mult_results = mult_results*1.d+9;
+    mix_results = mix_results*1.d+9;
     do i=1,nruns
-    write(*,*) add_results(i),sub_results(i),div_results(i),mult_results(i),mix_results(i)
+    write(*,'(E23.16,E23.16,E23.16,E23.16,E23.16)') add_results(i),sub_results(i),div_results(i),mult_results(i),mix_results(i)
     end do
 
 
