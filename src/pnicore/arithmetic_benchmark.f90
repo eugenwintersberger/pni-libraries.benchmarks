@@ -1,59 +1,89 @@
 module arithmetic_benchmark
+    use iso_c_binding
     implicit none
     save
-
-    type benchmark_data
-        real(kind = 8),dimension(:,:),allocatable :: a
-        real(kind = 8),dimension(:,:),allocatable :: b
-        real(kind = 8),dimension(:,:),allocatable :: c
-        real(kind = 8),dimension(:,:),allocatable :: d
-        real(kind = 8),dimension(:,:),allocatable :: e
-        real(kind = 8),dimension(:,:),allocatable :: f
-    end type
+   
+    real(kind=8),dimension(:,:),allocatable :: a
+    real(kind=8),dimension(:,:),allocatable :: b
+    real(kind=8),dimension(:,:),allocatable :: c
+    real(kind=8),dimension(:,:),allocatable :: d
+    real(kind=8),dimension(:,:),allocatable :: e
+    real(kind=8),dimension(:,:),allocatable :: f
 
     contains
-
+        
         !----------------------------------------------------------------------
-        subroutine run_add()
+        subroutine deallocate_data() bind(C,name="deallocate_data")
             implicit none
-            c = a + b
-        end subroutine run_add
-
-        !----------------------------------------------------------------------
-        subroutine run_sub()
-            implicit none
-            c = a - b
-        end subroutine run_sub
-
-        !----------------------------------------------------------------------
-        subroutine run_mult()
-            implicit none
-
-            c = a*b
-        end subroutine run_mult
-
-        !----------------------------------------------------------------------
-        subroutine run_div()
-            implicit none
-
-            c = a/b
-        end subroutine run_div
-
-        !----------------------------------------------------------------------
-        subroutine run_all()
-            implicit none
-
-            c = a*b + (e-f)/d
-        end subroutine run_all
-
-        !-----------------------------------------------------------------------
-        subroutine allocate_arithmetics(nx,ny)
-            implicit none
-            integer,intent(in) :: nx,ny
             integer :: mem_status
-    
-            !deallocate memory if necessary
-            call deallocate_arithmetics()
+
+            if (allocated(a)) then
+               deallocate(a,stat=mem_status) 
+            end if
+
+            if(allocated(b)) then
+                deallocate(b,stat=mem_status)
+            end if
+
+            if(allocated(c)) then
+                deallocate(c,stat=mem_status)
+            end if
+
+            if(allocated(d)) then
+                deallocate(d,stat=mem_status)
+            end if
+
+            if(allocated(e)) then
+                deallocate(e,stat=mem_status)
+            end if
+
+            if(allocated(f)) then
+                deallocate(f,stat=mem_status)
+            end if
+
+        end subroutine deallocate_data
+        
+        !----------------------------------------------------------------------
+        subroutine init_data(nx,ny) bind(C,name="init_data")
+            implicit none
+            integer(C_INT) :: nx,ny,i,j
+            real(kind = 8) :: rval
+
+            !initialize the random number generator
+            call random_seed()
+
+            !initialize all array members with random numbers
+            do i=1,nx
+                do j=1,ny
+                    call random_number(rval)
+                    a(i,j) = rval*huge(rval)
+
+                    call random_number(rval)
+                    b(i,j) = rval*huge(rval)
+
+                    call random_number(rval)
+                    b(i,j) = rval*huge(rval)
+
+                    call random_number(rval)
+                    d(i,j) = rval*huge(rval)
+
+                    call random_number(rval)
+                    e(i,j) = rval*huge(rval)
+                    
+                    call random_number(rval)
+                    f(i,j) = rval*huge(rval)
+                end do
+            end do
+
+        end subroutine init_data
+
+        !----------------------------------------------------------------------
+        subroutine allocate_data(nx,ny) bind(C,name="allocate_data")
+            implicit none
+            integer(C_INT),intent(in),value :: nx,ny
+            integer :: mem_status
+            
+            call deallocate_data()
 
             allocate(a(nx,ny),stat=mem_status)
             allocate(b(nx,ny),stat=mem_status)
@@ -62,71 +92,38 @@ module arithmetic_benchmark
             allocate(e(nx,ny),stat=mem_status)
             allocate(f(nx,ny),stat=mem_status)
 
-            call initialize_data(nx,ny)
+            call init_data(nx,ny);
 
-        end subroutine allocate_arithmetics
+        end subroutine allocate_data
 
-        !-----------------------------------------------------------------------
-        subroutine initialize_data(nx,ny)
+        !----------------------------------------------------------------------
+        subroutine binary_run_add() bind(C,name="binary_run_add")
             implicit none
-            integer,intent(in) :: nx,ny
-            integer :: i,j
-            real(kind = 8) :: rval
+            c = a + b
+        end subroutine binary_run_add
 
-            call random_seed()
-            do j = 1,ny
-                do i = 1,nx
-                   call random_number(rval)
-                   a(i,j) = rval*huge(rval)
-
-                   call random_number(rval)
-                   b(i,j) = rval*huge(rval)
-
-                   call random_number(rval)
-                   c(i,j) = rval*huge(rval)
-
-                   call random_number(rval)
-                   d(i,j) = rval*huge(rval)
-
-                   call random_number(rval)
-                   e(i,j) = rval*huge(rval)
-
-                   call random_number(rval)
-                   f(i,j) = rval*huge(rval)
-                end do
-            end do
-
-        end subroutine initialize_data
-            
-
-        !-----------------------------------------------------------------------
-        subroutine deallocate_arithmetics()
+        !----------------------------------------------------------------------
+        subroutine binary_run_sub() bind(C,name="binary_run_sub")
             implicit none
-            integer :: mem_status
+            c = a - b
+        end subroutine binary_run_sub
 
-            if (allocated(a)) then
-                deallocate(a,stat=mem_status)
-            end if
+        !----------------------------------------------------------------------
+        subroutine binary_run_mult() bind(C,name="binary_run_mult")
+            implicit none
+            c = a*b
+        end subroutine binary_run_mult
 
-            if (allocated(b)) then
-                deallocate(b,stat=mem_status)
-            end if
+        !----------------------------------------------------------------------
+        subroutine binary_run_div() bind(C,name="binary_run_div")
+            implicit none
+            c = a/b
+        end subroutine binary_run_div
 
-            if (allocated(c)) then
-                deallocate(c,stat=mem_status)
-            end if
-
-            if (allocated(d)) then
-                deallocate(d,stat=mem_status)
-            end if
-
-            if (allocated(e)) then
-                deallocate(e,stat=mem_status)
-            end if
-
-            if (allocated(f)) then
-                deallocate(f,stat=mem_status)
-            end if
-        end subroutine deallocate_arithmetics
+        !----------------------------------------------------------------------
+        subroutine binary_run_all() bind(C,name="binary_run_all")
+            implicit none
+            c = a*b + (e-f)/d
+        end subroutine binary_run_all
 
 end module arithmetic_benchmark

@@ -52,7 +52,9 @@ int main(int argc,char **argv)
     conf.add_option(config_option<string>("logfile","l",
                 "write to logfile instead of stdout"));
     conf.add_option(config_option<string>("atype",
-                "a","array type (static, fixed, or dynamic","dynamic"));
+                "a","array type (fixed, or dynamic","dynamic"));
+    conf.add_option(config_option<bool>("fortran","f",
+                "use Fortran 90 functions to do the job",false));
    
     std::vector<string> args = cliargs2vector(argc,argv);
     parse(conf,args,true);
@@ -78,7 +80,7 @@ int main(int argc,char **argv)
     if(conf.value<bool>("binary"))
     {
         //run single threaded binary benchmark
-        if(conf.value<bool>("use-ptr"))
+        if((conf.value<bool>("use-ptr"))||(!conf.value<bool>("fortran")))
         {
             //with pointers
             if (array_type == "dynamic")
@@ -86,9 +88,13 @@ int main(int argc,char **argv)
             else if(array_type == "fixed")
                 run_binary_benchmark<true,fixed_dim_array<float64,2> >(nruns,shape,*ostream);
         }
+        else if(conf.value<bool>("fortran"))
+        {
+            run_binary_fortran_benchmark(nruns,nx,ny,*ostream);
+        }
         else
         {
-            //with pointers
+            //with operators
             if (array_type == "dynamic")
                 run_binary_benchmark<false,dynamic_array<float64>>(nruns,shape,*ostream);
             else if(array_type == "fixed")

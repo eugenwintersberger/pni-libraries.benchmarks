@@ -58,6 +58,15 @@ struct arithmetic_runners
 
 };
 
+struct binary_arithmetic_runners
+{
+    benchmark_runner add;
+    benchmark_runner sub;
+    benchmark_runner div;
+    benchmark_runner mult;
+    benchmark_runner all;
+};
+
 //-----------------------------------------------------------------------------
 /*! 
 \brief plot inplace results
@@ -179,3 +188,7 @@ void run_binary_benchmark(size_t nruns,const shape_t &shape,std::ostream &o)
            div_iter->time()<<"\t"<<mul_iter->time()<<"\t"<<
            all_iter->time()<<std::endl;
 }
+
+//-----------------------------------------------------------------------------
+void run_binary_fortran_benchmark(size_t nruns,size_t nx,size_t ny,std::ostream
+        &o);
