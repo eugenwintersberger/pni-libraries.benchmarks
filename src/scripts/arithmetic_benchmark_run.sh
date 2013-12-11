@@ -1,4 +1,8 @@
 #!/bin/bash
 
-./farithmeticbm -r9000 -x3000 -y3000 &> fortran_benchmark_result.log
-./arithmeticbm -b -r9000 -x3000 -y3000 &> cpp_benchmark_result.log
+#start with the fortran reference
+farithmeticbm -r500 -x3000 -y3000 &> bin_arithmetic_fortran.dat
+arithmeticbm -b -p -r500 -x3000 -y3000 &> bin_arithmetic_cpp_pointer.dat
+arithmeticbm -b -r500 -x3000 -y3000 &> bin_arithmetic_cpp_operator_dynamic.dat
+arithmeticbm -b -afixed -r500 -x3000 -y3000 &> bin_arithmetic_cpp_operator_fixed.dat
+

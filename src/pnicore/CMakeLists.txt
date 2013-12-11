@@ -13,3 +13,6 @@ target_link_libraries(index_map_bm ${PNICORE_LIBRARIES})
 add_executable(arithmeticbm ${ARITHMETIC_BM_SRC})
 target_link_libraries(arithmeticbm ${PNICORE_LIBRARIES})
 add_executable(farithmeticbm ${FARITHMETIC_BM_SRC})
+
+install(TARGETS index_map_bm arithmeticbm farithmeticbm
+        DESTINATION ${CMAKE_INSTALL_BINDIR})

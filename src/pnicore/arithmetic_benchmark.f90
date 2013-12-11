@@ -2,12 +2,15 @@ module arithmetic_benchmark
     implicit none
     save
 
-    real(kind = 8),dimension(:,:),allocatable,private :: a
-    real(kind = 8),dimension(:,:),allocatable,private :: b
-    real(kind = 8),dimension(:,:),allocatable,private :: c
-    real(kind = 8),dimension(:,:),allocatable,private :: d
-    real(kind = 8),dimension(:,:),allocatable,private :: e
-    real(kind = 8),dimension(:,:),allocatable,private :: f
+    type benchmark_data
+        real(kind = 8),dimension(:,:),allocatable :: a
+        real(kind = 8),dimension(:,:),allocatable :: b
+        real(kind = 8),dimension(:,:),allocatable :: c
+        real(kind = 8),dimension(:,:),allocatable :: d
+        real(kind = 8),dimension(:,:),allocatable :: e
+        real(kind = 8),dimension(:,:),allocatable :: f
+    end type
+
     contains
 
         !----------------------------------------------------------------------
