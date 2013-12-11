@@ -103,10 +103,34 @@ module arithmetic_benchmark
         end subroutine binary_run_add
 
         !----------------------------------------------------------------------
+        subroutine unary_run_add_array() bind(C,name="unary_run_add_array")
+            implicit none
+            a = a+c
+        end subroutine 
+
+        !----------------------------------------------------------------------
+        subroutine unary_run_add_scalar() bind(C,name="unary_run_add_scalar")
+            implicit none
+            a = a+1.d0
+        end subroutine
+
+        !----------------------------------------------------------------------
         subroutine binary_run_sub() bind(C,name="binary_run_sub")
             implicit none
             c = a - b
         end subroutine binary_run_sub
+
+        !----------------------------------------------------------------------
+        subroutine unary_run_sub_array() bind(C,name="unary_run_sub_array")
+            implicit none
+            a = a-c
+        end subroutine
+
+        !----------------------------------------------------------------------
+        subroutine unary_run_sub_scalar() bind(C,name="unary_run_sub_scalar")
+            implicit none
+            a = a-2.d0
+        end subroutine
 
         !----------------------------------------------------------------------
         subroutine binary_run_mult() bind(C,name="binary_run_mult")
@@ -115,15 +139,41 @@ module arithmetic_benchmark
         end subroutine binary_run_mult
 
         !----------------------------------------------------------------------
+        subroutine unary_run_mult_array() bind(C,name="unary_run_mult_array")   
+            implicit none
+            a = a*c
+        end subroutine
+
+        !----------------------------------------------------------------------
+        subroutine unary_run_mult_scalar() bind(C,name="unary_run_mult_scalar")
+            implicit none
+            a = a*2.d0
+        end subroutine
+
+        !----------------------------------------------------------------------
         subroutine binary_run_div() bind(C,name="binary_run_div")
             implicit none
             c = a/b
         end subroutine binary_run_div
 
         !----------------------------------------------------------------------
+        subroutine unary_run_div_array() bind(C,name="unary_run_div_array")
+            implicit none
+            a = a/c
+        end subroutine
+
+        !----------------------------------------------------------------------
+        subroutine unary_run_div_scalar() bind(C,name="unary_run_div_scalar")
+            implicit none
+            a = a/2.d0
+        end subroutine
+
+        !----------------------------------------------------------------------
         subroutine binary_run_all() bind(C,name="binary_run_all")
             implicit none
             c = a*b + (e-f)/d
         end subroutine binary_run_all
+
+        !----------------------------------------------------------------------
 
 end module arithmetic_benchmark

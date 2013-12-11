@@ -48,44 +48,102 @@ void plot_inplace_result(const arithmetic_runners &s,
 }
 
 //-----------------------------------------------------------------------------
+void write_result(const benchmark_runners &runners, std::ostream &o)
+{
+    typedef benchmark_runner::const_iterator iterator_type;
+
+    o<<"# ";
+    for(auto runner: runners) o<<runner.first<<"\t";
+
+    o<<std::endl;
+    o<<std::scientific<<std::setprecision(16);
+
+    std::vector<iterator_type> iterators;
+
+    //generate a list of iterators
+    iterator_type stop_iter;
+    for(auto &runner: runners) 
+    {
+        iterators.push_back(runner.second.begin());
+        stop_iter = runner.second.end();
+    }
+
+    //loop over each line 
+    while(iterators.back() != stop_iter)
+    {
+        //loop over each column
+        for(auto &iter: iterators) o<<iter++->time()<<"\t";
+
+        o<<std::endl;
+    }
+}
+
+//-----------------------------------------------------------------------------
+void setup_benchmarks(benchmark_runners &runners,const function_type &pre,
+                                         const function_type &post)
+{
+    for(auto &runner: runners)
+    {
+        runner.second.prerun(pre);
+        runner.second.postrun(post);
+    }
+}
+
+//-----------------------------------------------------------------------------
+benchmark_runners create_binary_benchmarks()
+{
+    return benchmark_runners{{"c=a+b",benchmark_runner()},
+                             {"c=a-b",benchmark_runner()},
+                             {"c=a/b",benchmark_runner()},
+                             {"c=a*b",benchmark_runner()},
+                             {"c=a*b+(d-e)/f",benchmark_runner()}};
+}
+
+//-----------------------------------------------------------------------------
+benchmark_funcs create_binary_functions(const function_type &add,
+                                        const function_type &sub,
+                                        const function_type &div,
+                                        const function_type &mult,
+                                        const function_type &all)
+{
+    return benchmark_funcs{{"c=a+b",add},
+                           {"c=a/b",div},
+                           {"c=a*b",mult},
+                           {"c=a-b",sub},
+                           {"c=a*b+(d-e)/f",all}};
+}
+//-----------------------------------------------------------------------------
+void run_benchmarks(size_t nruns,benchmark_runners &runners,benchmark_funcs &funcs)
+{
+    for(auto &runner: runners)
+        runner.second.run<bmtimer_t>(nruns,funcs[runner.first]);
+}
 
 //-----------------------------------------------------------------------------
 void run_binary_fortran_benchmark(size_t nruns,size_t nx,size_t ny,std::ostream
         &o)
 {
-    typedef benchmark_runner::function_t function_type;
-   
     function_type allocate_data = std::bind(f90::allocate_data,int(nx),int(ny));
     function_type deallocate_data = std::bind(f90::deallocate_data);
 
-    function_type add_func = std::bind(f90::binary_run_add);
-    function_type div_func = std::bind(f90::binary_run_div);
-    function_type mul_func = std::bind(f90::binary_run_mult);
-    function_type sub_func = std::bind(f90::binary_run_sub);
-    function_type all_func = std::bind(f90::binary_run_all);
+    benchmark_runners runners = create_binary_benchmarks(); 
+    setup_benchmarks(runners,allocate_data,deallocate_data);
 
-    //define benchmark runners
-    benchmark_runner add_bm,mult_bm,div_bm,sub_bm,all_bm;
-    f90::allocate_data(int(nx),int(ny));
-    
-    //run the benchmarks
-    add_bm.run<bmtimer_t>(nruns,add_func);
-    sub_bm.run<bmtimer_t>(nruns,sub_func);
-    div_bm.run<bmtimer_t>(nruns,div_func);
-    mult_bm.run<bmtimer_t>(nruns,mul_func);
-    all_bm.run<bmtimer_t>(nruns,all_func);
-    f90::deallocate_data();
+    benchmark_funcs funcs = create_binary_functions(
+                            function_type(std::bind(f90::binary_run_add)),
+                            function_type(std::bind(f90::binary_run_div)),
+                            function_type(std::bind(f90::binary_run_mult)),
+                            function_type(std::bind(f90::binary_run_sub)),
+                            function_type(std::bind(f90::binary_run_all)));
 
-    //output result
-    o<<"#c=a+b\tc=a-b\tc=a/b\tc=a*b\tc=a*b+(d-e)/f"<<std::endl;
-    o<<std::scientific<<std::setprecision(16);
-    for(auto add_iter = add_bm.begin(),sub_iter = sub_bm.begin(),
-             div_iter = div_bm.begin(),mul_iter = mult_bm.begin(),
-             all_iter = all_bm.begin();
-        add_iter != add_bm.end();
-        ++add_iter,++sub_iter,++div_iter,++mul_iter,++all_iter)
-        o<<add_iter->time()<<"\t"<<sub_iter->time()<<"\t"<<
-           div_iter->time()<<"\t"<<mul_iter->time()<<"\t"<<
-           all_iter->time()<<std::endl;
+   
+    run_benchmarks(nruns,runners,funcs);
+    write_result(runners,o);
+}
+
+void run_unary_fortran_benchmark(size_t nruns,size_t nx,size_t ny,std::ostream
+        &o)
+{
+
 
 }

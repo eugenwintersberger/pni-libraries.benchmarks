@@ -80,7 +80,7 @@ int main(int argc,char **argv)
     if(conf.value<bool>("binary"))
     {
         //run single threaded binary benchmark
-        if((conf.value<bool>("use-ptr"))||(!conf.value<bool>("fortran")))
+        if((conf.value<bool>("use-ptr"))&&(!conf.value<bool>("fortran")))
         {
             //with pointers
             if (array_type == "dynamic")

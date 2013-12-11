@@ -28,6 +28,7 @@
 template<typename ATYPE> class binary_arithmetic_benchmark
 {
     private:
+        shape_t _shape;
         ATYPE _a;
         ATYPE _b;
         ATYPE _c;
@@ -35,20 +36,43 @@ template<typename ATYPE> class binary_arithmetic_benchmark
         ATYPE _e;
         ATYPE _f;
     public:
-        binary_arithmetic_benchmark(const ATYPE &a):
-            _a(a),_b(a),_c(a),
-            _d(a),_e(a),_f(a)
+        binary_arithmetic_benchmark(const shape_t &s):
+            _shape(s)
         {
-            //initialize the data 
+            allocate(); 
+        }
+
+        void allocate()
+        {
             typedef typename ATYPE::value_type value_type;
-    
+            typedef array_factory<ATYPE> factory_type;
+
+            deallocate();
+
+            _a = factory_type::create(_shape);
+            _b = factory_type::create(_shape);
+            _c = factory_type::create(_shape);
+            _d = factory_type::create(_shape);
+            _e = factory_type::create(_shape);
+            _f = factory_type::create(_shape);
+
             std::generate(_a.begin(),_a.end(),random_generator<value_type>());
             std::generate(_b.begin(),_b.end(),random_generator<value_type>());
             std::generate(_c.begin(),_c.end(),random_generator<value_type>());
             std::generate(_d.begin(),_d.end(),random_generator<value_type>());
             std::generate(_e.begin(),_e.end(),random_generator<value_type>());
             std::generate(_f.begin(),_f.end(),random_generator<value_type>());
-        
+
+        }
+
+        void deallocate()
+        {
+            _a = ATYPE();
+            _b = ATYPE();
+            _c = ATYPE();
+            _d = ATYPE();
+            _e = ATYPE();
+            _f = ATYPE();
         }
 
         void add() { _c = _a + _b; }
