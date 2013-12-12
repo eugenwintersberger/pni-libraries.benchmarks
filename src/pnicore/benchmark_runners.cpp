@@ -143,9 +143,9 @@ void run_binary_fortran_benchmark(size_t nruns,size_t nx,size_t ny,std::ostream
 
     benchmark_funcs funcs = create_binary_functions(
                             function_type(std::bind(f90::binary_run_add)),
+                            function_type(std::bind(f90::binary_run_sub)),
                             function_type(std::bind(f90::binary_run_div)),
                             function_type(std::bind(f90::binary_run_mult)),
-                            function_type(std::bind(f90::binary_run_sub)),
                             function_type(std::bind(f90::binary_run_all)));
 
    

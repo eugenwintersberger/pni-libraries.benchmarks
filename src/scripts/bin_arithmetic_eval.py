@@ -4,63 +4,62 @@ import numpy
 from matplotlib import pyplot 
 import sys
 from itertools import chain
+import re
+from benchmark import get_result
+from benchmark import get_result_range
 
-def read_data(fname):
-    data = numpy.loadtxt(fname,skiprows=1)
+def plot_hists(ax,result):
 
-    add = data[:,0]
-    sub = data[:,1]
-    div = data[:,2]
-    mul = data[:,3]
-    mix = data[:,4]
+    legend_list = []
+    for i in result.data.items():
+        ax.hist(i[1],bins=100,log=False)
+        legend_list.append(i[0])
 
-    return (add,sub,div,mul,mix)
+    pyplot.legend(legend_list)
 
-def plot_hists(ax,data):
 
-    for i in range(0,5): ax.hist(data[i],log=True)
+f_result = get_result(sys.argv[1])
+p_result = get_result(sys.argv[2])
+o_result = get_result(sys.argv[3])
+af_result = get_result(sys.argv[4])
 
-    pyplot.legend(("add","sub","div","mul","mix"))
-
-def get_x_range(*args):
-    all_max = []
-    all_min = []
-
-    for a in args:
-        all_max.append(a.max())
-        all_min.append(a.min())
-
-    return (min(all_min),max(all_max))
-
-f_file = sys.argv[1] #fortran file
-p_file = sys.argv[2] #pointer file
-o_file = sys.argv[3] #C++ object file
-af_file = sys.argv[4] #C++ object with fixed dim array
-
-f_data = read_data(f_file)
-p_data = read_data(p_file)
-o_data = read_data(o_file)
-af_data = read_data(af_file)
 
 #need minimum and maximum of the data
-(xmin,xmax) = get_x_range(*chain(f_data,p_data,o_data,af_data))
+(rmin,rmax) = get_result_range(f_result,p_result,o_result,af_result)
 
-pyplot.figure()
-pyplot.subplots_adjust(hspace=0.001)
+keys = f_result.data.keys()
 
-ax1 = pyplot.subplot(411)
-plot_hists(ax1,f_data)
-ax_limits = ax1.axis()
-ax1.axis((xmin,xmax,ax_limits[2],ax_limits[3]))
+t     = f_result.type
+llist = [f_result.title,p_result.title,o_result.title,af_result.title]
 
-ax2 = pyplot.subplot(412,sharex=ax1)
-plot_hists(ax2,p_data)
+log_flag = True
+for k in keys:
+    pyplot.figure()
 
-ax3 = pyplot.subplot(413,sharex=ax1)
-plot_hists(ax3,o_data)
+    pyplot.subplots_adjust(hspace=0.001)
+    ax1 = pyplot.subplot(411)
+    ax1.hist(f_result.data[k],color='b',log=log_flag)
+    pyplot.title(t+": "+k)
+    pyplot.legend([f_result.title])
+    r = pyplot.axis()
+    pyplot.axis([rmin,rmax,r[2],r[3]])
 
-ax4 = pyplot.subplot(414,sharex=ax1)
-plot_hists(ax4,af_data)
+    ax2 = pyplot.subplot(412,sharex=ax1)
+    ax2.hist(p_result.data[k],color='c',log=log_flag)
+    pyplot.legend([p_result.title])
+
+    ax3 = pyplot.subplot(413,sharex=ax1)
+    ax3.hist(o_result.data[k],color='r',log=log_flag)
+    pyplot.legend([o_result.title])
+
+
+    ax4 = pyplot.subplot(414,sharex=ax1)
+    pyplot.hist(af_result.data[k],color='g',log=log_flag)
+    pyplot.legend([af_result.title])
+
+    xlabels = ax1.get_xticklabels()+ax2.get_xticklabels()+ax3.get_xticklabels()
+    pyplot.setp(xlabels,visible=False)
+
 
 pyplot.show()
 

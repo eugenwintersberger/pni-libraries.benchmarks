@@ -79,26 +79,45 @@ int main(int argc,char **argv)
 
     if(conf.value<bool>("binary"))
     {
+        *ostream<<"#Binary Arithmetics"<<std::endl;
         //run single threaded binary benchmark
         if((conf.value<bool>("use-ptr"))&&(!conf.value<bool>("fortran")))
         {
             //with pointers
             if (array_type == "dynamic")
+            {
+                *ostream<<"#C++ ptr. dyn. arr.";
+                *ostream<<std::endl;
                 run_binary_benchmark<true,dynamic_array<float64>>(nruns,shape,*ostream);
+            }
             else if(array_type == "fixed")
+            {
+                *ostream<<"#C++ ptr. fix. arr.";
+                *ostream<<std::endl;
                 run_binary_benchmark<true,fixed_dim_array<float64,2> >(nruns,shape,*ostream);
+            }
         }
         else if(conf.value<bool>("fortran"))
         {
+            *ostream<<"#Fortran";
+            *ostream<<std::endl;
             run_binary_fortran_benchmark(nruns,nx,ny,*ostream);
         }
         else
         {
             //with operators
             if (array_type == "dynamic")
+            {
+                *ostream<<"#C++ exp. temp. dyn. arr.";
+                *ostream<<std::endl;
                 run_binary_benchmark<false,dynamic_array<float64>>(nruns,shape,*ostream);
+            }
             else if(array_type == "fixed")
+            {
+                *ostream<<"#C++ exp. temp. fix. arr.";
+                *ostream<<std::endl;
                 run_binary_benchmark<false,fixed_dim_array<float64,2>>(nruns,shape,*ostream);
+            }
         }
     }
     else
