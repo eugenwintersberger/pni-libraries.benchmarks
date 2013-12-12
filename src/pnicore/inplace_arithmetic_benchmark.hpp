@@ -22,53 +22,60 @@
  */
 #pragma once
 
+#include <pni/core/arrays.hpp>
+
+#include "../common/data_generator.hpp"
+
+using namespace pni::core;
+
 template<typename ATYPE> class inplace_arithmetic_benchmark
 {
-    private:
-        ATYPE _array;
     public:
-        inplace_arithmetic_benchmark(ATYPE &&a):
-            _array(std::move(a))
+        typedef typename ATYPE::value_type value_type;
+        typedef array_factory<ATYPE> factory_type;
+    private:
+        shape_t _shape;
+        ATYPE _a;
+        ATYPE _b;
+        value_type _s;
+    public:
+        inplace_arithmetic_benchmark(const shape_t &s):
+            _shape(s)
         {}
 
-        void add(typename ATYPE::value_type v)
+        void allocate()
         {
-            _array += v;
+            _a = factory_type::create(_shape);
+            _b = factory_type::create(_shape);
+
+            std::generate(_a.begin(),_a.end(),random_generator<value_type>());
+            std::generate(_b.begin(),_b.end(),random_generator<value_type>());
+
+            _s = random_generator<value_type>()();
         }
 
-        void add(const ATYPE &a)
+        void deallocate()
         {
-            _array += a;
+            _a = ATYPE();
+            _b = ATYPE();
+            _s = value_type(0);
         }
 
-        void sub(typename ATYPE::value_type v)
-        {
-            _array -= v;
-        }
 
-        void sub(const ATYPE &a)
-        {
-            _array -= a;
-        }
+        void add_scalar() { _a += _s; }
 
-        void mult(typename ATYPE::value_type v)
-        {
-            _array *= v;
-        }
+        void add_array() { _a += _b; }
 
-        void mult(const ATYPE &a)
-        {
-            _array *= a;
-        }
+        void sub_scalar() { _a -= _s; }
 
-        void div(typename ATYPE::value_type v)
-        {
-            _array /= v;
-        }
+        void sub_array() { _a -= _b; }
 
-        void div(const ATYPE &a)
-        {
-            _array /= a;
-        }
+        void mult_scalar() { _a *= _s; }
+
+        void mult_array() { _a *= _b; }
+
+        void div_scalar() { _a /= _s; }
+
+        void div_array() { _a /= _b; }
 
 };

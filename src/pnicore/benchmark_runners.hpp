@@ -44,29 +44,6 @@ typedef std::map<string,benchmark_runner> benchmark_runners;
 //! map with benchmark functions
 typedef std::map<string,function_type> benchmark_funcs;
 
-//create a scalar function
-#define SFUNC(bmt,bmi,fname,argt,arg) \
-    std::bind((void(bmt::*)(argt))&bmt::fname,bmi,argt(arg))
-
-#define AFUNC(f,bmt,bmi,fname,a,atype,arg) \
-    std::fill(a.begin(),a.end(),atype(arg)); \
-    f =  std::bind((void(bmt::*)(const ATYPE&))&bmt::fname,bmi,std::cref(a))
-
-/*!
-\brief collate runners 
-
-Collates several runners for arithmetic benchmarks. One runner dedicated for
-each arithmetic operation. 
-*/
-struct arithmetic_runners
-{
-    benchmark_runner add;  //!< runner for addition benchmark
-    benchmark_runner mult; //!< runner for multiplication benchmark
-    benchmark_runner div;  //!< runner for division benchmark
-    benchmark_runner sub;  //!< runner for subtraction benchmark
-
-};
-
 //-----------------------------------------------------------------------------
 /*!
 \brief binary benchmark runners
@@ -118,19 +95,6 @@ void setup_benchmarks(benchmark_runners &runners,const function_type &pre,
                       const function_type &post);
 
 //-----------------------------------------------------------------------------
-/*! 
-\brief plot inplace results
-
-Write the benchmark results from inplace operations to a stream. 
-\param s inplace scalar results
-\param a inplace array results
-\param o output stream
-*/
-void plot_inplace_result(const arithmetic_runners &s,
-                         const arithmetic_runners &a,
-                         std::ostream &o);
-
-//-----------------------------------------------------------------------------
 /*!
 \brief write binary results
  
@@ -145,51 +109,36 @@ template<bool use_ptr_flag,typename ATYPE>
 void run_inplace_benchmark(size_t nruns,const shape_t &shape,std::ostream &o)
 {
     //define benchmark type
-    typedef ATYPE array_type;
-    typedef typename inplace_benchmark_type<array_type,use_ptr_flag>::benchmark_type 
+    typedef typename inplace_benchmark_type<ATYPE,use_ptr_flag>::benchmark_type 
                      benchmark_type; 
-    typedef typename array_type::value_type value_type;
-    typedef benchmark_runner::function_t function_type;
-    typedef array_factory<array_type> array_factory;
     
+    //run array benchmarks
+    benchmark_type benchmark(shape);
+
+
+    function_type allocate_data = std::bind(&benchmark_type::allocate,&benchmark);
+    function_type deallocate_data = std::bind(&benchmark_type::deallocate,&benchmark);
+
     //run benchmarks
-    arithmetic_runners array_run,scalar_run;
-
-    //scalar benchmark functions
-    function_type bm_function;
-
-    //run array benchmarks
-    auto b = array_factory::create(shape);
-    benchmark_type benchmark(array_factory::create(shape));
-
-    //run scalar benchmark functions
-    bm_function = SFUNC(benchmark_type,benchmark,add,value_type,100);
-    scalar_run.add.run<bmtimer_t>(nruns,bm_function);
+    benchmark_runners runners = create_unary_benchmarks();
+    setup_benchmarks(runners,allocate_data,deallocate_data);
     
-    bm_function = SFUNC(benchmark_type,benchmark,sub,value_type,10);
-    scalar_run.sub.run<bmtimer_t>(nruns,bm_function);
+    //create the benchmark functions
+    benchmark_funcs functions = create_unary_functions(
+    function_type(std::bind(&benchmark_type::add_array,&benchmark)),
+    function_type(std::bind(&benchmark_type::sub_array,&benchmark)),
+    function_type(std::bind(&benchmark_type::mult_array,&benchmark)),
+    function_type(std::bind(&benchmark_type::div_array,&benchmark)),
+    function_type(std::bind(&benchmark_type::add_scalar,&benchmark)),
+    function_type(std::bind(&benchmark_type::sub_scalar,&benchmark)),
+    function_type(std::bind(&benchmark_type::mult_scalar,&benchmark)),
+    function_type(std::bind(&benchmark_type::div_scalar,&benchmark)));
 
-    bm_function = SFUNC(benchmark_type,benchmark,div,value_type,10);
-    scalar_run.div.run<bmtimer_t>(nruns,bm_function);
 
-    bm_function = SFUNC(benchmark_type,benchmark,mult,value_type,1.23);
-    scalar_run.mult.run<bmtimer_t>(nruns,bm_function);
-
-    //run array benchmarks
-    AFUNC(bm_function,benchmark_type,benchmark,add,b,value_type,100);
-    array_run.add.run<bmtimer_t>(nruns,bm_function);
-
-    AFUNC(bm_function,benchmark_type,benchmark,sub,b,value_type,10);
-    array_run.sub.run<bmtimer_t>(nruns,bm_function);
-
-    AFUNC(bm_function,benchmark_type,benchmark,div,b,value_type,10);
-    array_run.div.run<bmtimer_t>(nruns,bm_function);
-
-    AFUNC(bm_function,benchmark_type,benchmark,mult,b,value_type,1.23);
-    array_run.mult.run<bmtimer_t>(nruns,bm_function);
+    run_benchmarks(nruns,runners,functions);
 
     //print benchmark results 
-    plot_inplace_result(scalar_run,array_run,o);
+    write_result(runners,o);
 }
 
 //-----------------------------------------------------------------------------
