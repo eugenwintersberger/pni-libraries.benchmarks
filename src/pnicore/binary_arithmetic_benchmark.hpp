@@ -39,7 +39,6 @@ template<typename ATYPE> class binary_arithmetic_benchmark
         binary_arithmetic_benchmark(const shape_t &s):
             _shape(s)
         {
-            allocate(); 
         }
 
         void allocate()

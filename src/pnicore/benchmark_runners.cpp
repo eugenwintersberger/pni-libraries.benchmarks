@@ -100,6 +100,41 @@ benchmark_runners create_binary_benchmarks()
 }
 
 //-----------------------------------------------------------------------------
+benchmark_runners create_unary_benchmarks()
+{
+    return benchmark_runners{{"a+=b",benchmark_runner()},
+                             {"a*=b",benchmark_runner()},
+                             {"a-=b",benchmark_runner()},
+                             {"a/=b",benchmark_runner()},
+                             {"a+=s",benchmark_runner()},
+                             {"a*=s",benchmark_runner()},
+                             {"a-=s",benchmark_runner()},
+                             {"a/=s",benchmark_runner()}};
+
+}
+
+//-----------------------------------------------------------------------------
+benchmark_funcs create_unary_functions(const function_type &add_array,
+                                       const function_type &sub_array,
+                                       const function_type &mult_array,
+                                       const function_type &div_array,
+                                       const function_type &add_scalar,
+                                       const function_type &sub_scalar,
+                                       const function_type &mult_scalar,
+                                       const function_type &div_scalar)
+{
+    return benchmark_funcs{{"a+=b",add_array},
+                           {"a*=b",mult_array},
+                           {"a-=b",sub_array},
+                           {"a/=b",div_array},
+                           {"a+=s",add_scalar},
+                           {"a*=s",mult_scalar},
+                           {"a-=s",sub_scalar},
+                           {"a/=s",div_scalar}};
+
+}
+
+//-----------------------------------------------------------------------------
 benchmark_funcs create_binary_functions(const function_type &add,
                                         const function_type &sub,
                                         const function_type &div,

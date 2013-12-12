@@ -82,6 +82,17 @@ benchmark_funcs create_binary_functions(const function_type &add,
                                         const function_type &mult,
                                         const function_type &all);
 
+benchmark_runners create_unary_benchmarks();
+
+benchmark_funcs create_unary_functions(const function_type &add_array,
+                                       const function_type &sub_array,
+                                       const function_type &mult_array,
+                                       const function_type &div_array,
+                                       const function_type &add_scalar,
+                                       const function_type &sub_scalar,
+                                       const function_type &mult_scalar,
+                                       const function_type &div_scalar);
+
 //-----------------------------------------------------------------------------
 /*!
 \brief run binary benchmark 
