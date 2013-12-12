@@ -53,14 +53,53 @@ This function creates the map with benchmarks for binary arithmetic benchmarks.
 */
 benchmark_runners create_binary_benchmarks();
 
+//-----------------------------------------------------------------------------
+/*!
+\brief set binary functions
+
+Store binary benchmark functions in a map with appropriate names. 
+
+\param add binary add function
+\param sub binary subtract function
+\param div binary division function
+\param mult binary multiplication function
+\param all more complex expression of binary operators
+\return map with functions
+*/
 benchmark_funcs create_binary_functions(const function_type &add,
                                         const function_type &sub,
                                         const function_type &div,
                                         const function_type &mult,
                                         const function_type &all);
 
+//-----------------------------------------------------------------------------
+/*!
+\brief create unary benchmarks
+
+Returns a map with benchmark runners with a specific name. 
+The return value is a map with runners for the different benchmarks which have
+to be performed for unary operations.
+
+\return map with runners
+*/
 benchmark_runners create_unary_benchmarks();
 
+//-----------------------------------------------------------------------------
+/*!
+\brief create unary functions
+
+Create a map with benchmark functions for unary benchmarks. 
+
+\param add_array unary array addition
+\param sub_array unary array subtraction
+\param mult_array unary array multiplication
+\param div_array unary array division
+\param add_scalar unary array-scalar addition
+\param sub_scalar unary array-scalar subtraction
+\param mult_scalar unary array-scalar multiplication
+\param div_scalar unary array-scalar division
+\return map with functions
+*/
 benchmark_funcs create_unary_functions(const function_type &add_array,
                                        const function_type &sub_array,
                                        const function_type &mult_array,
@@ -74,8 +113,14 @@ benchmark_funcs create_unary_functions(const function_type &add_array,
 /*!
 \brief run binary benchmark 
 
-Run a binary arithmetic benchmark.
+Run benchmarks. This function executes the runners stored in map with the
+functions provided by funcs. Both are maps where the key of a runner must have a
+matching key in the function map providing the function object to run the
+benchmark for. 
 
+\param nruns total number of runs
+\param map map with runner instances
+\param funcs map with function objects 
 */
 void run_benchmarks(size_t nruns,benchmark_runners &map,benchmark_funcs &funcs);
 
