@@ -9,7 +9,7 @@ module arithmetic_benchmark
     real(kind=8),dimension(:,:),allocatable :: d
     real(kind=8),dimension(:,:),allocatable :: e
     real(kind=8),dimension(:,:),allocatable :: f
-
+    real(kind=8) :: s
     contains
         
         !----------------------------------------------------------------------
@@ -75,6 +75,9 @@ module arithmetic_benchmark
                 end do
             end do
 
+            call random_number(rval)
+            s = rval*huge(rval)
+
         end subroutine init_data
 
         !----------------------------------------------------------------------
@@ -111,7 +114,7 @@ module arithmetic_benchmark
         !----------------------------------------------------------------------
         subroutine unary_run_add_scalar() bind(C,name="unary_run_add_scalar")
             implicit none
-            a = a+1.d0
+            a = a+s
         end subroutine
 
         !----------------------------------------------------------------------
@@ -129,7 +132,7 @@ module arithmetic_benchmark
         !----------------------------------------------------------------------
         subroutine unary_run_sub_scalar() bind(C,name="unary_run_sub_scalar")
             implicit none
-            a = a-2.d0
+            a = a-s
         end subroutine
 
         !----------------------------------------------------------------------
@@ -147,7 +150,7 @@ module arithmetic_benchmark
         !----------------------------------------------------------------------
         subroutine unary_run_mult_scalar() bind(C,name="unary_run_mult_scalar")
             implicit none
-            a = a*2.d0
+            a = a*s
         end subroutine
 
         !----------------------------------------------------------------------
@@ -165,7 +168,7 @@ module arithmetic_benchmark
         !----------------------------------------------------------------------
         subroutine unary_run_div_scalar() bind(C,name="unary_run_div_scalar")
             implicit none
-            a = a/2.d0
+            a = a/s
         end subroutine
 
         !----------------------------------------------------------------------

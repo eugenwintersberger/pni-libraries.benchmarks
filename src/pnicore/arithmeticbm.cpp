@@ -104,13 +104,17 @@ int main(int argc,char **argv)
     else
     {
         //run single threaded inplace benchmark
-        if(conf.value<bool>("use-ptr"))
+        if((conf.value<bool>("use-ptr"))&&(!conf.value<bool>("fortran")))
         {
             if(array_type == "dynamic")
                 run_inplace_benchmark<true,dynamic_array<float64>>(nruns,shape,*ostream);
             else if(array_type == "fixed")
                 run_inplace_benchmark<true,fixed_dim_array<float64,2>>(nruns,shape,*ostream);
         }            
+        else if(conf.value<bool>("fortran"))
+        {
+            run_unary_fortran_benchmark(nruns,nx,ny,*ostream);
+        }
         else
         {
             if(array_type == "dynamic")

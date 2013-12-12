@@ -153,9 +153,28 @@ void run_binary_fortran_benchmark(size_t nruns,size_t nx,size_t ny,std::ostream
     write_result(runners,o);
 }
 
+//-----------------------------------------------------------------------------
 void run_unary_fortran_benchmark(size_t nruns,size_t nx,size_t ny,std::ostream
         &o)
 {
 
+    function_type allocate_data = std::bind(f90::allocate_data,int(nx),int(ny));
+    function_type deallocate_data = std::bind(f90::deallocate_data);
 
+    benchmark_runners runners = create_unary_benchmarks(); 
+    setup_benchmarks(runners,allocate_data,deallocate_data);
+
+    benchmark_funcs funcs = create_unary_functions(
+            function_type(std::bind(f90::unary_run_add_array)),
+            function_type(std::bind(f90::unary_run_sub_array)),
+            function_type(std::bind(f90::unary_run_mult_array)),
+            function_type(std::bind(f90::unary_run_div_array)),
+            function_type(std::bind(f90::unary_run_add_scalar)),
+            function_type(std::bind(f90::unary_run_sub_scalar)),
+            function_type(std::bind(f90::unary_run_mult_scalar)),
+            function_type(std::bind(f90::unary_run_div_scalar)));
+
+   
+    run_benchmarks(nruns,runners,funcs);
+    write_result(runners,o);
 }
