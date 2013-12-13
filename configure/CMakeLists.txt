@@ -60,6 +60,7 @@ include(configure/CheckCompilerCaps.txt)
 
 if(PKG_CONFIG_FOUND)
     pkg_search_module(PNICORE REQUIRED pnicore)
+    pkg_search_module(CPPUNIT REQUIRED cppunit)
     #pkg_search_module(PNIIO REQUIRED pniio)
 endif()
 

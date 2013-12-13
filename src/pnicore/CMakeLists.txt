@@ -2,6 +2,7 @@ set(INDEX_MAP_BM_SRC index_map_bm.cpp)
 set(ARITHMETIC_BM_SRC arithmeticbm.cpp benchmark_runners.cpp)
 
 set(FARITHMETIC_BM_SRC arithmetic_benchmark.f90 )
+set(MULTIINDEX_BM_SRC multiindexbm.cpp)
 
 
 link_directories(${PNICORE_LIBRARY_DIRS})
@@ -13,4 +14,8 @@ add_library(farithmetic OBJECT ${FARITHMETIC_BM_SRC})
 add_executable(arithmeticbm ${ARITHMETIC_BM_SRC} $<TARGET_OBJECTS:farithmetic>)
 target_link_libraries(arithmeticbm ${PNICORE_LIBRARIES})
 
-install(TARGETS index_map_bm arithmeticbm DESTINATION ${CMAKE_INSTALL_BINDIR})
+#add_executable(multiindexbm ${MULTIINDEX_BM_SRC})
+#target_link_libraries(multiindexbm ${PNICORE_LIBRARIES})
+
+install(TARGETS index_map_bm arithmeticbm  DESTINATION ${CMAKE_INSTALL_BINDIR})
+

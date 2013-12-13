@@ -11,9 +11,10 @@ endif()
 #======================do here some setup work=================================
 include(configure/CMakeLists.txt)
 
-include_directories("src/common")
+include_directories("src")
 #need this to get the generated header files into the build.
 add_subdirectory("src/common")
+add_subdirectory("test")
 add_subdirectory("src/pnicore")
 #add_subdirectory("src/pniio")
 
