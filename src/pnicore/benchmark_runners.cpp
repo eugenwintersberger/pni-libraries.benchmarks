@@ -25,48 +25,6 @@
 #include "fortran_arithmeticbm.hpp"
 
 
-void write_result(const benchmark_runners &runners, std::ostream &o)
-{
-    typedef benchmark_runner::const_iterator iterator_type;
-
-    o<<"# ";
-    for(auto runner: runners) o<<runner.first<<"\t";
-
-    o<<std::endl;
-    o<<std::scientific<<std::setprecision(16);
-
-    std::vector<iterator_type> iterators;
-
-    //generate a list of iterators
-    iterator_type stop_iter;
-    for(auto &runner: runners) 
-    {
-        iterators.push_back(runner.second.begin());
-        stop_iter = runner.second.end();
-    }
-
-    //loop over each line 
-    while(iterators.back() != stop_iter)
-    {
-        //loop over each column
-        for(auto &iter: iterators) o<<iter++->time()<<"\t";
-
-        o<<std::endl;
-    }
-}
-
-//-----------------------------------------------------------------------------
-void setup_benchmarks(benchmark_runners &runners,const function_type &pre,
-                                         const function_type &post)
-{
-    for(auto &runner: runners)
-    {
-        runner.second.prerun(pre);
-        runner.second.postrun(post);
-    }
-}
-
-//-----------------------------------------------------------------------------
 benchmark_runners create_binary_benchmarks()
 {
     return benchmark_runners{{"c=a+b",benchmark_runner()},
@@ -124,12 +82,7 @@ benchmark_funcs create_binary_functions(const function_type &add,
                            {"c=a-b",sub},
                            {"c=a*b+(d-e)/f",all}};
 }
-//-----------------------------------------------------------------------------
-void run_benchmarks(size_t nruns,benchmark_runners &runners,benchmark_funcs &funcs)
-{
-    for(auto &runner: runners)
-        runner.second.run<bmtimer_t>(nruns,funcs[runner.first]);
-}
+
 
 //-----------------------------------------------------------------------------
 void run_binary_fortran_benchmark(size_t nruns,size_t nx,size_t ny,std::ostream

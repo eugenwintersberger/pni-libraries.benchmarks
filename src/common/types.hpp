@@ -47,3 +47,9 @@ typedef chrono_timer<std::chrono::high_resolution_clock,
 The common function type for benchmarks.
 */
 typedef benchmark_runner::function_t function_type;
+
+//! map with an arbitrary number of benchmarks
+typedef std::map<string,benchmark_runner> benchmark_runners;
+
+//! map with benchmark functions
+typedef std::map<string,function_type> benchmark_funcs;

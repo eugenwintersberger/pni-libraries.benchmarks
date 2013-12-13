@@ -23,14 +23,10 @@
 
 #include <iostream>
 #include <fstream>
-#include <pni/core/types.hpp>
-#include <pni/core/arrays.hpp>
-#include <pni/core/config/configuration.hpp>
-#include <pni/core/config/config_parser.hpp>
 
+#include <common/types.hpp>
 #include "benchmark_runners.hpp"
 
-using namespace pni::core;
 
 int main(int argc,char **argv)
 {

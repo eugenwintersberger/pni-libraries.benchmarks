@@ -11,7 +11,8 @@ add_executable(index_map_bm ${INDEX_MAP_BM_SRC})
 target_link_libraries(index_map_bm ${PNICORE_LIBRARIES})
 
 add_library(farithmetic OBJECT ${FARITHMETIC_BM_SRC})
-add_executable(arithmeticbm ${ARITHMETIC_BM_SRC} $<TARGET_OBJECTS:farithmetic>)
+add_executable(arithmeticbm ${ARITHMETIC_BM_SRC} $<TARGET_OBJECTS:farithmetic>
+               $<TARGET_OBJECTS:commonobjs>)
 target_link_libraries(arithmeticbm ${PNICORE_LIBRARIES})
 
 #add_executable(multiindexbm ${MULTIINDEX_BM_SRC})

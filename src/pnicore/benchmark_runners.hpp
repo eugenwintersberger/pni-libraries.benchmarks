@@ -25,26 +25,11 @@
 #include <iomanip>
 #include <map>
 
-#include <pni/core/benchmark/benchmark_runner.hpp>
-#include <pni/core/benchmark/chrono_timer.hpp>
+#include <common/types.hpp>
+#include <common/utils.hpp>
 
 #include "benchmark_type_selectors.hpp"
 
-using namespace pni::core;
-
-//define the timer 
-typedef chrono_timer<std::chrono::high_resolution_clock,std::chrono::nanoseconds> bmtimer_t;
-
-//! benchmark function type
-typedef benchmark_runner::function_t function_type;
-
-//! map with an arbitrary number of benchmarks
-typedef std::map<string,benchmark_runner> benchmark_runners;
-
-//! map with benchmark functions
-typedef std::map<string,function_type> benchmark_funcs;
-
-//-----------------------------------------------------------------------------
 /*!
 \brief binary benchmark runners
 
@@ -109,45 +94,6 @@ benchmark_funcs create_unary_functions(const function_type &add_array,
                                        const function_type &mult_scalar,
                                        const function_type &div_scalar);
 
-//-----------------------------------------------------------------------------
-/*!
-\brief run binary benchmark 
-
-Run benchmarks. This function executes the runners stored in map with the
-functions provided by funcs. Both are maps where the key of a runner must have a
-matching key in the function map providing the function object to run the
-benchmark for. 
-
-\param nruns total number of runs
-\param map map with runner instances
-\param funcs map with function objects 
-*/
-void run_benchmarks(size_t nruns,benchmark_runners &map,benchmark_funcs &funcs);
-
-
-//-----------------------------------------------------------------------------
-/*!
-\brief setup binary runners
-
-Setup the binary arithmetic runners with the appropriate pre- and postrun
-functions. These function are basically responsible for memory reallocation and
-initializiation before each run and cleaning up memory after each run.
-\param pre pre-run function
-\param post post-run function
-\return instance of binary_arithmetic_runners 
-*/
-void setup_benchmarks(benchmark_runners &runners,const function_type &pre,
-                      const function_type &post);
-
-//-----------------------------------------------------------------------------
-/*!
-\brief write binary results
- 
-Writes the results for the binary arithmetic benchmark to an output stream. 
-\param runners benchmark runners
-\param o output stream
-*/
-void write_result(const benchmark_runners &runners, std::ostream &o);
 
 //-----------------------------------------------------------------------------
 template<bool use_ptr_flag,typename ATYPE> 
