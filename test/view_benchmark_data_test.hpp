@@ -31,14 +31,15 @@
 
 #include "common.hpp"
 
+
 /*!
 \brief test of the array_benchmark_data class
 
  */
 template<typename ATYPE>
-class array_benchmark_data_test : public CppUnit::TestFixture
+class view_benchmark_data_test : public CppUnit::TestFixture
 {
-        CPPUNIT_TEST_SUITE(array_benchmark_data_test<ATYPE>);
+        CPPUNIT_TEST_SUITE(view_benchmark_data_test<ATYPE>);
         CPPUNIT_TEST(test_construction);
         CPPUNIT_TEST(test_assignment);
         CPPUNIT_TEST_SUITE_END();
@@ -64,14 +65,14 @@ class array_benchmark_data_test : public CppUnit::TestFixture
 };
 
 //------------------------------------------------------------------------------
-template<typename ATYPE> void array_benchmark_data_test<ATYPE>::setUp() { }
+template<typename ATYPE> void view_benchmark_data_test<ATYPE>::setUp() { }
 
 //------------------------------------------------------------------------------
-template<typename ATYPE> void array_benchmark_data_test<ATYPE>::tearDown() { }
+template<typename ATYPE> void view_benchmark_data_test<ATYPE>::tearDown() { }
 
 //------------------------------------------------------------------------------
 template<typename ATYPE> 
-void array_benchmark_data_test<ATYPE>::test_construction()
+void view_benchmark_data_test<ATYPE>::test_construction()
 {
     std::cout<<BOOST_CURRENT_FUNCTION<<std::endl;
 
@@ -108,7 +109,7 @@ void array_benchmark_data_test<ATYPE>::test_construction()
 
 //-----------------------------------------------------------------------------
 template<typename ATYPE>
-void array_benchmark_data_test<ATYPE>::test_assignment()
+void view_benchmark_data_test<ATYPE>::test_assignment()
 {
     std::cout<<BOOST_CURRENT_FUNCTION<<std::endl;
 

@@ -1,5 +1,6 @@
 set(TEST_SRC benchmark_test.cpp 
              array_benchmark_data_test.cpp 
+             view_benchmark_data_test.cpp
     )
 
 link_directories(${PNICORE_LIBRARY_DIRS} ${CPPUNIT_LIBRARY_DIRS})
