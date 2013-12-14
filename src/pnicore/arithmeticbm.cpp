@@ -23,16 +23,10 @@
 
 #include <iostream>
 #include <fstream>
-#include <pni/core/types.hpp>
-#include <pni/core/arrays.hpp>
-#include <pni/core/math/mt_inplace_arithmetics.hpp>
-#include <pni/core/config/configuration.hpp>
-#include <pni/core/config/config_parser.hpp>
-#include <pni/core/config/library_config.hpp>
 
+#include <common/types.hpp>
 #include "benchmark_runners.hpp"
 
-using namespace pni::core;
 
 int main(int argc,char **argv)
 {
@@ -42,19 +36,21 @@ int main(int argc,char **argv)
     conf.add_option(config_option<bool>("help","h",
                 "show help text",false));
     conf.add_option(config_option<size_t>("nx","x",
-                "channels along first dimension",1024));
+                "channels along first dimension",4096));
     conf.add_option(config_option<size_t>("ny","y",
-                "channels along second dimension",1024));
+                "channels along second dimension",4096));
     conf.add_option(config_option<size_t>("nruns","r",
                 "number of benchmark runs",1));
     conf.add_option(config_option<bool>("use-ptr","p",
                     "use raw pointer code",false));
     conf.add_option(config_option<bool>("binary","b",
                     "run binary arithmetics",false));
-    conf.add_option(config_option<size_t>("nthreads","",
-                    "number of threads",1));
     conf.add_option(config_option<string>("logfile","l",
                 "write to logfile instead of stdout"));
+    conf.add_option(config_option<string>("atype",
+                "a","array type (fixed, or dynamic","dynamic"));
+    conf.add_option(config_option<bool>("fortran","f",
+                "use Fortran 90 functions to do the job",false));
    
     std::vector<string> args = cliargs2vector(argc,argv);
     parse(conf,args,true);
@@ -70,62 +66,77 @@ int main(int argc,char **argv)
     auto ny = conf.value<size_t>("ny");
     shape_t shape{nx,ny};
     size_t nruns = conf.value<size_t>("nruns");
+    auto array_type = conf.value<string>("atype");
 
     //get output stream
     std::ostream *ostream = &std::cout;
     if(conf.has_option("logfile"))
         ostream = new std::ofstream(conf.value<string>("logfile"));
 
-    //type definitions
-    typedef numarray<darray<float64> > nf64array;
-    typedef numarray<darray<float64>,int,mt_inplace_arithmetics,true> nf64array_mt;
-
-    if(conf.value<size_t>("nthreads") == 1)
+    if(conf.value<bool>("binary"))
     {
-        nf64array a(shape);
-
-        if(conf.value<bool>("binary"))
+        *ostream<<"#Binary Arithmetics"<<std::endl;
+        //run single threaded binary benchmark
+        if((conf.value<bool>("use-ptr"))&&(!conf.value<bool>("fortran")))
         {
-            //run single threaded binary benchmark
-            if(conf.value<bool>("use-ptr"))
-                //with pointers
-                run_binary_benchmark<true>(nruns,a,*ostream);
-            else
-                //with arrays
-                run_binary_benchmark<false>(nruns,a,*ostream);
+            //with pointers
+            if (array_type == "dynamic")
+            {
+                *ostream<<"#C++ ptr. dyn. arr.";
+                *ostream<<std::endl;
+                run_binary_benchmark<true,dynamic_array<float64>>(nruns,shape,*ostream);
+            }
+            else if(array_type == "fixed")
+            {
+                *ostream<<"#C++ ptr. fix. arr.";
+                *ostream<<std::endl;
+                run_binary_benchmark<true,fixed_dim_array<float64,2> >(nruns,shape,*ostream);
+            }
+        }
+        else if(conf.value<bool>("fortran"))
+        {
+            *ostream<<"#Fortran";
+            *ostream<<std::endl;
+            run_binary_fortran_benchmark(nruns,nx,ny,*ostream);
         }
         else
         {
-            //run single threaded inplace benchmark
-            if(conf.value<bool>("use-ptr"))
-                //with pointers
-                run_inplace_benchmark<true>(nruns,std::move(a),*ostream);
-            else
-                //with arrays
-                run_inplace_benchmark<false>(nruns,std::move(a),*ostream);
+            //with operators
+            if (array_type == "dynamic")
+            {
+                *ostream<<"#C++ exp. temp. dyn. arr.";
+                *ostream<<std::endl;
+                run_binary_benchmark<false,dynamic_array<float64>>(nruns,shape,*ostream);
+            }
+            else if(array_type == "fixed")
+            {
+                *ostream<<"#C++ exp. temp. fix. arr.";
+                *ostream<<std::endl;
+                run_binary_benchmark<false,fixed_dim_array<float64,2>>(nruns,shape,*ostream);
+            }
         }
     }
     else
     {
-        //no multithreaded testing with pointers - should be implemented later
-        if(conf.value<bool>("use-ptr"))
+        //run single threaded inplace benchmark
+        if((conf.value<bool>("use-ptr"))&&(!conf.value<bool>("fortran")))
         {
-            std::cerr<<"multithreading benchmarks do not support pointers!"<<std::endl;
-            return 1;
-        }
-
-        //set the number of threads given by the user
-        pnicore_config.n_arithmetic_threads(conf.value<size_t>("nthreads"));
-        //allocate memory
-        nf64array_mt a(shape);
-        if(conf.value<bool>("binary"))
+            if(array_type == "dynamic")
+                run_inplace_benchmark<true,dynamic_array<float64>>(nruns,shape,*ostream);
+            else if(array_type == "fixed")
+                run_inplace_benchmark<true,fixed_dim_array<float64,2>>(nruns,shape,*ostream);
+        }            
+        else if(conf.value<bool>("fortran"))
         {
-            //run multithreaded binary benchmark with arrays
-            run_binary_benchmark<false>(nruns,a,*ostream);
+            run_unary_fortran_benchmark(nruns,nx,ny,*ostream);
         }
         else
-            //run multithreaded inplace benchmark with arrays
-            run_inplace_benchmark<false>(nruns,std::move(a),*ostream);
+        {
+            if(array_type == "dynamic")
+                run_inplace_benchmark<false,dynamic_array<float64>>(nruns,shape,*ostream);
+            else if(array_type == "fixed")
+                run_inplace_benchmark<false,fixed_dim_array<float64,2>>(nruns,shape,*ostream);
+        }            
     }
 
     return 0;

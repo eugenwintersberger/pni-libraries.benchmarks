@@ -27,6 +27,8 @@
 #include <pni/core/arrays.hpp>
 #include <pni/core/service.hpp>
 
+#include "../common/data_generator.hpp"
+
 using namespace pni::core;
 
 /*!
@@ -46,18 +48,32 @@ The benchmark assumes a 2D array for the test.
 */
 template<typename ATYPE> class multiindex_io_array
 {
+    public:
+        typedef ATYPE array_type;
+        typedef typename array_type::value_type value_type;
+        typedef array_factory<array_type> factory_type;
     private:
-        ATYPE _array;   //!< instance of the array
-        shape_t _shape; //!< array shape
-        //! result member variable
-        typename ATYPE::value_type _result;
+        shape_t _shape;    //!< array shape
+        size_t _nx;        //!< number of elements along the first dimension
+        size_t _ny;        //!< number of elements along the second dimension
+        array_type _array; //!< instance of the array
+        value_type *_ptr;  //!< pointer to the data
     public:
         //==================construtors========================================
         //! constructor
-        multiindex_io_array(ATYPE &&array):
-            _array(std::move(array)),
-            _shape(_array.template shape<shape_t>())
+        multiindex_io_array(const shape_t &shape):
+            _shape(shape),_nx(shape[0]),_ny(shape[1])
         { }
+
+        //---------------------------------------------------------------------
+        void allocate()
+        {
+            _array = factory_type::create(_shape);
+            std::generate(_array.begin(),_array.end(),random_generator<value_type>());
+
+            _ptr = _array.storage().data();
+
+        }
 
         //================public member functions==============================
         /*!

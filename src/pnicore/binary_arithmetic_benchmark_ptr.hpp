@@ -22,13 +22,14 @@
  */
 #pragma once
 
-#include "../common/uniform_distribution.hpp"
+#include "../common/data_generator.hpp"
 
 template<typename ATYPE> class binary_arithmetic_benchmark_ptr
 {
     public:
         typedef typename ATYPE::value_type value_type;
     private:
+        shape_t _shape;
         ATYPE _a;
         ATYPE _b;
         ATYPE _c;
@@ -43,36 +44,50 @@ template<typename ATYPE> class binary_arithmetic_benchmark_ptr
         value_type *_e_ptr;
         value_type *_f_ptr;
     public:
-        binary_arithmetic_benchmark_ptr(ATYPE &a):
-            _a(a),_b(a),_c(a),
-            _d(a),_e(a),_f(a),_size(a.size()),
-            _a_ptr(const_cast<value_type*>(_a.storage().storage().ptr())),
-            _b_ptr(const_cast<value_type*>(_b.storage().storage().ptr())),
-            _c_ptr(const_cast<value_type*>(_c.storage().storage().ptr())),
-            _d_ptr(const_cast<value_type*>(_d.storage().storage().ptr())),
-            _e_ptr(const_cast<value_type*>(_e.storage().storage().ptr())),
-            _f_ptr(const_cast<value_type*>(_f.storage().storage().ptr()))
+        binary_arithmetic_benchmark_ptr(const shape_t &s):
+            _shape(s)
         {
-            //initialize the data 
+        }
+        
+        void allocate()
+        {
+            typedef array_factory<ATYPE> factory_type;
 
-            uniform_distribution<typename ATYPE::value_type> random_dist;
+            deallocate(); //to be on the safe side first deallocate memory
 
-            auto a_iter = _a.begin();
-            auto b_iter = _b.begin();
-            auto c_iter = _c.begin();
-            auto d_iter = _d.begin();
-            auto e_iter = _e.begin();
-            auto f_iter = _f.begin();
+            _a = factory_type::create(_shape);
+            _b = factory_type::create(_shape);
+            _c = factory_type::create(_shape);
+            _d = factory_type::create(_shape);
+            _e = factory_type::create(_shape);
+            _f = factory_type::create(_shape);
 
-            for(;a_iter!=_a.end();)
-            {
-                *(a_iter++) = random_dist();
-                *(b_iter++) = random_dist();
-                *(c_iter++) = random_dist();
-                *(d_iter++) = random_dist();
-                *(e_iter++) = random_dist();
-                *(f_iter++) = random_dist();
-            }
+            std::generate(_a.begin(),_a.end(),random_generator<value_type>());
+            std::generate(_b.begin(),_b.end(),random_generator<value_type>());
+            std::generate(_c.begin(),_c.end(),random_generator<value_type>());
+            std::generate(_d.begin(),_d.end(),random_generator<value_type>());
+            std::generate(_e.begin(),_e.end(),random_generator<value_type>());
+            std::generate(_f.begin(),_f.end(),random_generator<value_type>());
+            
+            _a_ptr = const_cast<value_type*>(_a.storage().data());
+            _b_ptr = const_cast<value_type*>(_b.storage().data());
+            _c_ptr = const_cast<value_type*>(_c.storage().data());
+            _d_ptr = const_cast<value_type*>(_d.storage().data());
+            _e_ptr = const_cast<value_type*>(_e.storage().data());
+            _f_ptr = const_cast<value_type*>(_f.storage().data());
+            _size = _a.size();
+
+        }
+
+        void deallocate()
+        {
+            _a = ATYPE();
+            _b = ATYPE();
+            _c = ATYPE();
+            _d = ATYPE();
+            _e = ATYPE();
+            _f = ATYPE();
+            _size = _a.size();
         }
 
         void add()

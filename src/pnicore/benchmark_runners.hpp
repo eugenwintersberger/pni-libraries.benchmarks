@@ -22,101 +22,114 @@
  */
 #pragma once
 #include <iostream>
+#include <iomanip>
+#include <map>
 
-#include <pni/core/benchmark/benchmark_runner.hpp>
-#include <pni/core/benchmark/chrono_timer.hpp>
+#include <common/types.hpp>
+#include <common/utils.hpp>
 
 #include "benchmark_type_selectors.hpp"
 
-using namespace pni::core;
-
-//define the timer 
-typedef chrono_timer<std::chrono::high_resolution_clock,std::chrono::nanoseconds> bmtimer_t;
-
-
-//create a scalar function
-#define SFUNC(bmt,bmi,fname,argt,arg) \
-    std::bind((void(bmt::*)(argt))&bmt::fname,bmi,argt(arg))
-
-#define AFUNC(f,bmt,bmi,fname,a,atype,arg) \
-    std::fill(a.begin(),a.end(),atype(arg)); \
-    f =  std::bind((void(bmt::*)(const ATYPE&))&bmt::fname,bmi,std::cref(a))
-
 /*!
-\brief collate runners 
+\brief binary benchmark runners
 
-Collates several runners for arithmetic benchmarks. One runner dedicated for
-each arithmetic operation. 
+This function creates the map with benchmarks for binary arithmetic benchmarks.
+\return benchmark map with binary benchmark runners
 */
-struct arithmetic_runners
-{
-    benchmark_runner add;  //!< runner for addition benchmark
-    benchmark_runner mult; //!< runner for multiplication benchmark
-    benchmark_runner div;  //!< runner for division benchmark
-    benchmark_runner sub;  //!< runner for subtraction benchmark
-
-};
+benchmark_runners create_binary_benchmarks();
 
 //-----------------------------------------------------------------------------
-/*! 
-\brief plot inplace results
+/*!
+\brief set binary functions
 
-Write the benchmark results from inplace operations to a stream. 
-\param s inplace scalar results
-\param a inplace array results
-\param o output stream
+Store binary benchmark functions in a map with appropriate names. 
+
+\param add binary add function
+\param sub binary subtract function
+\param div binary division function
+\param mult binary multiplication function
+\param all more complex expression of binary operators
+\return map with functions
 */
-void plot_inplace_result(const arithmetic_runners &s,
-                         const arithmetic_runners &a,
-                         std::ostream &o);
+benchmark_funcs create_binary_functions(const function_type &add,
+                                        const function_type &sub,
+                                        const function_type &div,
+                                        const function_type &mult,
+                                        const function_type &all);
+
+//-----------------------------------------------------------------------------
+/*!
+\brief create unary benchmarks
+
+Returns a map with benchmark runners with a specific name. 
+The return value is a map with runners for the different benchmarks which have
+to be performed for unary operations.
+
+\return map with runners
+*/
+benchmark_runners create_unary_benchmarks();
+
+//-----------------------------------------------------------------------------
+/*!
+\brief create unary functions
+
+Create a map with benchmark functions for unary benchmarks. 
+
+\param add_array unary array addition
+\param sub_array unary array subtraction
+\param mult_array unary array multiplication
+\param div_array unary array division
+\param add_scalar unary array-scalar addition
+\param sub_scalar unary array-scalar subtraction
+\param mult_scalar unary array-scalar multiplication
+\param div_scalar unary array-scalar division
+\return map with functions
+*/
+benchmark_funcs create_unary_functions(const function_type &add_array,
+                                       const function_type &sub_array,
+                                       const function_type &mult_array,
+                                       const function_type &div_array,
+                                       const function_type &add_scalar,
+                                       const function_type &sub_scalar,
+                                       const function_type &mult_scalar,
+                                       const function_type &div_scalar);
+
 
 //-----------------------------------------------------------------------------
 template<bool use_ptr_flag,typename ATYPE> 
-void run_inplace_benchmark(size_t nruns,ATYPE &&a,std::ostream &o)
+void run_inplace_benchmark(size_t nruns,const shape_t &shape,std::ostream &o)
 {
     //define benchmark type
-    typedef typename inplace_benchmark_type<ATYPE,use_ptr_flag>::benchmark_type bm_t; 
-    typedef typename ATYPE::value_type value_type;
+    typedef typename inplace_benchmark_type<ATYPE,use_ptr_flag>::benchmark_type 
+                     benchmark_type; 
     
+    //run array benchmarks
+    benchmark_type benchmark(shape);
+
+
+    function_type allocate_data = std::bind(&benchmark_type::allocate,&benchmark);
+    function_type deallocate_data = std::bind(&benchmark_type::deallocate,&benchmark);
+
     //run benchmarks
-    arithmetic_runners array_run,scalar_run;
-
-    //scalar benchmark functions
-    benchmark_runner::function_t bm_function;
-
-    //run array benchmarks
-    ATYPE b(a.template shape<shape_t>());
-    //setup benchmark
-    bm_t benchmark(std::move(a));
-
-    //run scalar benchmark functions
-    bm_function = SFUNC(bm_t,benchmark,add,value_type,100);
-    scalar_run.add.run<bmtimer_t>(nruns,bm_function);
+    benchmark_runners runners = create_unary_benchmarks();
+    setup_benchmarks(runners,allocate_data,deallocate_data);
     
-    bm_function = SFUNC(bm_t,benchmark,sub,value_type,10);
-    scalar_run.sub.run<bmtimer_t>(nruns,bm_function);
+    //create the benchmark functions
+    benchmark_funcs functions = create_unary_functions(
+    function_type(std::bind(&benchmark_type::add_array,&benchmark)),
+    function_type(std::bind(&benchmark_type::sub_array,&benchmark)),
+    function_type(std::bind(&benchmark_type::mult_array,&benchmark)),
+    function_type(std::bind(&benchmark_type::div_array,&benchmark)),
+    function_type(std::bind(&benchmark_type::add_scalar,&benchmark)),
+    function_type(std::bind(&benchmark_type::sub_scalar,&benchmark)),
+    function_type(std::bind(&benchmark_type::mult_scalar,&benchmark)),
+    function_type(std::bind(&benchmark_type::div_scalar,&benchmark)));
 
-    bm_function = SFUNC(bm_t,benchmark,div,value_type,10);
-    scalar_run.div.run<bmtimer_t>(nruns,bm_function);
 
-    bm_function = SFUNC(bm_t,benchmark,mult,value_type,1.23);
-    scalar_run.mult.run<bmtimer_t>(nruns,bm_function);
-
-    //run array benchmarks
-    AFUNC(bm_function,bm_t,benchmark,add,b,value_type,100);
-    array_run.add.run<bmtimer_t>(nruns,bm_function);
-
-    AFUNC(bm_function,bm_t,benchmark,sub,b,value_type,10);
-    array_run.sub.run<bmtimer_t>(nruns,bm_function);
-
-    AFUNC(bm_function,bm_t,benchmark,div,b,value_type,10);
-    array_run.div.run<bmtimer_t>(nruns,bm_function);
-
-    AFUNC(bm_function,bm_t,benchmark,mult,b,value_type,1.23);
-    array_run.mult.run<bmtimer_t>(nruns,bm_function);
+    run_benchmarks(nruns,runners,functions);
 
     //print benchmark results 
-    plot_inplace_result(scalar_run,array_run,o);
+    write_result(runners,o);
 }
 
 //-----------------------------------------------------------------------------
@@ -133,39 +146,36 @@ This template function runs the binary arithmetics benchmark.
 \param o output stream for benchmark results
 */
 template<bool use_ptr_flag,typename ATYPE> 
-void run_binary_benchmark(size_t nruns,ATYPE &a,std::ostream &o)
+void run_binary_benchmark(size_t nruns,const shape_t &shape,std::ostream &o)
 {
     //define benchmark type
-    typedef typename binary_benchmark_type<ATYPE,use_ptr_flag>::benchmark_type bm_t; 
+    typedef typename binary_benchmark_type<ATYPE,use_ptr_flag>::benchmark_type 
+                     benchmark_type; 
 
-    benchmark_runner::function_t add_func,mult_func,div_func,sub_func,all_func;
-    bm_t benchmark(a);
+    benchmark_type benchmark(shape);
 
+    function_type allocate_data = std::bind(&benchmark_type::allocate,&benchmark);
+    function_type deallocate_data = std::bind(&benchmark_type::deallocate,&benchmark);
+
+    benchmark_runners runners = create_binary_benchmarks();
+    setup_benchmarks(runners,allocate_data,deallocate_data);
     //define benchmark functions
-    add_func = std::bind(&bm_t::add,benchmark);
-    sub_func = std::bind(&bm_t::sub,benchmark);
-    div_func = std::bind(&bm_t::div,benchmark);
-    mult_func = std::bind(&bm_t::mult,benchmark);
-    all_func = std::bind(&bm_t::all,benchmark);
-    
-    //define benchmark runners
-    benchmark_runner add_bm,mult_bm,div_bm,sub_bm,all_bm;
+    benchmark_funcs funcs = create_binary_functions(
+    function_type(std::bind(&benchmark_type::add,&benchmark)),
+    function_type(std::bind(&benchmark_type::sub,&benchmark)),
+    function_type(std::bind(&benchmark_type::div,&benchmark)),
+    function_type(std::bind(&benchmark_type::mult,&benchmark)),
+    function_type(std::bind(&benchmark_type::all,&benchmark)));
 
-    //run the benchmarks
-    add_bm.run<bmtimer_t>(nruns,add_func);
-    sub_bm.run<bmtimer_t>(nruns,sub_func);
-    div_bm.run<bmtimer_t>(nruns,div_func);
-    mult_bm.run<bmtimer_t>(nruns,mult_func);
-    all_bm.run<bmtimer_t>(nruns,all_func);
+   
+    run_benchmarks(nruns,runners,funcs);
 
-    //output result
-    o<<"#c=a+b\tc=a-b\tc=a/b\tc=a*b\tc=a*b+(d-e)/f"<<std::endl;
-    for(auto add_iter = add_bm.begin(),sub_iter = sub_bm.begin(),
-             div_iter = div_bm.begin(),mul_iter = mult_bm.begin(),
-             all_iter = all_bm.begin();
-        add_iter != add_bm.end();
-        ++add_iter,++sub_iter,++div_iter,++mul_iter,++all_iter)
-        o<<add_iter->time()<<"\t"<<sub_iter->time()<<"\t"<<
-           div_iter->time()<<"\t"<<mul_iter->time()<<"\t"<<
-           all_iter->time()<<std::endl;
+    write_result(runners,o);
 }
+
+//-----------------------------------------------------------------------------
+void run_binary_fortran_benchmark(size_t nruns,size_t nx,size_t ny,std::ostream
+        &o);
+
+void run_unary_fortran_benchmark(size_t nruns,size_t nx,size_t ny,std::ostream
+        &o);

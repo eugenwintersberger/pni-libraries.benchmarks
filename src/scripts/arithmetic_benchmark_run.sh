@@ -1,4 +1,16 @@
 #!/bin/bash
 
-./farithmeticbm -r9000 -x3000 -y3000 &> fortran_benchmark_result.log
-./arithmeticbm -b -r9000 -x3000 -y3000 &> cpp_benchmark_result.log
+NRUNS=1000
+NX=200
+NY=200
+
+#start with the fortran reference
+echo "Binary Fortran arithmetic benchmark ...."
+arithmeticbm -b --fortran -r$NRUNS -x$NX -y$NY &> bin_arithmetic_fortran.dat
+echo "Binary C++ arithmetic benchmark with pointers ..."
+arithmeticbm -b -p -r$NRUNS -x$NX -y$NY &> bin_arithmetic_cpp_pointer.dat
+echo "Binary C++ arithmetic benchmark with expr. templates and dyn. arrays ..."
+arithmeticbm -b -r$NRUNS -x$NX -y$NY &> bin_arithmetic_cpp_operator_dynamic.dat
+echo "Binary C++ arithmetic benchmark with expr. templates and fixed arrays ..."
+arithmeticbm -b -afixed -r$NRUNS -x$NX -y$NY &> bin_arithmetic_cpp_operator_fixed.dat
+

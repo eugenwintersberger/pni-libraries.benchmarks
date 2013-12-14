@@ -24,7 +24,7 @@
 
 #include <typeinfo>
 #include <pni/core/types.hpp>
-#include <pni/core/service.hpp>
+#include <common/data_generator.hpp>
 
 using namespace pni::core;
 
@@ -36,14 +36,35 @@ linear sequence. Iterators which must be provided by the container types are
 used to access the data in the container.
 \tparam CTYPE container type used for benchmarking
 */
-template<typename CTYPE> class linear_io_container_iterator
+template<typename DATA> class linear_io_iterator
 {
-    private:
-        CTYPE _container;
-        typename CTYPE::value_type _result;
     public:
-        //==================construtors========================================
-        linear_io_container_iterator(CTYPE &&cont):_container(std::move(cont)) {}
+        typedef typename DATA::value_type value_type;
+        typedef typename DATA::array_type array_type;
+        typedef random_generator<value_type> generator_type;
+        typedef std::vector<value_type> buffer_type;
+    private:
+        shape_t _shape;
+        DATA data;
+        value_type buffer;
+    public:
+        linear_io_iterator(const shape_t &s):
+            _shape(s),buffer(generator_type()()) 
+        {}
+
+        //---------------------------------------------------------------------
+        void allocate()
+        {
+            data.allocate(_shape);
+
+            buffer = generator_type()();
+        }
+
+        //---------------------------------------------------------------------
+        void deallocate()
+        {
+            data.deallocate();
+        }
 
         //================public member functions==============================
         /*!
@@ -55,11 +76,7 @@ template<typename CTYPE> class linear_io_container_iterator
         */
         void write_data()
         {
-            typedef typename CTYPE::value_type value_t;
-            value_t index(0);
-
-            for(auto iter = _container.begin();iter!=_container.end();++iter) 
-                *iter = index++;
+            for(auto &v: data.data()) v = buffer;
         }
 
         //---------------------------------------------------------------------
@@ -72,16 +89,8 @@ template<typename CTYPE> class linear_io_container_iterator
         */
         void read_data()
         {
-            _result = typename CTYPE::value_type(0);
-
-            for(auto iter = _container.begin();iter!=_container.end();++iter) 
-                _result += *iter;
+            size_t index = 0;
+            for(auto v: data.data()) buffer = v;
         }
 
-        //---------------------------------------------------------------------
-        //! get benchmark name
-        string name() const
-        {
-            return string("Linear IO (Iterator) ")+demangle_cpp_name(typeid(CTYPE).name());
-        }
 };

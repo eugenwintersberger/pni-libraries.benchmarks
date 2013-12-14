@@ -1,2 +1,6 @@
 *.o
 .sconsign.dblite
+build
+*.swp
+*.log
+results
