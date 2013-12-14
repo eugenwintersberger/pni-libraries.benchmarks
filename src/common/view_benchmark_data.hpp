@@ -23,13 +23,24 @@
 #pragma once                
 
 #include "array_benchmark_data.hpp"
+#include <pni/core/array_view.hpp>
 
+template<typename ATYPE>
+array_view<ATYPE> create_view(ATYPE &a)
+{
+    std::vector<slice> slices;
+    auto shape = a.template shape<shape_t>();
+
+    for(auto d: shape) slices.push_back(slice(0,d));
+
+    return a(slices);
+}
 
 template<typename ATYPE> 
 class view_benchmark_data : public array_benchmark_data<ATYPE>
 {
     public:
-        typedef typename ATYPE::view_type array_type;
+        typedef array_view<ATYPE> array_type;
         typedef typename ATYPE::value_type value_type; 
     private:
         typedef array_benchmark_data<ATYPE> base;
@@ -39,21 +50,20 @@ class view_benchmark_data : public array_benchmark_data<ATYPE>
         //---------------------------------------------------------------------
         void update_view()
         {
-            std::vector<slice> slices;
-            auto shape = base::data().template shape<shape_t>();
-
-            for(auto d: shape) slices.push_back(slice(0,d));
-
-            _view = base::date()(slices);
         }
     public:
+        view_benchmark_data():
+            array_benchmark_data<ATYPE>(),
+            _view(create_view(array_benchmark_data<ATYPE>::data()))
+        { }
+
 
         //---------------------------------------------------------------------
         template<typename CTYPE> 
         view_benchmark_data(const CTYPE &shape):
-            array_benchmark_data<ATYPE>(shape)
+            array_benchmark_data<ATYPE>(shape),
+            _view(create_view(array_benchmark_data<ATYPE>::data()))
         {
-            update_view();
         }
 
         //---------------------------------------------------------------------
@@ -61,14 +71,14 @@ class view_benchmark_data : public array_benchmark_data<ATYPE>
         {
             base::template allocate(shape);
 
-            update_view();
+            _view = std::move(create_view(base::data()));
         }
 
         //---------------------------------------------------------------------
         void deallocate()
         {
             base::deallocate();
-            update_view();
+            _view = create_view(base::data());
         }
 
         //---------------------------------------------------------------------
