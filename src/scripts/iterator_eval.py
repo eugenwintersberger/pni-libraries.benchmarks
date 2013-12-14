@@ -54,14 +54,38 @@ view_result = get_result(args.view_file)
 
 nbins = args.nbins;
 
+#===================plot write performance data================================
 pyplot.figure()
 ax = pyplot.subplot(111)
+pyplot.title(iter_result.type + " write performance")
 ax.hist(iter_result.data["write"],nbins,log=True,color='r')
 ax.hist(ptr_result.data["write"],nbins,log=True,color='g')
 ax.hist(view_result.data["write"],nbins,log=True,color='b')
+pyplot.legend([iter_result.title,
+               ptr_result.title,
+               view_result.title],loc='best')
 
 if args.log_x:
     ax.set_xscale('log')
 
+pyplot.grid()
+
+#==================plot read performance data==================================
+pyplot.figure()
+ax = pyplot.subplot(111)
+pyplot.title(iter_result.type + " read performance")
+ax.hist(iter_result.data["read"],nbins,log=True,color='r')
+ax.hist(ptr_result.data["read"],nbins,log=True,color='g')
+ax.hist(view_result.data["read"],nbins,log=True,color='b')
+pyplot.legend([iter_result.title,
+               ptr_result.title,
+               view_result.title],loc='best')
+
+if args.log_x:
+    ax.set_xscale('log')
+
+pyplot.grid()
+
+#plot the images
 pyplot.show()
 
