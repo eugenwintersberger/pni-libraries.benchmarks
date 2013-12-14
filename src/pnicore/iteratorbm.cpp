@@ -22,7 +22,7 @@
  */
 #include <iostream>
 #include <fstream>
-#include "linear_io_pointer_benchmark.hpp"
+#include "linear_io_pointer.hpp"
 #include "linear_io_iterator.hpp"
 
 #include <common/types.hpp>
@@ -34,10 +34,10 @@
 //define some benchmark types
 typedef array_benchmark_data<dynamic_array<float64>> darray_data;
 typedef array_benchmark_data<fixed_dim_array<float64,2>> farray_data;
-typedef array_benchmark_data<static_array<float64,1024,1024>> sarray_data;
+typedef array_benchmark_data<static_array<float64,512,512>> sarray_data;
 typedef view_benchmark_data<dynamic_array<float64>> dview_data;
 typedef view_benchmark_data<fixed_dim_array<float64,2>> fview_data;
-typedef view_benchmark_data<static_array<float64,1024,1024>> sview_data;
+typedef view_benchmark_data<static_array<float64,512,512>> sview_data;
 
 typedef linear_io_iterator<darray_data> darray_iterator_bm;
 typedef linear_io_iterator<farray_data> farray_iterator_bm;
@@ -45,6 +45,10 @@ typedef linear_io_iterator<sarray_data> sarray_iterator_bm;
 typedef linear_io_iterator<dview_data>  dview_iterator_bm;
 typedef linear_io_iterator<fview_data>  fview_iterator_bm;
 typedef linear_io_iterator<sview_data>  sview_iterator_bm;
+
+typedef linear_io_pointer<darray_data> darray_pointer_bm;
+typedef linear_io_pointer<farray_data> farray_pointer_bm;
+typedef linear_io_pointer<sarray_data> sarray_pointer_bm;
 
 
 template<typename BMARKT> 
@@ -77,9 +81,9 @@ int main(int argc,char **argv)
 
     conf.add_option(config_option<bool>("help","h","show help text",false));
     conf.add_option(config_option<size_t>("nx","x",
-                "number of elements along the first dimension",size_t(1024)));
+                "number of elements along the first dimension",size_t(512)));
     conf.add_option(config_option<size_t>("ny","y",
-                "number of elements along the second dimension",size_t(1024)));
+                "number of elements along the second dimension",size_t(512)));
     conf.add_option(config_option<size_t>("nruns","r",
                 "number of runs",size_t(1)));
     conf.add_option(config_option<string>("logfile","l",
@@ -112,27 +116,64 @@ int main(int argc,char **argv)
     //run the benchmarks
     auto bm_type = conf.value<string>("type");
 
+    *ostream<<"# Iterator Benchmark"<<std::endl;
     if(bm_type == "darray")
+    {
+        *ostream<<"# darray - ";
         if(conf.value<bool>("ptr") && !conf.value<bool>("view"))
-            std::cout<<"not implemented yet"<<std::endl;
+        {
+            *ostream<<"pointer access"<<std::endl;
+            run_benchmark<darray_pointer_bm>(nruns,shape,*ostream);
+        }
         else if(conf.value<bool>("view"))
+        {
+            *ostream<<"iterator view access"<<std::endl;
             run_benchmark<dview_iterator_bm>(nruns,shape,*ostream);
+        }
         else
+        {
+            *ostream<<"iterator access"<<std::endl;
             run_benchmark<darray_iterator_bm>(nruns,shape,*ostream);
+        }
+    }
     else if(bm_type == "farray")
+    {
+        *ostream<<"# farray - ";
         if(conf.value<bool>("ptr")&& !conf.value<bool>("view"))
-            std::cerr<<"not implemented yet"<<std::endl;
+        {
+            *ostream<<"pointer access"<<std::endl;
+            run_benchmark<farray_pointer_bm>(nruns,shape,*ostream);
+        }
         else if(conf.value<bool>("view"))
+        {
+            *ostream<<"iterator view access"<<std::endl;
             run_benchmark<fview_iterator_bm>(nruns,shape,*ostream);
+        }
         else
+        {
+            *ostream<<"iterator access"<<std::endl;
             run_benchmark<farray_iterator_bm>(nruns,shape,*ostream);
+        }
+    }
     else if(bm_type == "sarray")
+    {
+        *ostream<<"# sarray - ";
         if(conf.value<bool>("ptr") && !conf.value<bool>("view"))
-            std::cerr<<"not implemented yet"<<std::endl;
+        {
+            *ostream<<"pointer access"<<std::endl;
+            run_benchmark<sarray_pointer_bm>(nruns,shape,*ostream);
+        }
         else if(conf.value<bool>("view"))
+        {
+            *ostream<<"iterator view access"<<std::endl;
             run_benchmark<sview_iterator_bm>(nruns,shape,*ostream);
+        }
         else
+        {
+            *ostream<<"iterator access"<<std::endl;
             run_benchmark<sarray_iterator_bm>(nruns,shape,*ostream);
+        }
+    }
     else
     {
         std::cerr<<"unknow storage container!"<<std::endl;

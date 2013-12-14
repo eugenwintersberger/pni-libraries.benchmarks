@@ -47,18 +47,7 @@ class view_benchmark_data : public array_benchmark_data<ATYPE>
         array_type _view;
 
 
-        //---------------------------------------------------------------------
-        void update_view()
-        {
-        }
     public:
-        view_benchmark_data():
-            array_benchmark_data<ATYPE>(),
-            _view(create_view(array_benchmark_data<ATYPE>::data()))
-        { }
-
-
-        //---------------------------------------------------------------------
         template<typename CTYPE> 
         view_benchmark_data(const CTYPE &shape):
             array_benchmark_data<ATYPE>(shape),
@@ -71,7 +60,7 @@ class view_benchmark_data : public array_benchmark_data<ATYPE>
         {
             base::template allocate(shape);
 
-            _view = std::move(create_view(base::data()));
+            _view = create_view(base::data());
         }
 
         //---------------------------------------------------------------------

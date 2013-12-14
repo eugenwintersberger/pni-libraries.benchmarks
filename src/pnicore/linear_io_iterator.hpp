@@ -42,20 +42,22 @@ template<typename DATA> class linear_io_iterator
         typedef typename DATA::value_type value_type;
         typedef typename DATA::array_type array_type;
         typedef random_generator<value_type> generator_type;
-        typedef std::vector<value_type> buffer_type;
     private:
         shape_t _shape;
         DATA data;
         value_type buffer;
     public:
         linear_io_iterator(const shape_t &s):
-            _shape(s),buffer(generator_type()()) 
+            _shape(s),
+            data(_shape), 
+            buffer(generator_type()()) 
         {}
 
         //---------------------------------------------------------------------
         void allocate()
         {
             data.allocate(_shape);
+            data.initialize();
 
             buffer = generator_type()();
         }

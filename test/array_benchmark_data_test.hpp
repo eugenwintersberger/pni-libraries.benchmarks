@@ -75,11 +75,6 @@ void array_benchmark_data_test<ATYPE>::test_construction()
 {
     std::cout<<BOOST_CURRENT_FUNCTION<<std::endl;
 
-    //default construction
-    data_type bm_data;
-    CPPUNIT_ASSERT(bm_data.data().rank() == default_params::rank());
-    CPPUNIT_ASSERT(bm_data.data().size() == default_params::size());
-
     //construction from shape
     shape_t shape{10,100};
     data_type bm_data_1(shape);
@@ -116,14 +111,12 @@ void array_benchmark_data_test<ATYPE>::test_assignment()
     data_type bm_data(shape);
 
     //copy assignment
-    data_type bm_data_1;
-    bm_data_1 = bm_data;
+    data_type bm_data_1 = bm_data;
     CPPUNIT_ASSERT(bm_data_1.data().rank() == bm_data.data().rank());
     CPPUNIT_ASSERT(bm_data_1.data().size() == bm_data.data().size());
 
     //move assignment
-    data_type bm_data_2;
-    bm_data_2 = std::move(bm_data_1);
+    data_type bm_data_2 = std::move(bm_data_1);
     CPPUNIT_ASSERT(bm_data_1.data().rank() == default_params::rank());
     CPPUNIT_ASSERT(bm_data_1.data().size() == default_params::size());
 

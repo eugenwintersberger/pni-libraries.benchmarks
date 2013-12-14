@@ -22,5 +22,5 @@ target_link_libraries(iteratorbm ${PNICORE_LIBRARIES})
 #add_executable(multiindexbm ${MULTIINDEX_BM_SRC})
 #target_link_libraries(multiindexbm ${PNICORE_LIBRARIES})
 
-install(TARGETS index_map_bm arithmeticbm  DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS index_map_bm arithmeticbm  iteratorbm DESTINATION ${CMAKE_INSTALL_BINDIR})
 

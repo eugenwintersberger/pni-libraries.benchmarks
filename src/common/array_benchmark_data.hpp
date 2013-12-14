@@ -26,19 +26,37 @@
 #include "data_generator.hpp"
 
 
+/*!
+\brief array manger
+
+This tempalte holds a particular array and provides methods to access the array
+as well as allocate, deallocate, and initialize it with random data. 
+\tparam ATYPE array type
+*/
 template<typename ATYPE> class array_benchmark_data
 {
     public:
+        //! array type
         typedef ATYPE array_type;
+        //! value type
         typedef typename array_type::value_type value_type;
+        //! array factory type
         typedef array_factory<array_type> factory_type;
+        //! generator type
         typedef random_generator<value_type> generator_type;
     private:
-        array_type _data;
+        array_type _data; //!< the array wit hdata
     public:
-        array_benchmark_data():_data() {}
-
         //---------------------------------------------------------------------
+        /*!
+        \brief constructor 
+
+        Construct the array data from a shape. 
+
+        \tparam CTYPE container type with shape information
+
+        \param shape reference to a CTYPE instance 
+        */
         template<typename CTYPE> 
         array_benchmark_data(const CTYPE &shape):
             _data(factory_type::template create(shape))
@@ -47,24 +65,58 @@ template<typename ATYPE> class array_benchmark_data
         }
 
         //---------------------------------------------------------------------
+        /*!
+        \brief allocate array data
+   
+        Allocate new memory for the array. The shape information is provided to
+        the method by a STL compliant container.
+
+        \tparam CTYPE container type with shape 
+        \param shape reference to the shape container
+        */
         template<typename CTYPE> void allocate(const CTYPE &shape) 
         {
             _data = factory_type::template create(shape);
         }
 
         //---------------------------------------------------------------------
+        /*!
+        \brief initialize the array 
+
+        This method initializes the internal array with random data.
+        */
         void initialize()
         {
             std::generate(_data.begin(),_data.end(),generator_type());
         }
 
         //---------------------------------------------------------------------
-        void deallocate() { _data = array_type(); }
+        /*!
+        \brief deallocate the array
+
+        Basically this function does nothing. As we do array allocation using
+        rvalue reference to original data will be dropped when allocating memory
+        automatically. 
+        */
+        void deallocate() {  }
 
         //---------------------------------------------------------------------
+        /*!
+        \brief get reference to array
+
+        Return a reference to the array stored in the class. 
+        \return array reference 
+        */
         array_type &data() { return _data; }
         
         //---------------------------------------------------------------------
+        /*!
+        \brief get const reference to the array
+
+        Return a const reference to the array stored in the class.
+
+        \return const reference to the array
+        */
         const array_type &data() const { return _data; }
     
 };
