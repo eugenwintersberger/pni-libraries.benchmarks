@@ -1,2 +1,4 @@
 *.dat
 *.pyc
+callgrind*.*
+cachegrind*.*

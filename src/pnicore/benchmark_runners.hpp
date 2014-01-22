@@ -177,5 +177,6 @@ void run_binary_benchmark(size_t nruns,const shape_t &shape,std::ostream &o)
 void run_binary_fortran_benchmark(size_t nruns,size_t nx,size_t ny,std::ostream
         &o);
 
+//-----------------------------------------------------------------------------
 void run_unary_fortran_benchmark(size_t nruns,size_t nx,size_t ny,std::ostream
         &o);

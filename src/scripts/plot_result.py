@@ -33,7 +33,7 @@ def plot_multiple_results(results,col_filter=None):
     if col_filter:
         keys = col_filter
     else:
-        keys= r.data.keys()
+        keys= results[0].data.keys()
 
     l = []
 

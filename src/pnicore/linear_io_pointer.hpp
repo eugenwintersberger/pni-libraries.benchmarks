@@ -38,7 +38,6 @@ good reference for other benchmarks using higher level data structures to store
 data.
 */
 template<typename DATA> class linear_io_pointer 
-
 {
     public:
         typedef typename DATA::value_type value_type;
@@ -103,7 +102,7 @@ template<typename DATA> class linear_io_pointer
         */
         void read_data()
         {
-            for(size_t i=0;i<_size;i++) _buffer += _ptr[i];
+            for(size_t i=0;i<_size;i++) _buffer = _ptr[i];
         }
 
 };

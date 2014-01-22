@@ -5,18 +5,8 @@
 #include <vector>
 #include <array>
 
-#include <pni/core/index_map/index_maps.hpp>
-#include <pni/core/benchmark/benchmark_runner.hpp>
-#include <pni/core/benchmark/chrono_timer.hpp>
-#include <pni/core/config/configuration.hpp>
-#include <pni/core/config/config_parser.hpp>
-
-using namespace pni::core;
-
-//define a timer type for the benchmarks
-typedef chrono_timer<std::chrono::high_resolution_clock,
-                    std::chrono::nanoseconds> bmtimer_t;
-
+#include <common/types.hpp>
+#include <common/utils.hpp>
 
 //index map with a std::vector so store the shape
 
@@ -32,11 +22,13 @@ template<typename STYPE,typename MTYPE> STYPE get_shape(const MTYPE &map)
 template<typename MAP> class variant_bm
 {
     private:
+        typedef std::vector<size_t> vindex_type;
+        typedef std::array<size_t,2> aindex_type;
         size_t _nx;
         size_t _ny;
         size_t _offset;
-        std::vector<size_t> _vindex;
-        std::array<size_t,2> _aindex;
+        vindex_type _vindex;
+        aindex_type _aindex;
         MAP    _map;
     public:
         variant_bm(const MAP& map):
@@ -51,7 +43,7 @@ template<typename MAP> class variant_bm
             _vindex = std::vector<size_t>(2);
 
         }
-        void variadic_run()
+        void variadic_offset()
         {
             _offset = 0;
 
@@ -60,7 +52,7 @@ template<typename MAP> class variant_bm
                     _offset += _map.template offset(i,j);
         }
 
-        void vector_run()
+        void vector_offset()
         {
             _offset = 0;
 
@@ -68,8 +60,14 @@ template<typename MAP> class variant_bm
                 for(_vindex[1]=0;_vindex[1]<_ny;_vindex[1]++)
                     _offset += _map.template offset(_vindex);
         }
+
+        void vector_index()
+        {
+            for(size_t i=0;i<_map.max_elements();++i)
+                _vindex = _map.template index<vindex_type>(i);
+        }
         
-        void array_run()
+        void array_offset()
         {
             _offset = 0;
 
@@ -77,63 +75,53 @@ template<typename MAP> class variant_bm
                 for(_aindex[1]=0;_aindex[1]<_ny;_aindex[1]++)
                     _offset += _map.template offset(_aindex);
         }
+
+        void array_index()
+        {
+            for(size_t i=0;i<_map.max_elements();++i)
+                _aindex = _map.template index<aindex_type>(i);
+        }
 };
 
-
-template<typename MAPT> void run_benchmark(size_t nruns,MAPT &&m)
+benchmark_runners create_runners()
 {
-    typedef variant_bm<MAPT> variant_bm_t; //variant benchmark type
-    typedef benchmark_runner::function_t function_t;
-
-    variant_bm_t variant_bm_i(m);
-
-    benchmark_runner r_variadic,r_vector,r_array;
-    benchmark_runner::function_t f_variadic,f_vector,f_array;
-    
-    f_variadic = std::bind(&variant_bm_t::variadic_run,&variant_bm_i);
-    f_vector   = std::bind(&variant_bm_t::vector_run,&variant_bm_i);
-    f_array    = std::bind(&variant_bm_t::array_run,&variant_bm_i);
-
-
-    r_array.run<bmtimer_t>(nruns,f_array);
-    r_vector.run<bmtimer_t>(nruns,f_vector);
-    r_variadic.run<bmtimer_t>(nruns,f_variadic);
-
-    auto i_variadic = r_variadic.begin();
-    auto i_vector   = r_vector.begin();
-    auto i_array    = r_vector.begin();
-    std::cout<<std::scientific;
-    while(i_variadic!=r_variadic.end())
-        std::cout<<*i_variadic++<<"\t"<<*i_vector++<<"\t"<<*i_array++<<std::endl;
-    
+    return benchmark_runners{
+        {"offset_variadic",benchmark_runner()},
+        {"offset_vector",benchmark_runner()},
+        {"offset_array",benchmark_runner()},
+        {"index_vector",benchmark_runner()},
+        {"index_array",benchmark_runner()}};
 }
 
-size_t c_reference_computation(size_t nx,size_t ny)
+template<typename BMT> benchmark_funcs create_funcs(BMT &bm)
 {
-    size_t offset = 0;
-
-    for(size_t i = 0;i<nx;++i)
-        for(size_t j = 0;j<ny;++j)
-            offset += i*ny+j;
-
-    return offset;
+    typedef BMT benchmark_type;
+   
+    return benchmark_funcs{
+        {"offset_variadic",function_type(std::bind(&benchmark_type::variadic_offset,&bm))},
+        {"offset_vector",function_type(std::bind(&benchmark_type::vector_offset,&bm))},
+        {"offset_array",function_type(std::bind(&benchmark_type::array_offset,&bm))},
+        {"index_vector",function_type(std::bind(&benchmark_type::vector_index,&bm))},
+        {"index_array",function_type(std::bind(&benchmark_type::array_index,&bm))}};
 }
 
-void c_ref_benchmark(size_t nruns)
+
+template<typename MAPT> void run_benchmark(size_t nruns,const shape_t &shape)
 {
-    typedef benchmark_runner::function_t function_t;
+    typedef MAPT map_type;
+    typedef map_utils<map_type> utils_type;
+    typedef variant_bm<map_type> benchmark_type;
 
-    benchmark_runner runner;
-    size_t nx = 100;
-    size_t ny = 100;
-    function_t f = std::bind(c_reference_computation,nx,ny);
+    benchmark_type bm(utils_type::create(shape));
 
-    runner.run<bmtimer_t>(nruns,f);
+    benchmark_runners runners = create_runners();
+    benchmark_funcs funcs = create_funcs(bm);
+    
+    run_benchmarks(nruns,runners,funcs);
 
-    std::cout<<std::scientific;
-    auto iter = runner.begin();
-    while(iter!=runner.end())
-        std::cout<<*iter++<<std::endl;
+    write_result(runners,std::cout);
+
+    
 }
 
 int main(int argc,char **argv)
@@ -149,6 +137,10 @@ int main(int argc,char **argv)
     config.add_option(config_option<string>("map","m",
                       "select the index map type to benchmark","dynamic"));
     config.add_option(config_option<size_t>("nruns","n","number of runs",10));
+    config.add_option(config_option<size_t>("nx","x",
+                "number of elements along first dimension",100));
+    config.add_option(config_option<size_t>("ny","y",
+                "number of elements along second dimension",100));
 
     parse(config,cliargs2vector(argc,argv));
 
@@ -161,11 +153,25 @@ int main(int argc,char **argv)
     //load the map type
     auto map_type = config.value<string>("map");
     auto nruns    = config.value<size_t>("nruns");
+    shape_t shape{config.value<size_t>("nx"),config.value<size_t>("ny")};
+
     //select the map for the benchmark
-    if(map_type=="dynamic")     run_benchmark(nruns,dindex_map);
-    else if(map_type=="fixed")  run_benchmark(nruns,findex_map);
-    else if(map_type=="static") run_benchmark(nruns,sindex_map);
-    else if(map_type=="cref")   c_ref_benchmark(nruns);
+    std::cout<<"# Index map benchmark"<<std::endl;
+    if(map_type=="dynamic")
+    {
+        std::cout<<"# Dynamic index map"<<std::endl;
+        run_benchmark<dynamic_cindex_map>(nruns,shape);
+    }
+    else if(map_type=="fixed")  
+    {
+        std::cout<<"# Fixed dim. index map"<<std::endl;
+        run_benchmark<fixed_dim_cindex_map<2>>(nruns,shape);
+    }
+    else if(map_type=="static") 
+    {
+        std::cout<<"# Static index map"<<std::endl;
+        run_benchmark<static_cindex_map<100,100>>(nruns,shape);
+    }
     else
         std::cerr<<"invalid map"<<std::endl;
 

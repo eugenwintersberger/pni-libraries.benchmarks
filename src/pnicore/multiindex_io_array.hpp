@@ -167,16 +167,16 @@ template<typename ATYPE> class multiindex_io_array
         */
         void variadic_read_array()
         {
-            for(size_t i=0;i<_shape[0];++i)
-                for(size_t j=0;j<_shape[1];++j)
+            for(size_t i=0;i<_nx;++i)
+                for(size_t j=0;j<_ny;++j)
                     _buffer = _array(i,j);
         }
        
         //---------------------------------------------------------------------
         void pointer_read_array()
         {
-            for(size_t i=0;i<_shape[0];++i)
-                for(size_t j=0;j<_shape[1];++j)
+            for(size_t i=0;i<_nx;++i)
+                for(size_t j=0;j<_ny;++j)
                     _buffer = _ptr[i*_ny+j];
         }
 
@@ -199,8 +199,8 @@ template<typename ATYPE> class multiindex_io_array
         //---------------------------------------------------------------------
         void variadic_read_view()
         {
-            for(size_t i=0;i<_shape[0];++i)
-                for(size_t j=0;j<_shape[1];++j)
+            for(size_t i=0;i<_nx;++i)
+                for(size_t j=0;j<_ny;++j)
                     _buffer = _view(i,j);
         }
 
