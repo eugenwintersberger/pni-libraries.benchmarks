@@ -22,6 +22,9 @@ def plot_single_result(result,col_filter=None):
     for k in keys: 
         ax.hist(result.data[k],nbins,log=logy_flag)
 
+    r = ax.axis()
+    ax.axis((1.,r[1],r[2],r[3]))
+
     pyplot.legend(keys,loc='best')
 
 def plot_multiple_results(results,col_filter=None):
@@ -42,6 +45,8 @@ def plot_multiple_results(results,col_filter=None):
             l.append(r.title + ": "+k)
             ax.hist(r.data[k],nbins,log=logy_flag)
 
+    r = ax.axis()
+    ax.axis((1.,r[1],r[2],r[3]))
     pyplot.legend(l,loc='best')
 
 
@@ -89,6 +94,7 @@ else:
     for r in results:
         plot_single_result(r,args.columns)
 
+pyplot.xlabel('runtime (ns)')
 pyplot.show()
 
 

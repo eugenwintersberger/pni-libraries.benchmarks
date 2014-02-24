@@ -11,7 +11,7 @@
 //index map with a std::vector so store the shape
 
 template<typename STYPE,typename MTYPE> STYPE get_shape(const MTYPE &map)
-{
+{ 
     STYPE c(map.size());
 
     std::copy(map.begin(),map.end(),c.begin());
@@ -49,7 +49,7 @@ template<typename MAP> class variant_bm
 
             for(size_t i=0;i<_nx;i++)
                 for(size_t j=0;j<_ny;++j)
-                    _offset += _map.template offset(i,j);
+                    _offset += _map.template offset(std::array<size_t,2>{{i,j}});
         }
 
         void vector_offset()
