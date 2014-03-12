@@ -25,8 +25,7 @@
 #include <typeinfo>
 #include <pni/core/types.hpp>
 #include <pni/core/arrays.hpp>
-#include <pni/core/array_view.hpp>
-#include <pni/core/service.hpp>
+#include <pni/core/utilities.hpp>
 
 #include <common/data_generator.hpp>
 

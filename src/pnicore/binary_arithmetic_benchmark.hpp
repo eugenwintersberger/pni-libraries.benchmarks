@@ -22,7 +22,7 @@
  */
 #pragma once
 
-#include <pni/core/array_arithmetic.hpp>
+#include <pni/core/arrays.hpp>
 #include "../common/data_generator.hpp"
 
 template<typename ATYPE> class binary_arithmetic_benchmark

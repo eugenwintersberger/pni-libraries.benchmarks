@@ -23,7 +23,7 @@
 #pragma once
 
 #include <typeinfo>
-#include <pni/core/service.hpp>
+#include <pni/core/utilities.hpp>
 #include <pni/core/types.hpp>
 
 #include <common/data_generator.hpp>
@@ -61,9 +61,9 @@ template<typename DATA> class linear_io_pointer
         template<typename CTYPE> linear_io_pointer(const CTYPE &shape):
             _shape(shape),
             _data(shape),
-            _ptr(const_cast<value_type*>(_data.data().storage().data())),
+            _ptr(const_cast<value_type*>(data(_data.data()))),
             _buffer(generator_type()()),
-            _size(_data.data().size())
+            _size(size(_data.data()))
         {}
 
         void allocate()
@@ -71,8 +71,8 @@ template<typename DATA> class linear_io_pointer
             _data.allocate(_shape);
             _data.initialize();
 
-            _ptr = const_cast<value_type*>(_data.data().storage().data());
-            _size = _data.data().size();
+            _ptr = const_cast<value_type*>(data(_data.data()));
+            _size = size(_data.data());
             _buffer = generator_type()();
         }
 

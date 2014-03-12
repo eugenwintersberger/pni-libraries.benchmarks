@@ -24,7 +24,6 @@
 
 #include <sstream>
 #include <pni/core/types.hpp>
-#include <pni/core/type_info.hpp>
 #include <boost/lexical_cast.hpp>
 
 #ifdef NOCPPRAND

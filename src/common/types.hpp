@@ -25,11 +25,8 @@
 
 #include <pni/core/types.hpp>
 #include <pni/core/arrays.hpp>
-#include <pni/core/benchmark/benchmark_runner.hpp>
-#include <pni/core/benchmark/benchmark_result.hpp>
-#include <pni/core/benchmark/chrono_timer.hpp>
-#include <pni/core/config/configuration.hpp>
-#include <pni/core/config/config_parser.hpp>
+#include <pni/core/benchmark.hpp>
+#include <pni/core/configuration.hpp>
 
 using namespace pni::core;
 

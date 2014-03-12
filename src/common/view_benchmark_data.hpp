@@ -23,13 +23,13 @@
 #pragma once                
 
 #include "array_benchmark_data.hpp"
-#include <pni/core/array_view.hpp>
+#include <pni/core/arrays.hpp>
 
 template<typename ATYPE>
 array_view<ATYPE> create_view(ATYPE &a)
 {
     std::vector<slice> slices;
-    auto shape = a.template shape<shape_t>();
+    auto shape = pni::core::shape<shape_t>(a);
 
     for(auto d: shape) slices.push_back(slice(0,d));
 
