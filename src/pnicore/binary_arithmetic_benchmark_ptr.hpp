@@ -1,31 +1,33 @@
-/*
- * (c) Copyright 2012 DESY, Eugen Wintersberger <eugen.wintersberger@desy.de>
- *
- * This file is part of libpniutils.
- *
- * libpniutils is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
- *
- * libpniutils is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with libpniutils.  If not, see <http://www.gnu.org/licenses/>.
- *************************************************************************
- *
- *  Created on: Feb 19, 2013
- *      Author: Eugen Wintersberger <eugen.wintersberger@desy.de>
- */
+//
+// (c) Copyright 2012 DESY, Eugen Wintersberger <eugen.wintersberger@desy.de>
+//
+// This file is part of libpniutils.
+//
+// libpniutils is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 2 of the License, or
+// (at your option) any later version.
+//
+// libpniutils is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with libpniutils.  If not, see <http://www.gnu.org/licenses/>.
+// ===========================================================================
+//
+//  Created on: Feb 19, 2013
+//      Author: Eugen Wintersberger <eugen.wintersberger@desy.de>
+//
 #pragma once
 
 #include "../common/data_generator.hpp"
 
-template<typename ATYPE> class binary_arithmetic_benchmark_ptr
+template<typename ATYPE> 
+class binary_arithmetic_benchmark_ptr
 {
+
     public:
         typedef typename ATYPE::value_type value_type;
     private:
@@ -69,12 +71,12 @@ template<typename ATYPE> class binary_arithmetic_benchmark_ptr
             std::generate(_e.begin(),_e.end(),random_generator<value_type>());
             std::generate(_f.begin(),_f.end(),random_generator<value_type>());
             
-            _a_ptr = const_cast<value_type*>(_a.storage().data());
-            _b_ptr = const_cast<value_type*>(_b.storage().data());
-            _c_ptr = const_cast<value_type*>(_c.storage().data());
-            _d_ptr = const_cast<value_type*>(_d.storage().data());
-            _e_ptr = const_cast<value_type*>(_e.storage().data());
-            _f_ptr = const_cast<value_type*>(_f.storage().data());
+            _a_ptr = const_cast<value_type*>(_a.data());
+            _b_ptr = const_cast<value_type*>(_b.data());
+            _c_ptr = const_cast<value_type*>(_c.data());
+            _d_ptr = const_cast<value_type*>(_d.data());
+            _e_ptr = const_cast<value_type*>(_e.data());
+            _f_ptr = const_cast<value_type*>(_f.data());
             _size = _a.size();
 
         }
