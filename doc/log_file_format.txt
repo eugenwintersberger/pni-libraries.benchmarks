@@ -1,0 +1,32 @@
+Log file format
+===============
+
+The benchmark programs use Nexus as an output file format. Naturally, the
+semantics of the Nexus objects differs slightly from their original definition. 
+
+The proposed tree structure looks like this 
+
+benchmark_name:NXentry/
+  title (NXCHAR) -- a title for the benchmark run
+  experiment_description (NXCHAR) -- a more detailed description about the 
+                                  -- benchmark
+  start_time (NX_DATE_TIME) -- time stamp when the benchmark started 
+  end_time   (NX_DATE_TIME) -- time stamp when the benchmark was finished
+
+  program_name (NXCHAR) -- name of the benchmark program
+  @version (NXCHAR) -- program version
+  @configuration (NXCHAR) -- configuration of the program (commane line used)
+                          -- more detailed information about the benchmark
+                          -- parameters will be given at a different place
+  parameters:NXparameters/
+     <name> (<data type>) -- value of a benchmark parameter
+     @unit (NXCHAR)       -- optional unit of the parameter
+
+  -- NXdata holds the benchmark results. For the time being we assume that 
+  -- all results are scalar 
+  data:NXdata/ 
+
+It is highly recommended to store several benchmark runs in a single file. 
+This would greatly reduce the number of output files produced by more
+sophisticated benchmark  scripts which test for several parameter combinations. 
+

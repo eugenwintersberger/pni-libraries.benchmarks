@@ -30,6 +30,7 @@
 #include <pni/core/configuration.hpp>
 #include "benchmark_factory.hpp"
 #include "file_io_benchmark.hpp"
+#include <common/config.hpp>
 
 using namespace pni::core;
 

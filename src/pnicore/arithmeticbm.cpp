@@ -29,7 +29,7 @@
 
 configuration create_config()
 {
-    configuration config;
+    configuration conf;
 
     conf.add_option(config_option<bool>("help","h",
                 "show help text",false));
@@ -50,7 +50,7 @@ configuration create_config()
     conf.add_option(config_option<bool>("fortran","f",
                 "use Fortran 90 functions to do the job",false));
 
-    return config;
+    return conf;
 }
 
 int main(int argc,char **argv)
