@@ -97,7 +97,7 @@ int main(int argc,char **argv)
     catch(key_error &error)
     {
         std::cerr<<error<<std::endl;
-        return -1;
+        return 1;
     }
 
     //now we have to configure the benchmark according to the CLI arguments 
@@ -105,9 +105,15 @@ int main(int argc,char **argv)
     bm_ptr->nx(config.value<size_t>("nx"));
     bm_ptr->ny(config.value<size_t>("ny"));
     bm_ptr->nframes(config.value<size_t>("nframes"));
-    bm_ptr->filename(config.value<string>("filename"));
+    bm_ptr->filename(config.value<string>("output"));
     bm_ptr->split_size(config.value<size_t>("split"));
 
+
+    std::cout<<"# PNIIO write benchmark"<<std::endl;
+    if(config.value<string>("backend")=="hdf5")
+        std::cout<<"# HDF5 C-API"<<std::endl;
+    if(config.value<string>("backend")=="pniio")
+        std::cout<<"# PNIIO library"<<std::endl;
 
     //create the benchmark runner instance
     benchmark_runner runner;
