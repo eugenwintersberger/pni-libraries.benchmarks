@@ -16,5 +16,5 @@ include_directories("src")
 add_subdirectory("src/common")
 add_subdirectory("test")
 add_subdirectory("src/pnicore")
-#add_subdirectory("src/pniio")
+add_subdirectory("src/pniio")
 

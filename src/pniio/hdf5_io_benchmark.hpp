@@ -1,29 +1,29 @@
-/*
- * (c) Copyright 2012 DESY, Eugen Wintersberger <eugen.wintersberger@desy.de>
- *
- * This file is part of libpniio.
- *
- * libpniio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
- *
- * libpniio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with libpniio.  If not, see <http://www.gnu.org/licenses/>.
- *************************************************************************
- *
- * Created on: Dec 17, 2012
- *     Author: Eugen Wintersberger <eugen.wintersberger@desy.de>
- */
+//
+// (c) Copyright 2012 DESY, Eugen Wintersberger <eugen.wintersberger@desy.de>
+//
+// This file is part of libpniio.
+//
+// libpniio is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 2 of the License, or
+// (at your option) any later version.
+//
+// libpniio is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with libpniio.  If not, see <http://www.gnu.org/licenses/>.
+// ===========================================================================
+//
+// Created on: Dec 17, 2012
+//     Author: Eugen Wintersberger <eugen.wintersberger@desy.de>
+//
 #pragma once
 
 #include "file_io_benchmark.hpp"
-#include "../common/uniform_distribution.hpp"
+#include "../common/data_generator.hpp"
 
 extern "C" {
     #include <hdf5.h>
@@ -58,37 +58,13 @@ template<typename T> class hdf5_io_benchmark : public file_io_benchmark
         hid_t _dataset;
         hid_t _datatype;
         T *_frame_data;
+        typedef random_generator<T> data_generator_type;
 
     public:
         //=====================constructor and destructors=====================
         //! default constructor
         hdf5_io_benchmark():file_io_benchmark()
         {}
-
-        //---------------------------------------------------------------------
-        //! constructor
-        hdf5_io_benchmark(const string &fname,size_t nx,size_t ny,
-                          size_t nframes,bool random_fill):
-            file_io_benchmark(fname,nx,ny,nframes)
-        {
-            _frame_data = new T[nx*ny]; 
-
-            if(random_fill)
-            {
-                uniform_distribution<T> random_dist;
-                for(size_t i=0;i<nx*ny;++i)
-                    _frame_data[i] = random_dist();
-            }
-            else
-                for(size_t i=0;i<nx*ny;++i) _frame_data[i] = T(0);
-        }
-
-        //---------------------------------------------------------------------
-        //! destructor
-        ~hdf5_io_benchmark()
-        {
-            if(_frame_data) delete [] _frame_data;
-        }
 
         //=======================public member functions=======================
         //! create file and dataspace
@@ -104,6 +80,10 @@ template<typename T> class hdf5_io_benchmark : public file_io_benchmark
 //-----------------------------------------------------------------------------
 template<typename T> void hdf5_io_benchmark<T>::create()
 {
+    _frame_data = new T[nx()*ny()]; 
+    std::generate(&_frame_data[0],&_frame_data[nx()*ny()],
+                  data_generator_type());
+                      
     //create data file
     _file = H5Fcreate(filename().c_str(),H5F_ACC_TRUNC,H5P_DEFAULT,H5P_DEFAULT);
 
@@ -142,6 +122,7 @@ template<typename T> void hdf5_io_benchmark<T>::close()
     H5Dclose(_dataset);
     H5Fclose(_file);
 
+    if(_frame_data) delete [] _frame_data;
 }
 
 //-----------------------------------------------------------------------------

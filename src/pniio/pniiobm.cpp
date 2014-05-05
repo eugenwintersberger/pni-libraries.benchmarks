@@ -1,36 +1,33 @@
-/*
- * (c) Copyright 2013 DESY, Eugen Wintersberger <eugen.wintersberger@desy.de>
- *
- * This file is part of libpniio.
- *
- * libpniio is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
- *
- * libpniio is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with libpniio.  If not, see <http://www.gnu.org/licenses/>.
- *************************************************************************
- *
- * Created on: Jan 5, 2013
- *     Author: Eugen Wintersberger <eugen.wintersberger@desy.de>
- */
+//
+// (c) Copyright 2013 DESY, Eugen Wintersberger <eugen.wintersberger@desy.de>
+//
+// This file is part of libpniio.
+//
+// libpniio is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 2 of the License, or
+// (at your option) any later version.
+//
+// libpniio is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with libpniio.  If not, see <http://www.gnu.org/licenses/>.
+// ===========================================================================
+//
+// Created on: Jan 5, 2013
+//     Author: Eugen Wintersberger <eugen.wintersberger@desy.de>
+//
 
 #include <iostream>
 #include <functional>
 #include <chrono>
 #include <fstream>
 #include <pni/core/types.hpp>
-#include <pni/core/benchmark/chrono_timer.hpp>
-#include <pni/core/benchmark/benchmark_runner.hpp>
-
-#include <pni/core/config/configuration.hpp>
-#include <pni/core/config/config_parser.hpp>
+#include <pni/core/benchmark.hpp>
+#include <pni/core/configuration.hpp>
 #include "benchmark_factory.hpp"
 #include "file_io_benchmark.hpp"
 
@@ -43,12 +40,9 @@ void output_result(std::ostream &ostream,const benchmark_runner &r)
         ostream<<std::scientific<<iter->time()<<std::endl;
 }
 
-int main(int argc,char **argv)
+configuration create_config()
 {
-    typedef chrono_timer<std::chrono::high_resolution_clock,
-                        std::chrono::milliseconds> bm_timer_t;
     configuration config;
-    //setup program configuration
     config.add_option(config_option<bool>("help","h","show help",false));
     config.add_option(config_option<string>("backend","b",
                       "HDF5 (=hdf5) or PNIIO (=pniio) backend","pniio"));
@@ -66,9 +60,24 @@ int main(int argc,char **argv)
                       "name of output file","pniiobm.h5"));
     config.add_option(config_option<string>("logfile","l",
                       "name of a logfile"));
-    config.add_option(config_option<bool>("random-fill","f",
-                      "fill array with random data",false));
-                     
+    config.add_option(config_option<size_t>("split","s",
+                "split size for files",size_t(0)));
+
+    return config;
+}
+
+//----------------------------------------------------------------------------
+//                  MAIN PROGRAM
+//----------------------------------------------------------------------------
+int main(int argc,char **argv)
+{
+    typedef chrono_timer<std::chrono::high_resolution_clock,
+                        std::chrono::milliseconds> bm_timer_t;
+    typedef benchmark_factory::pointer_type pointer_type;
+    typedef benchmark_runner::function_t function_type;
+
+    //
+    configuration config = create_config();
    
     //parse commmand line options 
     parse(config,cliargs2vector(argc,argv));
@@ -78,28 +87,36 @@ int main(int argc,char **argv)
         return 1;
     }
 
-    //create the benchmark factory
-    benchmark_factory factory(config.value<string>("output"),
-                              config.value<size_t>("nx"),
-                              config.value<size_t>("ny"),
-                              config.value<size_t>("nframes"));
+    pointer_type bm_ptr;
+    //create the benchmark instance
+    try
+    {
+        bm_ptr = benchmark_factory::create(config.value<string>("type"),
+                                           config.value<string>("backend"));
+    }
+    catch(key_error &error)
+    {
+        std::cerr<<error<<std::endl;
+        return -1;
+    }
 
-    //create the bechmark
-    std::unique_ptr<file_io_benchmark> bmptr =
-        factory.create(config.value<string>("type"),
-                       config.value<string>("backend"),
-                       config.value<bool>("random-fill"));
+    //now we have to configure the benchmark according to the CLI arguments 
+    //passed by the user
+    bm_ptr->nx(config.value<size_t>("nx"));
+    bm_ptr->ny(config.value<size_t>("ny"));
+    bm_ptr->nframes(config.value<size_t>("nframes"));
+    bm_ptr->filename(config.value<string>("filename"));
+    bm_ptr->split_size(config.value<size_t>("split"));
+
 
     //create the benchmark runner instance
     benchmark_runner runner;
 
     //set the benchmark function
-    benchmark_runner::function_t f = std::bind(&file_io_benchmark::run,bmptr.get());
+    function_type f = std::bind(&file_io_benchmark::run,bm_ptr.get());
     //create the pre- and post-run functions
-    benchmark_runner::function_t pre_run =
-        std::bind(&file_io_benchmark::create,bmptr.get());
-    benchmark_runner::function_t post_run = 
-        std::bind(&file_io_benchmark::close,bmptr.get());
+    function_type pre_run = std::bind(&file_io_benchmark::create,bm_ptr.get());
+    function_type post_run = std::bind(&file_io_benchmark::close,bm_ptr.get());
 
     //set the pre and post run functions
     runner.prerun(pre_run);
