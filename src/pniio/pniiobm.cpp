@@ -27,10 +27,10 @@
 #include <fstream>
 #include <pni/core/types.hpp>
 #include <pni/core/benchmark.hpp>
-#include <pni/core/configuration.hpp>
 #include "benchmark_factory.hpp"
 #include "file_io_benchmark.hpp"
 #include <common/config.hpp>
+#include <common/configuration.hpp>
 
 using namespace pni::core;
 
@@ -43,8 +43,7 @@ void output_result(std::ostream &ostream,const benchmark_runner &r)
 
 configuration create_config()
 {
-    configuration config;
-    config.add_option(config_option<bool>("help","h","show help",false));
+    configuration config = create_default_config();
     config.add_option(config_option<string>("backend","b",
                       "HDF5 (=hdf5) or PNIIO (=pniio) backend","pniio"));
     config.add_option(config_option<size_t>("nx","x",
@@ -55,12 +54,8 @@ configuration create_config()
                       "data type to use for writing","uint8"));
     config.add_option(config_option<size_t>("nframes","n",
                       "number of frames to write per run",10));
-    config.add_option(config_option<size_t>("nruns","r",
-                      "number of runs to perform for the benchmark",1));
     config.add_option(config_option<string>("output","o",
                       "name of output file","pniiobm.h5"));
-    config.add_option(config_option<string>("logfile","l",
-                      "name of a logfile"));
     config.add_option(config_option<size_t>("split","s",
                 "split size for files",size_t(0)));
 
