@@ -61,8 +61,7 @@ include(configure/CheckCompilerCaps.txt)
 
 if(PKG_CONFIG_FOUND)
     pkg_search_module(PNICORE REQUIRED pnicore)
-    include_directories(${PNICORE_INCLUDE_DIRS})
     pkg_search_module(CPPUNIT REQUIRED cppunit)
-    #pkg_search_module(PNIIO REQUIRED pniio)
+    pkg_search_module(PNIIO REQUIRED pniio)
 endif()
 
