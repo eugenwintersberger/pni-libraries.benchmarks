@@ -19,7 +19,7 @@
 //
 //  Created on: Feb 19, 2012
 //      Author: Eugen Wintersberger <eugen.wintersberger@desy.de>
-///
+//
 #pragma once
 
 #include <pni/core/arrays.hpp>

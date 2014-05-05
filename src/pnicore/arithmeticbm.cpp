@@ -1,25 +1,25 @@
-/*
- * (c) Copyright 2012 DESY, Eugen Wintersberger <eugen.wintersberger@desy.de>
- *
- * This file is part of pni-benchmarks.
- *
- * pni-benchmarks is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
- *
- * pni-benchmarks is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with pni-benchmarks.  If not, see <http://www.gnu.org/licenses/>.
- *************************************************************************
- *
- *  Created on: Dec 28, 2012
- *      Author: Eugen Wintersberger <eugen.wintersberger@desy.de>
- */
+//
+// (c) Copyright 2012 DESY, Eugen Wintersberger <eugen.wintersberger@desy.de>
+//
+// This file is part of pni-benchmarks.
+//
+// pni-benchmarks is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 2 of the License, or
+// (at your option) any later version.
+//
+// pni-benchmarks is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with pni-benchmarks.  If not, see <http://www.gnu.org/licenses/>.
+// ===========================================================================
+//
+//  Created on: Dec 28, 2012
+//      Author: Eugen Wintersberger <eugen.wintersberger@desy.de>
+//
 
 #include <iostream>
 #include <fstream>
@@ -27,12 +27,10 @@
 #include <common/types.hpp>
 #include "benchmark_runners.hpp"
 
-
-int main(int argc,char **argv)
+configuration create_config()
 {
-    //program configuration 
-    configuration conf;
-    
+    configuration config;
+
     conf.add_option(config_option<bool>("help","h",
                 "show help text",false));
     conf.add_option(config_option<size_t>("nx","x",
@@ -51,6 +49,15 @@ int main(int argc,char **argv)
                 "a","array type (fixed, or dynamic","dynamic"));
     conf.add_option(config_option<bool>("fortran","f",
                 "use Fortran 90 functions to do the job",false));
+
+    return config;
+}
+
+int main(int argc,char **argv)
+{
+    //program configuration 
+    configuration conf = create_config();
+    
    
     std::vector<string> args = cliargs2vector(argc,argv);
     parse(conf,args,true);
