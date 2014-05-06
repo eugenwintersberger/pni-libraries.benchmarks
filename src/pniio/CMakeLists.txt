@@ -1,4 +1,7 @@
-set(PNIIOBM_SRC benchmark_factory.cpp file_io_benchmark.cpp pniiobm.cpp)
+set(PNIIOBM_SRC benchmark_factory.cpp 
+                file_io_benchmark.cpp 
+                pniiobm.cpp 
+                pniiobm_utils.cpp)
 
 
 link_directories(${PNIIO_LIBRARY_DIRS})

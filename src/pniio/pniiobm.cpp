@@ -21,46 +21,8 @@
 //     Author: Eugen Wintersberger <eugen.wintersberger@desy.de>
 //
 
-#include <iostream>
-#include <functional>
-#include <chrono>
-#include <fstream>
-#include <pni/core/types.hpp>
-#include <pni/core/benchmark.hpp>
-#include "benchmark_factory.hpp"
-#include "file_io_benchmark.hpp"
-#include <common/config.hpp>
-#include <common/configuration.hpp>
+#include "pniiobm_utils.hpp"
 
-using namespace pni::core;
-
-void output_result(std::ostream &ostream,const benchmark_runner &r)
-{
-    ostream<<"#"<<r.begin()->unit()<<std::endl;
-    for(auto iter=r.begin();iter!=r.end();++iter)
-        ostream<<std::scientific<<iter->time()<<std::endl;
-}
-
-configuration create_config()
-{
-    configuration config = create_default_config();
-    config.add_option(config_option<string>("backend","b",
-                      "HDF5 (=hdf5) or PNIIO (=pniio) backend","pniio"));
-    config.add_option(config_option<size_t>("nx","x",
-                      "number of point along first dimension",1024));
-    config.add_option(config_option<size_t>("ny","y",
-                      "number of points along second dimension",1024));
-    config.add_option(config_option<string>("type","t",
-                      "data type to use for writing","uint8"));
-    config.add_option(config_option<size_t>("nframes","n",
-                      "number of frames to write per run",10));
-    config.add_option(config_option<string>("output","o",
-                      "name of output file","pniiobm.h5"));
-    config.add_option(config_option<size_t>("split","s",
-                "split size for files",size_t(0)));
-
-    return config;
-}
 
 //----------------------------------------------------------------------------
 //                  MAIN PROGRAM
@@ -73,7 +35,7 @@ int main(int argc,char **argv)
     typedef benchmark_runner::function_t function_type;
 
     //
-    configuration config = create_config();
+    configuration config = create_configuration();
    
     //parse commmand line options 
     parse(config,cliargs2vector(argc,argv));
@@ -105,12 +67,6 @@ int main(int argc,char **argv)
     bm_ptr->split_size(config.value<size_t>("split"));
 
 
-    std::cout<<"# PNIIO write benchmark"<<std::endl;
-    if(config.value<string>("backend")=="hdf5")
-        std::cout<<"# HDF5 C-API"<<std::endl;
-    if(config.value<string>("backend")=="pniio")
-        std::cout<<"# PNIIO library"<<std::endl;
-
     //create the benchmark runner instance
     benchmark_runner runner;
 
@@ -130,12 +86,24 @@ int main(int argc,char **argv)
     //create the output stream
     if(config.has_option("logfile"))
     {
+        logfile f(config.value<string>("logfile"),
+                  config.value<bool>("logfile-overwrite"));
+        benchmark_log log = f.create_log("pniiobm",
+                                         "pniiobm",program_version,
+                                         "blabla",
+                                         "A benchmark using the pniio backend",
+                                         "some stupid text");
+        //write program configuration
+        write_parameters(log,config);
+
+        log.create_item<float64>("write","ms");
+        for(auto bm: runner)
+            log.append_data("write",bm.time());
+
         //open log file for writting
-        std::ofstream logfile(config.value<string>("logfile").c_str());
-        output_result(logfile,runner);
+        //std::ofstream logfile(config.value<string>("logfile").c_str());
+        //output_result(logfile,runner);
     }
-    else
-        output_result(std::cout,runner);
 
     return 0;
 }
