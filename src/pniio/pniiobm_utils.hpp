@@ -36,10 +36,32 @@
 
 using namespace pni::core;
 
+//----------------------------------------------------------------------------
+//              some global types 
+//----------------------------------------------------------------------------
+//! benchmark timer type
+typedef chrono_timer<std::chrono::high_resolution_clock,
+                        std::chrono::milliseconds> bm_timer_t;
+
+//! benchmark pointer type
+typedef benchmark_factory::pointer_type pointer_type;
+
+//! benchmark function type
+typedef benchmark_runner::function_t function_type;
+
+//----------------------------------------------------------------------------
+//                     Some utility functions
+//----------------------------------------------------------------------------
 //!
 //! \brief create program configuration
 //!
 configuration create_configuration();
+
+//----------------------------------------------------------------------------
+//!
+//! \brief create the benchmark runner
+//!
+benchmark_runner create_runner(const pointer_type &ptr);
 
 //----------------------------------------------------------------------------
 //!
@@ -52,3 +74,11 @@ configuration create_configuration();
 //! \param config configuration instance
 //!
 void write_parameters(benchmark_log &log,const configuration &config);
+
+//----------------------------------------------------------------------------
+//!
+//! \brief write log file
+//! 
+//!
+void write_logfile(const configuration &config,const benchmark_runner &runner,
+                   const string &cli_args);

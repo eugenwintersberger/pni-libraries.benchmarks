@@ -29,12 +29,6 @@
 //----------------------------------------------------------------------------
 int main(int argc,char **argv)
 {
-    typedef chrono_timer<std::chrono::high_resolution_clock,
-                        std::chrono::milliseconds> bm_timer_t;
-    typedef benchmark_factory::pointer_type pointer_type;
-    typedef benchmark_runner::function_t function_type;
-
-    //
     configuration config = create_configuration();
    
     //parse commmand line options 
@@ -68,42 +62,17 @@ int main(int argc,char **argv)
 
 
     //create the benchmark runner instance
-    benchmark_runner runner;
+    benchmark_runner runner = create_runner(bm_ptr);
 
     //set the benchmark function
     function_type f = std::bind(&file_io_benchmark::run,bm_ptr.get());
-    //create the pre- and post-run functions
-    function_type pre_run = std::bind(&file_io_benchmark::create,bm_ptr.get());
-    function_type post_run = std::bind(&file_io_benchmark::close,bm_ptr.get());
 
-    //set the pre and post run functions
-    runner.prerun(pre_run);
-    runner.postrun(post_run);
     //run the benchmark
     runner.run<bm_timer_t>(config.value<size_t>("nruns"),f);
 
-    
     //create the output stream
-    if(config.has_option("logfile"))
-    {
-        logfile f(config.value<string>("logfile"),
-                  config.value<bool>("logfile-overwrite"));
-        benchmark_log log = f.create_log("pniiobm",
-                                         "pniiobm",program_version,
-                                         "blabla",
-                                         "A benchmark using the pniio backend",
-                                         "some stupid text");
-        //write program configuration
-        write_parameters(log,config);
-
-        log.create_item<float64>("write","ms");
-        for(auto bm: runner)
-            log.append_data("write",bm.time());
-
-        //open log file for writting
-        //std::ofstream logfile(config.value<string>("logfile").c_str());
-        //output_result(logfile,runner);
-    }
+    if(config.has_option("logfile")) 
+        write_logfile(config,runner,cli_options_string(argc,argv));
 
     return 0;
 }

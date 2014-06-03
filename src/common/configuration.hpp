@@ -38,7 +38,22 @@ using namespace pni::core;
 //! logfile
 //! \li -r(--nruns) number of benchmark runs 
 //! \li -h(--help) show help on standard error
+//! \li -e(--entry) name of the entry below which the benchmark data shall be
+//!  stored
 //! 
 //! \return configuration object
 //!
 configuration create_default_config();
+
+
+//----------------------------------------------------------------------------
+//! 
+//! \brief create configuration string
+//! 
+//! Concatenates all command line options to a single string. 
+//! 
+//! \param argc number of command line options and arguments
+//! \param argv pointer to arguments and options
+//! \return concatenated string
+//! 
+string cli_options_string(int argc,char **argv);

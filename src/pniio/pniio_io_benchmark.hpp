@@ -76,7 +76,8 @@ template<typename T> void pniio_io_benchmark<T>::create()
     _file = nxfile::create_file(filename(),true,split_size());
     shape_t s{0,nx(),ny()};
     shape_t cs{1,nx(),ny()};
-    _field = _file.template create_field<T>("data",s,cs);
+    nxgroup root = _file.root();
+    _field = root.template create_field<T>("data",s,cs);
 }
 
 //-----------------------------------------------------------------------------

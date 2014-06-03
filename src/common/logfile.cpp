@@ -42,7 +42,7 @@ logfile::logfile(const string &name,bool overwrite)
         _file = nxfile::open_file(name,false);
     }
 
-    _root = _file.root_group();
+    _root = _file.root();
 
 }
 

@@ -34,7 +34,21 @@ configuration create_default_config()
     config.add_option(config_option<string>("logfile","l",
                 "name of the logfile","benchmark.nxs"));
     config.add_option(config_option<size_t>("nruns","r",
-                "number of benchmark_runs",size_t(0)));
+                "number of benchmark_runs",size_t(1)));
+    config.add_option(config_option<string>("entry","e",
+                "Name of the entry in the logfile","benchmark"));
 
     return config;
+}
+
+//----------------------------------------------------------------------------
+string cli_options_string(int argc,char **argv)
+{
+    string output;
+
+    if(argc<2) return output;
+
+    for(size_t i=1;i<argc;++i) output += " "+string(argv[i]);
+
+    return output;
 }

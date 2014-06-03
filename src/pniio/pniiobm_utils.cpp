@@ -58,3 +58,42 @@ void write_parameters(benchmark_log &log,const configuration &config)
     log.add_parameter<string>("backend",config.value<string>("backend"),"");
 
 }
+
+//----------------------------------------------------------------------------
+benchmark_runner create_runner(const pointer_type &ptr)
+{
+    benchmark_runner runner;
+
+    //create the pre- and post-run functions
+    function_type pre_run = std::bind(&file_io_benchmark::create,ptr.get());
+    function_type post_run = std::bind(&file_io_benchmark::close,ptr.get());
+
+    //set the pre and post run functions
+    runner.prerun(pre_run);
+    runner.postrun(post_run);
+
+    return runner;
+}
+
+//----------------------------------------------------------------------------
+void write_logfile(const configuration &config,const benchmark_runner &runner,
+                   const string &cli_args)
+{
+    //create the logfile
+    logfile f(config.value<string>("logfile"),
+              config.value<bool>("logfile-overwrite"));
+
+    //create the log entry
+    benchmark_log log = f.create_log(config.value<string>("entry"),
+                                     "pniiobm",program_version,
+                                     cli_args,
+                                     "A benchmark using the pniio backend",
+                                     "some stupid text");
+    //write program configuration
+    write_parameters(log,config);
+        
+    log.create_item<float64>("write",runner.begin()->unit());
+    for(auto bm: runner)
+        log.append_data("write",bm.time());
+
+}
