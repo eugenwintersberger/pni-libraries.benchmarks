@@ -57,7 +57,7 @@ class benchmark_log
         void create_item(const string &name,const string &unit)
         {
             nxfield f = _data_group.create_field<T>(name);
-            f.attr<string>("units").write(unit);
+            f.attributes.create<string>("units").write(unit);
         }
 
         //--------------------------------------------------------------------
@@ -83,7 +83,7 @@ class benchmark_log
         {
             nxfield f = _params_group.create_field<T>(name);
             f.write(value);
-            f.attr<string>("units").write(unit);
+            f.attributes.create<string>("units").write(unit);
         }
 
 };

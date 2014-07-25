@@ -62,8 +62,8 @@ benchmark_log logfile::create_log(const string &name,
 
     nxfield f = g.create_field<string>("program_name");
     f.write(program_name);
-    f.attr<string>("version").write(program_version);
-    f.attr<string>("configuration").write(program_config);
+    f.attributes.create<string>("version").write(program_version);
+    f.attributes.create<string>("configuration").write(program_config);
 
     return benchmark_log(g);
 }
