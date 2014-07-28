@@ -23,7 +23,7 @@ target_link_libraries(multiindexbm ${PNICORE_LIBRARIES}
                       ${PNIIO_LIBRARIES})
 
 add_executable(indexmapbm ${INDEXMAP_BM_SRC} $<TARGET_OBJECTS:commonobjs>)
-target_link_libraries(indexmapbm ${PNICORE_LIBRARIES} ${PNIIO_LIBRARIES} profiler)
+target_link_libraries(indexmapbm ${PNICORE_LIBRARIES} ${PNIIO_LIBRARIES} )
 
 install(TARGETS arithmeticbm  
                 iteratorbm 
