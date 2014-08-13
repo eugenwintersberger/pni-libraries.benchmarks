@@ -22,6 +22,7 @@
 //
 #pragma once
 
+#include <vector>
 #include "file_io_benchmark.hpp"
 #include "../common/data_generator.hpp"
 
@@ -126,24 +127,27 @@ template<typename T> void hdf5_io_benchmark<T>::close()
 }
 
 //-----------------------------------------------------------------------------
-template<typename T> void hdf5_io_benchmark<T>::run()
+template<typename T> void hdf5_io_benchmark<T>::run() 
 {
-    hsize_t fdims[] = {0,nx(),ny()};
-    hsize_t offset[] = {0,0,0};
-    hsize_t count[] = {1,nx(),ny()};
+    std::vector<hsize_t> fdims{3};
+    std::vector<hsize_t> offset{3};
+    std::vector<hsize_t> count{3};
+        
     
     for(size_t n=0;n<nframes();n++)
     {
-        fdims[0]++;
-        H5Dset_extent(_dataset,fdims);
+        fdims = {n+1,nx(),ny()};
+        offset = {n,0,0};
+        count = {1,nx(),ny()};
+        H5Dset_extent(_dataset,fdims.data());
         _file_space = H5Dget_space(_dataset);
-
-        H5Sselect_hyperslab(_file_space,H5S_SELECT_SET,offset,NULL,count,NULL);
+        
+        H5Sselect_hyperslab(_file_space,H5S_SELECT_SET,offset.data(),NULL,
+                            count.data(),NULL);
         H5Dwrite(_dataset,_datatype,_memory_space,_file_space,
                  H5P_DEFAULT,_frame_data);
 
         H5Fflush(_file,H5F_SCOPE_LOCAL);
-        offset[0]++;
     }
 
 }

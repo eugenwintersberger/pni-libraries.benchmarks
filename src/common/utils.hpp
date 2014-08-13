@@ -52,7 +52,8 @@ void run_benchmarks(size_t nruns,benchmark_runners &map,benchmark_funcs &funcs);
 //! \param pre pre-run function
 //! \param post post-run function
 //!
-void setup_benchmarks(benchmark_runners &runners,const function_type &pre,
+void setup_benchmarks(benchmark_runners &runners,
+                      const function_type &pre,
                       const function_type &post);
 
 //-----------------------------------------------------------------------------

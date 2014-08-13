@@ -34,10 +34,13 @@ using namespace pni::core;
 //! \brief timer type for benchmarks 
 //!
 //! This is the common timer type used for all benchmarks. 
+//! Nanoseconds should provide a sufficiently good time resolution for all 
+//! kinds of benchmarks - even short ones.
 //!
 typedef chrono_timer<std::chrono::high_resolution_clock,
                      std::chrono::nanoseconds> timer_type;
 
+//----------------------------------------------------------------------------
 //!
 //! \brief function type 
 //! 
@@ -45,8 +48,22 @@ typedef chrono_timer<std::chrono::high_resolution_clock,
 //!
 typedef benchmark_runner::function_t function_type;
 
-//! map with an arbitrary number of benchmarks
+//----------------------------------------------------------------------------
+//! 
+//! \brief benchmark runner map
+//! 
+//! Map holding an arbitrary number of benchmark runners which can be 
+//! identified by a name (the key value of the mape). 
+//! The benchmark runners execute the benchmarks and store the results. 
+//! 
 typedef std::map<string,benchmark_runner> benchmark_runners;
 
-//! map with benchmark functions
+//-----------------------------------------------------------------------------
+//! 
+//! \brief benchmark function map
+//!
+//! A map holding benchmark functions. Each function can be identified 
+//! by a name (the key of the map). The intention is that for 
+//! each benchmark key in benchmark_runners a key in benchmark_funcs exists.
+//!
 typedef std::map<string,function_type> benchmark_funcs;
