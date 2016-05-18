@@ -14,3 +14,11 @@ arithmeticbm -b -r$NRUNS -x$NX -y$NY &> bin_arithmetic_cpp_operator_dynamic.dat
 echo "Binary C++ arithmetic benchmark with expr. templates and fixed arrays ..."
 arithmeticbm -b -afixed -r$NRUNS -x$NX -y$NY &> bin_arithmetic_cpp_operator_fixed.dat
 
+echo "Unary C++ arithmetic benchmark with pointers ..."
+arithmeticbm -p -r$NRUNS -x$NX -y$NY &> unary_arithmetic_cpp_pointer.dat
+echo "Binary C++ arithmetic benchmark with expr. templates and dyn. arrays ..."
+arithmeticbm -r$NRUNS -x$NX -y$NY &> unary_arithmetic_cpp_operator_dynamic.dat
+echo "Binary C++ arithmetic benchmark with expr. templates and fixed arrays ..."
+arithmeticbm -afixed -r$NRUNS -x$NX -y$NY &> unary_arithmetic_cpp_operator_fixed.dat
+
+

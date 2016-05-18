@@ -64,5 +64,6 @@ if(PKG_CONFIG_FOUND)
     pkg_search_module(PNICORE REQUIRED pnicore)
     pkg_search_module(CPPUNIT REQUIRED cppunit)
     pkg_search_module(PNIIO REQUIRED pniio)
+    message(STATUS "PNIIO header files: ${PNIIO_INCLUDE_DIRS}")
 endif()
 

@@ -73,7 +73,15 @@ template<typename T> void pniio_io_benchmark<T>::create()
                   data_generator_type());
 
     //create the file
-    _file = nxfile::create_file(filename(),true,split_size());
+    if(split_size())
+    {
+        _file = nxfile::create_files(filename(),true,split_size());
+    }
+    else
+    {
+        _file = nxfile::create_file(filename(),true);
+    }
+
     shape_t s{0,nx(),ny()};
     shape_t cs{1,nx(),ny()};
     nxgroup root = _file.root();

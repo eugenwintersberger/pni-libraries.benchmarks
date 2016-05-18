@@ -34,7 +34,7 @@ logfile::logfile(const string &name,bool overwrite)
     //try to create a new file
     try
     {
-        _file = nxfile::create_file(name,overwrite,0);
+        _file = nxfile::create_file(name,overwrite);
     }
     catch(...)
     {
