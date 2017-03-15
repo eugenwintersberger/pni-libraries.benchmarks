@@ -1,0 +1,9 @@
+Some command line options are common to all programs within the benchmark suite. 
+
+-h (--help)         show program help on standard error
+-l (--logfile)      name of the logfile to use for output
+-r (--nruns)        number of runs to perform 
+--logfile-overwrite overwrite an existing log file instead of appending the 
+                    new benchmark to an existing file
+-e (--entry)        name of the entry below which the benchmark data will 
+                    be stored
