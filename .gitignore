@@ -4,3 +4,5 @@ build
 *.swp
 *.log
 results
+/.cproject
+/.project
