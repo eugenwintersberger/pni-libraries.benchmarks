@@ -5,9 +5,12 @@ find_package(Boost COMPONENTS unit_test_framework)
 
 set(TEST_SRC 
              #benchmark_test.cpp 
-             dynamic_array_benchmark_data_test.cpp 
+             dynamic_array_benchmark_data_test.cpp
+             dynamic_view_benchmark_data_test.cpp  
              fixed_array_benchmark_data_test.cpp
+             fixed_view_benchmark_data_test.cpp
              static_array_benchmark_data_test.cpp
+             static_view_benchmark_data_test.cpp
              #view_benchmark_data_test.cpp
     )
 

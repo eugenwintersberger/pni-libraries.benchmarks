@@ -32,7 +32,7 @@ script:
     - docker exec -e CONAN_LOGIN_USERNAME -e CONAN_PASSWORD -it build bash -c "conan upload --all -c -rdesypackages pnicore/*"
     - docker exec -e CONAN_LOGIN_USERNAME -e CONAN_PASSWORD -it build bash -c "conan upload --all -c -rdesypackages pniio/*"
     - docker exec -e BUILDTYPE -it build bash -c "cd build && cmake --build . --target all --config $BUILDTYPE"
-    #- docker exec -e BUILDTYPE -it build bash -c "cd build && cmake --build . --target check --config $BUILDTYPE"
+    - docker exec -e BUILDTYPE -it build bash -c "cd build && cmake --build . --target check --config $BUILDTYPE"
     
 after_script:
     - docker container stop build

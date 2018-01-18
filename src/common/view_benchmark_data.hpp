@@ -24,14 +24,15 @@
 
 #include "array_benchmark_data.hpp"
 #include <pni/core/arrays.hpp>
+#include <vector>
 
 template<typename ATYPE>
-array_view<ATYPE> create_view(ATYPE &a)
+pni::core::array_view<ATYPE> create_view(ATYPE &a)
 {
-    std::vector<slice> slices;
-    auto shape = a.template shape<shape_t>();
+    std::vector<pni::core::slice> slices;
+    auto shape = a.template shape<pni::core::shape_t>();
 
-    for(auto d: shape) slices.push_back(slice(0,d));
+    for(auto d: shape) slices.push_back(pni::core::slice(0,d));
 
     return a(slices);
 }
@@ -40,7 +41,7 @@ template<typename ATYPE>
 class ViewBenchmarkData : public ArrayBenchmarkData<ATYPE>
 {
   public:
-    using ArrayType = array_view<ATYPE>;
+    using ArrayType = pni::core::array_view<ATYPE>;
     using ValueType = typename ATYPE::value_type;
   private:
     using Base =  ArrayBenchmarkData<ATYPE>;
@@ -58,16 +59,16 @@ class ViewBenchmarkData : public ArrayBenchmarkData<ATYPE>
     //---------------------------------------------------------------------
     template<typename CTYPE> void allocate(const CTYPE &shape)
     {
-      base::template allocate(shape);
+      Base::template allocate(shape);
 
-      _view = create_view(base::data());
+      _view = create_view(Base::data());
     }
 
     //---------------------------------------------------------------------
     void deallocate()
     {
-      base::deallocate();
-      _view = create_view(base::data());
+      Base::deallocate();
+      _view = create_view(Base::data());
     }
 
     //---------------------------------------------------------------------
