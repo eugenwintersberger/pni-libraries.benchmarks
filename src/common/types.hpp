@@ -23,6 +23,7 @@
 #pragma once                
 
 #include <chrono>
+#include <map>
 #include <pni/core/types.hpp>
 #include <pni/core/arrays.hpp>
 #include <pni/core/benchmark.hpp>

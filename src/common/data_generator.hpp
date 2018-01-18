@@ -47,69 +47,69 @@ template<typename T> struct DistributionMap<T,false>
 //=================the default generator=======================================
 template<typename T> class RandomGenerator
 {
-    private:
-        std::mt19937_64 _engine;
-        typename DistributionMap<T,pni::core::type_info<T>::is_integer>::DistributionType _distribution;
+  private:
+    std::mt19937_64 _engine;
+    typename DistributionMap<T,pni::core::type_info<T>::is_integer>::DistributionType _distribution;
 
-    public:
-        RandomGenerator(T a,T b):
-            _engine(std::random_device()()),
-            _distribution(a,b)
-        {}
+  public:
+    RandomGenerator(T a,T b):
+      _engine(std::random_device()()),
+      _distribution(a,b)
+  {}
 
-        RandomGenerator():
-            _engine(std::random_device()()),
-            _distribution(0.2*pni::core::type_info<T>::min(),
-                          0.2*pni::core::type_info<T>::max())
-        { 
-        }
+    RandomGenerator():
+      _engine(std::random_device()()),
+      _distribution(0.2*pni::core::type_info<T>::min(),
+                    0.2*pni::core::type_info<T>::max())
+    {
+    }
 
-        T operator()()
-        {
-            return _distribution(_engine);
-        }
+    T operator()()
+    {
+      return _distribution(_engine);
+    }
 };
 
 //-----------------------------------------------------------------------------
 template<typename T> class RandomGenerator<std::complex<T>>
 {
-    private:
-        RandomGenerator<T> _real_generator;
-        RandomGenerator<T> _imag_generator;
-    public:
-        RandomGenerator(T a,T b):
-            _real_generator(a,b),
-            _imag_generator(a,b)
-        {}
+  private:
+    RandomGenerator<T> _real_generator;
+    RandomGenerator<T> _imag_generator;
+  public:
+    RandomGenerator(T a,T b):
+      _real_generator(a,b),
+      _imag_generator(a,b)
+  {}
 
-        RandomGenerator():
-            _real_generator(),
-            _imag_generator()
-        {}
-        
-        std::complex<T> operator()()
-        {
-            return std::complex<T>(_real_generator(),
-                                   _imag_generator());
-        }
+    RandomGenerator():
+      _real_generator(),
+      _imag_generator()
+    {}
+
+    std::complex<T> operator()()
+    {
+      return std::complex<T>(_real_generator(),
+                             _imag_generator());
+    }
 };
 
 //-----------------------------------------------------------------------------
 template<> class RandomGenerator<std::string>
 {
-    private:
-        RandomGenerator<unsigned long> _generator;
-    public:
-        RandomGenerator(unsigned long a,unsigned long b):
-            _generator(a,b)
-        {}
+  private:
+    RandomGenerator<unsigned long> _generator;
+  public:
+    RandomGenerator(unsigned long a,unsigned long b):
+      _generator(a,b)
+  {}
 
-        RandomGenerator(){}
+    RandomGenerator(){}
 
-        string operator()()
-        {
-            return boost::lexical_cast<string>(_generator());
-        }
+    std::string operator()()
+    {
+      return boost::lexical_cast<std::string>(_generator());
+    }
 };
 
     
