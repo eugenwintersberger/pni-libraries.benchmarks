@@ -1,17 +1,33 @@
-cmake_minimum_required(VERSION 2.6)
-project(pnibenchmarks C CXX Fortran)
+cmake_minimum_required(VERSION 3.3.0)
+project(pnibenchmarks 
+        LANGUAGES C CXX Fortran
+        VERSION 1.0.0)
+set(CMAKE_CXX_STANDARD 11)
 
-set(CMAKE_FAMILY_VERSION "${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}")
+include(cmake/common/EnsureBuildType.cmake)
+include(cmake/common/InstallConfig.cmake)
+include(cmake/common/OutputDirConfig.cmake)
+include(cmake/common/WindowsUtils.cmake)
 
-if(NOT CMAKE_BUILD_TYPE)
-    message("No build type specified - default is RELEASE")
-    set(CMAKE_BUILD_TYPE RELEASE)
+#
+# add a check target to build and run the tests
+#
+add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} -C ${CMAKE_BUILD_TYPE})
+
+
+# =============================================================================
+# determine from which source to get dependencies
+# =============================================================================
+set(WITH_CONAN OFF CACHE BOOL "Satisfy dependencies with conan")
+
+if(WITH_CONAN)
+    include(cmake/common/ConanSetup.cmake)
+    include(${CMAKE_CURRENT_SOURCE_DIR}/conan.cmake)
+    
+    conan_cmake_run(CONANFILE conanfile.txt
+                    BASIC_SETUP
+                    BUILD missing)  
 endif()
-
-set(SOFTWARE_URL "https://code.google.com/p/pni-libraries/source/checkout?repo=benchmarks")
-#need to update those guys for every new version
-set(SOFTWARE_VERSION "1.0.0")
-set(SOFTWARE_COMMIT "6db45b888732aa876e839358c07c804f8b6ec41a")
 
 #======================do here some setup work=================================
 include(configure/CMakeLists.txt)
@@ -20,7 +36,7 @@ include_directories("src")
 include_directories("${CMAKE_CURRENT_BINARY_DIR}/src")
 #need this to get the generated header files into the build.
 add_subdirectory("src/common")
-add_subdirectory("test")
-add_subdirectory("src/pnicore")
-add_subdirectory("src/pniio")
+#add_subdirectory("test")
+#add_subdirectory("src/pnicore")
+#add_subdirectory("src/pniio")
 

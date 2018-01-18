@@ -1,0 +1,22 @@
+[requires]
+Boost/1.62.0@lasote/stable
+hdf5/1.10.1@eugenwintersberger/testing
+h5cpp/master@eugenwintersberger/devel
+zlib/1.2.8@conan/stable
+bzip2/1.0.6@conan/stable
+pnicore/master@eugenwintersberger/devel
+pniio/master@eugenwintersberger/devel
+
+
+[generators]
+cmake
+
+[options]
+Boost:shared=True
+Boost:python=False
+zlib:shared=True
+hdf5:shared=True
+
+
+[imports]
+bin, *.dll -> ./bin
