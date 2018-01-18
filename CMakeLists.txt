@@ -3,6 +3,7 @@ project(pnibenchmarks
         LANGUAGES C CXX Fortran
         VERSION 1.0.0)
 set(CMAKE_CXX_STANDARD 11)
+include(CTest)
 
 include(cmake/common/EnsureBuildType.cmake)
 include(cmake/common/InstallConfig.cmake)
@@ -36,7 +37,7 @@ include_directories("src")
 include_directories("${CMAKE_CURRENT_BINARY_DIR}/src")
 #need this to get the generated header files into the build.
 add_subdirectory("src/common")
-#add_subdirectory("test")
+add_subdirectory("test")
 #add_subdirectory("src/pnicore")
 #add_subdirectory("src/pniio")
 

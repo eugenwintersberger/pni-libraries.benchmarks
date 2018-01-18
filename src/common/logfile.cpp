@@ -22,6 +22,7 @@
 //
 
 #include "logfile.hpp"
+#include <pni/io/nexus.hpp>
 
 LogFile::LogFile():_file(),_root()
 {

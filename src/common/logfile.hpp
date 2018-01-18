@@ -22,9 +22,8 @@
 //
 #pragma once                
 
-#include <pni/core/types.hpp>
-#include <pni/io/nexus.hpp>
 #include "benchmark_log.hpp"
+#include <h5cpp/hdf5.hpp>
 
 
 class LogFile

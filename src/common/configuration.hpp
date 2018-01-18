@@ -22,7 +22,7 @@
 //
 #pragma once                
 
-#include <pni/core/types.hpp>
+#include <string>
 #include <pni/core/configuration.hpp>
 
 //!

@@ -25,6 +25,7 @@
 
 #include <sstream>
 #include <random>
+#include <complex>
 #include <pni/core/types.hpp>
 #include <boost/lexical_cast.hpp>
 

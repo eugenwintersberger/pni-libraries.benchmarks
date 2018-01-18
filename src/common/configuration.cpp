@@ -32,11 +32,11 @@ pni::core::configuration create_default_config()
                                         "show help text",false));
   config.add_option(config_option<bool>("logfile-overwrite","",
                                         "overwrite existing logfile",false));
-  config.add_option(config_option<string>("logfile","l",
+  config.add_option(config_option<std::string>("logfile","l",
                                           "name of the logfile","benchmark.nxs"));
   config.add_option(config_option<size_t>("nruns","r",
                                           "number of benchmark_runs",size_t(1)));
-  config.add_option(config_option<string>("entry","e",
+  config.add_option(config_option<std::string>("entry","e",
                                           "Name of the entry in the logfile","benchmark"));
 
   return config;

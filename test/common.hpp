@@ -29,12 +29,12 @@
 This class provides methods that return the default parameters of different
 array types.
 */
-template<typename ATYPE> struct array_default_params
+template<typename ATYPE> struct ArrayDefaultParameters
 {
-    typedef ATYPE array_type;
+    using ArrayType =  ATYPE;
 
-    static size_t rank() { return array_type().rank(); }
+    static size_t rank() { return ArrayType().rank(); }
 
-    static size_t size() { return array_type().size(); }
+    static size_t size() { return ArrayType().size(); }
 };
 

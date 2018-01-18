@@ -24,12 +24,14 @@
 
 #include "types.hpp"
 #include "data_generator.hpp"
+//#include <pni/core/arrays.hpp>
+#include <algorithm>
 
 
 //!
 //! \brief array manger
 //! 
-//! This tempalte holds a particular array and provides methods to access the 
+//! This template holds a particular array and provides methods to access the
 //! array as well as allocate, deallocate, and initialize it with random data. 
 //!
 //! \tparam ATYPE array type
@@ -43,7 +45,7 @@ class ArrayBenchmarkData
     //! value type
     using ValueType = typename ArrayType::value_type;
     //! array factory type
-    using FactoryType = array_factory<ArrayType>;
+    //using FactoryType = pni::core::array_factory<ArrayType>;
     //! generator type
     using GeneratorType = RandomGenerator<ValueType>;
   private:
