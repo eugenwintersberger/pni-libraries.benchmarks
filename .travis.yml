@@ -23,7 +23,13 @@ before_script:
     
 script:
     - docker exec -e BUILDTYPE -it build bash -c "cd build && cmake -DWITH_CONAN=ON -DCMAKE_BUILD_TYPE=$BUILDTYPE .."
-    - docker exec -e CONAN_LOGIN_USERNAME -e CONAN_PASSWORD -it build bash -c "conan upload --all -c -rdesypackages */*"
+    - docker exec -e CONAN_LOGIN_USERNAME -e CONAN_PASSWORD -it build bash -c "conan upload --all -c -rdesypackages Boost/*"
+    - docker exec -e CONAN_LOGIN_USERNAME -e CONAN_PASSWORD -it build bash -c "conan upload --all -c -rdesypackages hdf5/*"
+    - docker exec -e CONAN_LOGIN_USERNAME -e CONAN_PASSWORD -it build bash -c "conan upload --all -c -rdesypackages h5cpp/*"
+    - docker exec -e CONAN_LOGIN_USERNAME -e CONAN_PASSWORD -it build bash -c "conan upload --all -c -rdesypackages zlib/*"
+    - docker exec -e CONAN_LOGIN_USERNAME -e CONAN_PASSWORD -it build bash -c "conan upload --all -c -rdesypackages bzip2/*"
+    - docker exec -e CONAN_LOGIN_USERNAME -e CONAN_PASSWORD -it build bash -c "conan upload --all -c -rdesypackages pnicore/*"
+    - docker exec -e CONAN_LOGIN_USERNAME -e CONAN_PASSWORD -it build bash -c "conan upload --all -c -rdesypackages pniio/*"
     - docker exec -e BUILDTYPE -it build bash -c "cd build && cmake --build . --target all --config $BUILDTYPE"
     - docker exec -e BUILDTYPE -it build bash -c "cd build && cmake --build . --target check --config $BUILDTYPE"
     
