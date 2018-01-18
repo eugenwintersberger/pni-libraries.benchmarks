@@ -22,13 +22,11 @@
 //
 #pragma once                
 
-
+#include <chrono>
 #include <pni/core/types.hpp>
 #include <pni/core/arrays.hpp>
 #include <pni/core/benchmark.hpp>
 #include <pni/core/configuration.hpp>
-
-using namespace pni::core;
 
 //!
 //! \brief timer type for benchmarks 
@@ -37,8 +35,8 @@ using namespace pni::core;
 //! Nanoseconds should provide a sufficiently good time resolution for all 
 //! kinds of benchmarks - even short ones.
 //!
-typedef chrono_timer<std::chrono::high_resolution_clock,
-                     std::chrono::nanoseconds> timer_type;
+using TimerType =  pni::core::chrono_timer<std::chrono::high_resolution_clock,
+                                           std::chrono::nanoseconds>;
 
 //----------------------------------------------------------------------------
 //!
@@ -46,7 +44,7 @@ typedef chrono_timer<std::chrono::high_resolution_clock,
 //! 
 //! The common function type for benchmarks.
 //!
-typedef benchmark_runner::function_t function_type;
+using FunctionType =  pni::core::benchmark_runner::function_t;
 
 //----------------------------------------------------------------------------
 //! 
@@ -56,7 +54,7 @@ typedef benchmark_runner::function_t function_type;
 //! identified by a name (the key value of the mape). 
 //! The benchmark runners execute the benchmarks and store the results. 
 //! 
-typedef std::map<string,benchmark_runner> benchmark_runners;
+using BenchmarkRunners =  std::map<std::string,pni::core::benchmark_runner>;
 
 //-----------------------------------------------------------------------------
 //! 
@@ -66,4 +64,4 @@ typedef std::map<string,benchmark_runner> benchmark_runners;
 //! by a name (the key of the map). The intention is that for 
 //! each benchmark key in benchmark_runners a key in benchmark_funcs exists.
 //!
-typedef std::map<string,function_type> benchmark_funcs;
+using BenchmarkFunctions =  std::map<std::string,FunctionType>;

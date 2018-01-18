@@ -23,13 +23,13 @@
 
 #include "benchmark_log.hpp"
 
-benchmark_log::benchmark_log():_group(),_data_group(),_params_group()
+BenchmarkLog::BenchmarkLog():_group(),_data_group(),_params_group()
 {
 
 }
 
 //----------------------------------------------------------------------------
-benchmark_log::benchmark_log(const nxgroup &g):
+BenchmarkLog::BenchmarkLog(const hdf5::node::Group &g):
     _group(g),
     _data_group(g["data"]),
     _params_group(g["parameters"])

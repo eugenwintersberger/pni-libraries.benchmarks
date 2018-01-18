@@ -23,47 +23,55 @@
 
 #include "logfile.hpp"
 
-logfile::logfile():_file(),_root()
+LogFile::LogFile():_file(),_root()
 {
 
 }
 
 //----------------------------------------------------------------------------
-logfile::logfile(const string &name,bool overwrite)
+LogFile::LogFile(const std::string &name,bool overwrite)
 {
-    //try to create a new file
-    try
-    {
-        _file = nxfile::create_file(name,overwrite);
-    }
-    catch(...)
-    {
-        //if the creation of the new file fails try to open an existing file
-        _file = nxfile::open_file(name,false);
-    }
+  //try to create a new file
+  try
+  {
+    if(overwrite)
+      _file = hdf5::file::create(name,hdf5::file::AccessFlags::TRUNCATE);
+    else
+      _file = hdf5::file::create(name);
+  }
+  catch(...)
+  {
+    //if the creation of the new file fails try to open an existing file
+    _file = hdf5::file::open(name,hdf5::file::AccessFlags::READWRITE);
+  }
 
-    _root = _file.root();
+  _root = _file.root();
 
 }
 
 //----------------------------------------------------------------------------
-benchmark_log logfile::create_log(const string &name,
-                                  const string &program_name,
-                                  const string &program_version,
-                                  const string &program_config,
-                                  const string &title,
-                                  const string &description)
+BenchmarkLog LogFile::create_log(const std::string &name,
+                                 const std::string &program_name,
+                                 const std::string &program_version,
+                                 const std::string &program_config,
+                                 const std::string &title,
+                                 const std::string &description)
 {
-    nxgroup g = _root.create_group(name,"NXentry");
-    g.create_group("data","NXdata");
-    g.create_group("parameters","NXparameters");
-    g.create_field<string>("experiment_description").write(description);
-    g.create_field<string>("title").write(title);
+  using namespace hdf5::node;
+  using namespace pni::io;
+  Group g = nexus::BaseClassFactory::create(_root,name,"NXentry");
+  nexus::BaseClassFactory::create(g,"data","NXdata");
+  nexus::BaseClassFactory::create(g,"parameters","NXparameters");
 
-    nxfield f = g.create_field<string>("program_name");
-    f.write(program_name);
-    f.attributes.create<string>("version").write(program_version);
-    f.attributes.create<string>("configuration").write(program_config);
+  auto string_type = hdf5::datatype::create<std::string>();
+  hdf5::dataspace::Scalar space;
+  Dataset(g,"experiment_description",string_type,space).write(description);
+  Dataset(g,"title",string_type,space).write(title);
 
-    return benchmark_log(g);
+  Dataset f(g,"program_name",string_type,space);
+  f.write(program_name);
+  f.attributes.create<std::string>("version").write(program_version);
+  f.attributes.create<std::string>("configuration").write(program_config);
+
+  return BenchmarkLog(g);
 }

@@ -23,28 +23,26 @@
 #pragma once                
 
 #include <pni/core/types.hpp>
-#include <pni/io/nx/nx.hpp>
+#include <pni/io/nexus.hpp>
 #include "benchmark_log.hpp"
 
-using namespace pni::io::nx::h5;
 
-
-class logfile
+class LogFile
 {
-    private:
-        nxfile _file;
-        nxgroup _root;
-    public:
-        logfile();
+  private:
+    hdf5::file::File _file;
+    hdf5::node::Group _root;
+  public:
+    LogFile();
 
-        logfile(const string &name,bool overwrite);
+    LogFile(const std::string &name,bool overwrite);
 
 
-        benchmark_log create_log(const string &name,
-                                 const string &program_name,
-                                 const string &program_version,
-                                 const string &program_config,
-                                 const string &title,
-                                 const string &description);
+    BenchmarkLog create_log(const std::string &name,
+                            const std::string &program_name,
+                            const std::string &program_version,
+                            const std::string &program_config,
+                            const std::string &title,
+                            const std::string &description);
 };
         

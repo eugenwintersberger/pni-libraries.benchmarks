@@ -37,7 +37,7 @@
 //! \param map map with runner instances
 //! \param funcs map with function objects 
 //!
-void run_benchmarks(size_t nruns,benchmark_runners &map,benchmark_funcs &funcs);
+void run_benchmarks(size_t nruns,BenchmarkRunners &map,BenchmarkFunctions &funcs);
 
 
 //-----------------------------------------------------------------------------
@@ -52,9 +52,9 @@ void run_benchmarks(size_t nruns,benchmark_runners &map,benchmark_funcs &funcs);
 //! \param pre pre-run function
 //! \param post post-run function
 //!
-void setup_benchmarks(benchmark_runners &runners,
-                      const function_type &pre,
-                      const function_type &post);
+void setup_benchmarks(BenchmarkRunners &runners,
+                      const FunctionType &pre,
+                      const FunctionType &post);
 
 //-----------------------------------------------------------------------------
 //!
@@ -65,4 +65,4 @@ void setup_benchmarks(benchmark_runners &runners,
 //! \param runners benchmark runners
 //! \param o output stream
 //!
-void write_result(const benchmark_runners &runners, std::ostream &o);
+void write_result(const BenchmarkRunners &runners, std::ostream &o);
