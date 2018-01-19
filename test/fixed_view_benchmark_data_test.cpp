@@ -75,8 +75,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_construction,T,FixedViews)
   BOOST_CHECK_EQUAL(bm_data_3.data().size(),bm_data_1.data().size());
   auto shape_3 = bm_data_3.data().template shape<pni::core::shape_t>();
   BOOST_CHECK(std::equal(shape_1.begin(),shape_1.end(),shape_3.begin()));
-  BOOST_CHECK_EQUAL(bm_data_2.data().size(),ArrayDefaultParameters<typename T::ArrayType::storage_type>::size());
-  BOOST_CHECK_EQUAL(bm_data_2.data().rank(),ArrayDefaultParameters<typename T::ArrayType::storage_type>::rank());
+  BOOST_CHECK_EQUAL(bm_data_2.data().size(),0);
+  BOOST_CHECK_EQUAL(bm_data_2.data().rank(),0);
 }
 
 BOOST_AUTO_TEST_CASE_TEMPLATE(test_assignment,T,FixedViews)
@@ -91,8 +91,8 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_assignment,T,FixedViews)
 
   //move assignment
   T bm_data_2 = std::move(bm_data_1);
-  BOOST_CHECK_EQUAL(bm_data_1.data().rank(),ArrayDefaultParameters<typename T::ArrayType::storage_type>::rank());
-  BOOST_CHECK_EQUAL(bm_data_1.data().size(),ArrayDefaultParameters<typename T::ArrayType::storage_type>::size());
+  BOOST_CHECK_EQUAL(bm_data_1.data().rank(),0);
+  BOOST_CHECK_EQUAL(bm_data_1.data().size(),0);
 
   BOOST_CHECK_EQUAL(bm_data_2.data().rank(),bm_data.data().rank());
   BOOST_CHECK_EQUAL(bm_data_2.data().size(),bm_data.data().size());
