@@ -20,9 +20,9 @@ target_link_libraries(multiindexbm pniio)
 add_executable(indexmapbm ${INDEXMAP_BM_SRC} $<TARGET_OBJECTS:commonobjs>)
 target_link_libraries(indexmapbm pniio )
 
-#install(TARGETS arithmeticbm  
-#                iteratorbm 
-#                multiindexbm
-#                indexmapbm
-#                DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS arithmeticbm  
+                iteratorbm 
+                multiindexbm
+                indexmapbm
+                DESTINATION ${CMAKE_INSTALL_BINDIR})
 
