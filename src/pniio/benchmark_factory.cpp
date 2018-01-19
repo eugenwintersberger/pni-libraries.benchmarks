@@ -27,66 +27,69 @@
 #include "hdf5_io_benchmark.hpp"
 
 //-----------------------------------------------------------------------------
-benchmark_factory::pointer_type 
-benchmark_factory::create_pniio(const string &type_code) 
+BenchmarkFactory::BenchmarkPointer
+BenchmarkFactory::create_pniio(const std::string &type_code)
 {
+  using namespace pni::core;
+  BenchmarkPointer ptr;
 
-    pointer_type ptr;    
+  if(type_code == "uint8")
+    ptr = BenchmarkPointer(new PNIIOBenchmark<uint8>());
+  else if(type_code == "int8")
+    ptr = BenchmarkPointer(new PNIIOBenchmark<int8>());
+  else if(type_code == "uint16")
+    ptr = BenchmarkPointer(new PNIIOBenchmark<uint16>());
+  else if(type_code == "int16")
+    ptr = BenchmarkPointer(new PNIIOBenchmark<int16>());
+  else if(type_code == "uint32")
+    ptr = BenchmarkPointer(new PNIIOBenchmark<uint32>());
+  else if(type_code == "int32")
+    ptr = BenchmarkPointer(new PNIIOBenchmark<int32>());
+  else
+    throw key_error(EXCEPTION_RECORD,"Unkown type code!");
 
-    if(type_code == "uint8")      
-        ptr = pointer_type(new pniio_io_benchmark<uint8>());
-    else if(type_code == "int8")   
-        ptr = pointer_type(new pniio_io_benchmark<int8>());
-    else if(type_code == "uint16")     
-        ptr = pointer_type(new pniio_io_benchmark<uint16>());
-    else if(type_code == "int16")
-        ptr = pointer_type(new pniio_io_benchmark<int16>());
-    else if(type_code == "uint32")
-        ptr = pointer_type(new pniio_io_benchmark<uint32>());
-    else if(type_code == "int32")
-        ptr = pointer_type(new pniio_io_benchmark<int32>());
-    else
-        throw key_error(EXCEPTION_RECORD,"Unkown type code!");
-
-    return ptr;
+  return ptr;
 }
 
 //-----------------------------------------------------------------------------
-benchmark_factory::pointer_type 
-benchmark_factory::create_hdf5(const string &type_code) 
+BenchmarkFactory::BenchmarkPointer
+BenchmarkFactory::create_hdf5(const std::string &type_code)
 {
-    pointer_type ptr;
+  using namespace pni::core;
+  BenchmarkPointer ptr;
 
-    if(type_code == "uint8")
-        ptr = pointer_type(new hdf5_io_benchmark<uint8>());
-    else if(type_code == "int8")
-        ptr = pointer_type(new hdf5_io_benchmark<int8>());
-    else if(type_code == "uint16")
-        ptr = pointer_type(new hdf5_io_benchmark<uint16>());
-    else if(type_code == "int16")
-        ptr = pointer_type(new hdf5_io_benchmark<int16>());
-    else if(type_code == "uint32")
-        ptr = pointer_type(new hdf5_io_benchmark<uint32>());
-    else if(type_code == "int32")
-        ptr = pointer_type(new hdf5_io_benchmark<int32>());
-    else
-        throw key_error(EXCEPTION_RECORD,"Unknown type code!");
-    
-    return ptr;
+  if(type_code == "uint8")
+    ptr = BenchmarkPointer(new HDF5IOBenchmark<uint8>());
+  else if(type_code == "int8")
+    ptr = BenchmarkPointer(new HDF5IOBenchmark<int8>());
+  else if(type_code == "uint16")
+    ptr = BenchmarkPointer(new HDF5IOBenchmark<uint16>());
+  else if(type_code == "int16")
+    ptr = BenchmarkPointer(new HDF5IOBenchmark<int16>());
+  else if(type_code == "uint32")
+    ptr = BenchmarkPointer(new HDF5IOBenchmark<uint32>());
+  else if(type_code == "int32")
+    ptr = BenchmarkPointer(new HDF5IOBenchmark<int32>());
+  else
+    throw key_error(EXCEPTION_RECORD,"Unknown type code!");
+
+  return ptr;
 }
 
 
 //-----------------------------------------------------------------------------
-benchmark_factory::pointer_type
-benchmark_factory::create(const string &type_code, const string &backend) 
+BenchmarkFactory::BenchmarkPointer
+BenchmarkFactory::create(const std::string &type_code, const std::string &backend)
 {
-    pointer_type ptr;
-    if(backend == "pniio")      
-        ptr = create_pniio(type_code);
-    else if(backend == "hdf5")  
-        ptr = create_hdf5(type_code);
-    else
-        throw key_error(EXCEPTION_RECORD,"Unkown backend!");
-    
-    return ptr;
+  using namespace pni::core;
+  BenchmarkPointer ptr;
+
+  if(backend == "pniio")
+    ptr = create_pniio(type_code);
+  else if(backend == "hdf5")
+    ptr = create_hdf5(type_code);
+  else
+    throw key_error(EXCEPTION_RECORD,"Unkown backend!");
+
+  return ptr;
 }

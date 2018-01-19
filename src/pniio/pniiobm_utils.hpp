@@ -33,21 +33,20 @@
 #include <common/config.hpp>
 #include <common/configuration.hpp>
 #include <common/logfile.hpp>
-
-using namespace pni::core;
+#include <common/benchmark_log.hpp>
 
 //----------------------------------------------------------------------------
 //              some global types 
 //----------------------------------------------------------------------------
 //! benchmark timer type
-typedef chrono_timer<std::chrono::high_resolution_clock,
-                        std::chrono::milliseconds> bm_timer_t;
+using BenchmarkTimer = pni::core::chrono_timer<std::chrono::high_resolution_clock,
+                                             std::chrono::milliseconds>;
 
 //! benchmark pointer type
-typedef benchmark_factory::pointer_type pointer_type;
+using BenchmarkPointer = BenchmarkFactory::BenchmarkPointer;
 
 //! benchmark function type
-typedef benchmark_runner::function_t function_type;
+using BenchmarkFunction = pni::core::benchmark_runner::function_t;
 
 //----------------------------------------------------------------------------
 //                     Some utility functions
@@ -55,13 +54,13 @@ typedef benchmark_runner::function_t function_type;
 //!
 //! \brief create program configuration
 //!
-configuration create_configuration();
+pni::core::configuration create_configuration();
 
 //----------------------------------------------------------------------------
 //!
 //! \brief create the benchmark runner
 //!
-benchmark_runner create_runner(const pointer_type &ptr);
+pni::core::benchmark_runner create_runner(const BenchmarkPointer &ptr);
 
 //----------------------------------------------------------------------------
 //!
@@ -73,12 +72,14 @@ benchmark_runner create_runner(const pointer_type &ptr);
 //! \param log benchmark log instance 
 //! \param config configuration instance
 //!
-void write_parameters(benchmark_log &log,const configuration &config);
+void write_parameters(BenchmarkLog &log,
+                      const pni::core::configuration &config);
 
 //----------------------------------------------------------------------------
 //!
 //! \brief write log file
 //! 
 //!
-void write_logfile(const configuration &config,const benchmark_runner &runner,
-                   const string &cli_args);
+void write_logfile(const pni::core::configuration &config,
+                   const pni::core::benchmark_runner &runner,
+                   const std::string &cli_args);

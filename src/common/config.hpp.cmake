@@ -22,6 +22,6 @@
 //
 #pragma once               
 
-static const string program_version = "@SOFTWARE_VERSION@";
-static const string program_url = "@SOFTWARE_URL@";
-static const string program_commit = "@SOFTWARE_COMMIT@";
+static const std::string program_version = "@SOFTWARE_VERSION@";
+static const std::string program_url = "@SOFTWARE_URL@";
+static const std::string program_commit = "@SOFTWARE_COMMIT@";

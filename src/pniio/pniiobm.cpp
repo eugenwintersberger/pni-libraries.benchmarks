@@ -23,56 +23,57 @@
 
 #include "pniiobm_utils.hpp"
 
+using namespace pni::core;
 
 //----------------------------------------------------------------------------
 //                  MAIN PROGRAM
 //----------------------------------------------------------------------------
 int main(int argc,char **argv)
 {
-    configuration config = create_configuration();
-   
-    //parse commmand line options 
-    parse(config,cliargs2vector(argc,argv));
-    if(config.value<bool>("help"))
-    {
-        std::cerr<<config<<std::endl;
-        return 1;
-    }
+  configuration config = create_configuration();
 
-    pointer_type bm_ptr;
-    //create the benchmark instance
-    try
-    {
-        bm_ptr = benchmark_factory::create(config.value<string>("type"),
-                                           config.value<string>("backend"));
-    }
-    catch(key_error &error)
-    {
-        std::cerr<<error<<std::endl;
-        return 1;
-    }
+  //parse commmand line options
+  parse(config,cliargs2vector(argc,argv));
+  if(config.value<bool>("help"))
+  {
+    std::cerr<<config<<std::endl;
+    return 1;
+  }
 
-    //now we have to configure the benchmark according to the CLI arguments 
-    //passed by the user
-    bm_ptr->nx(config.value<size_t>("nx"));
-    bm_ptr->ny(config.value<size_t>("ny"));
-    bm_ptr->nframes(config.value<size_t>("nframes"));
-    bm_ptr->filename(config.value<string>("output"));
-    bm_ptr->split_size(config.value<size_t>("split"));
+  BenchmarkPointer benchmark;
+  //create the benchmark instance
+  try
+  {
+    benchmark = BenchmarkFactory::create(config.value<string>("type"),
+                                         config.value<string>("backend"));
+  }
+  catch(key_error &error)
+  {
+    std::cerr<<error<<std::endl;
+    return 1;
+  }
+
+  //now we have to configure the benchmark according to the CLI arguments
+  //passed by the user
+  benchmark->nx(config.value<size_t>("nx"));
+  benchmark->ny(config.value<size_t>("ny"));
+  benchmark->nframes(config.value<size_t>("nframes"));
+  benchmark->filename(config.value<string>("output"));
+  benchmark->split_size(config.value<size_t>("split"));
 
 
-    //create the benchmark runner instance
-    benchmark_runner runner = create_runner(bm_ptr);
+  //create the benchmark runner instance
+  benchmark_runner runner = create_runner(benchmark);
 
-    //set the benchmark function
-    function_type f = std::bind(&file_io_benchmark::run,bm_ptr.get());
+  //set the benchmark function
+  BenchmarkFunction f = std::bind(&FileIOBenchmark::run,benchmark.get());
 
-    //run the benchmark
-    runner.run<bm_timer_t>(config.value<size_t>("nruns"),f);
+  //run the benchmark
+  runner.run<BenchmarkTimer>(config.value<size_t>("nruns"),f);
 
-    //create the output stream
-    if(config.has_option("logfile")) 
-        write_logfile(config,runner,cli_options_string(argc,argv));
+  //create the output stream
+  if(config.has_option("logfile"))
+    write_logfile(config,runner,cli_options_string(argc,argv));
 
-    return 0;
+  return 0;
 }

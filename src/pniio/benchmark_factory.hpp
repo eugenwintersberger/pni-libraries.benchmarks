@@ -27,38 +27,34 @@
 
 
 // forward declaration of the file_io_benchmark class
-class file_io_benchmark;
-using namespace pni::core;
+class FileIOBenchmark;
 
-class benchmark_factory
+class BenchmarkFactory
 {
-    public:
-        typedef std::unique_ptr<file_io_benchmark> pointer_type;
-    private:
-        static pointer_type create_pniio(const string &type_code); 
+  public:
+    using BenchmarkPointer = std::unique_ptr<FileIOBenchmark>;
+  private:
+    static BenchmarkPointer create_pniio(const std::string &type_code);
 
-        static pointer_type create_hdf5(const string &type_code);
-    public:
-        //---------------------------------------------------------------------
-        //! 
-        //! \brief create a benchmark
-        //!
-        //! Creates an instance of a benchmark class according to the type code
-        //! passed by the user and the backend which should be used to write the
-        //! data.
-        //! Supported backends are currently
-        //! \li hdf5 - using the plain HDF5 C API 
-        //! \li pniio - using the pniio wrapper
-        //!
-        //! \throws key_error if either the type code or the backend are unkown
-        //! \param type string representation of the data type
-        //! \param backend the backend to use
-        //! \return unique pointer to the benchmark instance
-        //!
-        static pointer_type create(const string &type_code,
-                                   const string &backend);
-                            
-
-
+    static BenchmarkPointer create_hdf5(const std::string &type_code);
+  public:
+    //---------------------------------------------------------------------
+    //!
+    //! \brief create a benchmark
+    //!
+    //! Creates an instance of a benchmark class according to the type code
+    //! passed by the user and the backend which should be used to write the
+    //! data.
+    //! Supported backends are currently
+    //! \li hdf5 - using the plain HDF5 C API
+    //! \li pniio - using the pniio wrapper
+    //!
+    //! \throws key_error if either the type code or the backend are unkown
+    //! \param type string representation of the data type
+    //! \param backend the backend to use
+    //! \return unique pointer to the benchmark instance
+    //!
+    static BenchmarkPointer create(const std::string &type_code,
+                                   const std::string &backend);
 };
 

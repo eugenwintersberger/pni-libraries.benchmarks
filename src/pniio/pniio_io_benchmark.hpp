@@ -26,83 +26,88 @@
 #include <pni/core/arrays.hpp>
 #include "file_io_benchmark.hpp"
 
-#include <pni/io/nx/nx.hpp>
+extern "C" {
+#include <hdf5.h>
+}
+
+#include <pni/io/nexus.hpp>
 
 #include "../common/data_generator.hpp"
 
-using namespace pni::core;
-using namespace pni::io::nx::h5;
-
-template<typename T> class pniio_io_benchmark : public file_io_benchmark
+template<typename T> class PNIIOBenchmark : public FileIOBenchmark
 {
-    public:
-        typedef dynamic_array<T> array_type;
-        typedef random_generator<T> data_generator_type;
-    private:
-        //! array holding the buffer for the frame data
-        array_type _frame_buffer; 
-        nxfield    _field;
-        nxfile     _file;
-    public:
-        //===================constructors and destructor=======================
-        //! default constructor
-        pniio_io_benchmark():
-            file_io_benchmark(),
-            _frame_buffer()
-        {}
+  public:
+    using ArrayType = pni::core::dynamic_array<T>;
+    using DataGenerator = RandomGenerator<T>;
+  private:
+    //! array holding the buffer for the frame data
+    ArrayType _frame_buffer;
+    hdf5::file::File     _file;
+  public:
+    //===================constructors and destructor=======================
+    //! default constructor
+    PNIIOBenchmark():
+      FileIOBenchmark(),
+      _frame_buffer()
+  {}
 
-        //======================public member functions========================
-        //! create data structures
-        virtual void create();
-        virtual void close();
+    //======================public member functions========================
+    //! create data structures
+    virtual void create();
+    virtual void close();
 
-        //---------------------------------------------------------------------
-        //! run the benchmark
-        virtual void run() ;
+    //---------------------------------------------------------------------
+    //! run the benchmark
+    virtual void run() ;
 
 };
 
 //-----------------------------------------------------------------------------
-template<typename T> void pniio_io_benchmark<T>::create()
+template<typename T> void PNIIOBenchmark<T>::create()
 {
-    //create data 
-    shape_t shape{nx(),ny()};
-    _frame_buffer = array_type::create(shape);
+  using namespace pni::core;
+  //create data
+  shape_t shape{nx(),ny()};
+  _frame_buffer = ArrayType::create(shape);
 
-    std::generate(_frame_buffer.begin(),_frame_buffer.end(),
-                  data_generator_type());
+  std::generate(_frame_buffer.begin(),_frame_buffer.end(),
+                DataGenerator());
 
-    //create the file
-    if(split_size())
-    {
-        _file = nxfile::create_files(filename(),true,split_size());
-    }
-    else
-    {
-        _file = nxfile::create_file(filename(),true);
-    }
+  //
+  // create the file
+  //
+  _file = hdf5::file::create(filename(),hdf5::file::AccessFlags::TRUNCATE);
+      //pni::io::nexus::create_file(filename(),hdf5::file::AccessFlags::TRUNCATE);
 
-    shape_t s{0,nx(),ny()};
-    shape_t cs{1,nx(),ny()};
-    nxgroup root = _file.root();
-    _field = root.template create_field<T>("data",s,cs);
+  //
+  // create the dataset
+  //
+  hdf5::Dimensions s{0,nx(),ny()};
+  hdf5::Dimensions cs{1,nx(),ny()};
+  hdf5::node::Group root = _file.root();
+  auto type = hdf5::datatype::create<T>();
+  hdf5::dataspace::Simple space{s,{hdf5::dataspace::Simple::UNLIMITED,nx(),nx()}};
+  hdf5::node::ChunkedDataset(root,"data",type,space,cs);
+
 }
 
 //-----------------------------------------------------------------------------
-template<typename T> void pniio_io_benchmark<T>::close()
+template<typename T> void PNIIOBenchmark<T>::close()
 {
-    _field.close();
-    _file.close();
+  _file.close();
 }
 
 
 //-----------------------------------------------------------------------------
-template<typename T> void pniio_io_benchmark<T>::run() 
+template<typename T> void PNIIOBenchmark<T>::run()
 {
-    for(size_t n = 0; n<nframes();n++)
-    {
-        _field.grow(0);
-        _field(n,slice(0,nx()),slice(0,ny())).write(_frame_buffer);
-        _file.flush();
-    }
+  hdf5::dataspace::Hyperslab selection({0,0,0},{1,nx(),nx()});
+  hdf5::node::Dataset field = _file.root()["data"];
+  for(size_t n = 0; n<nframes();n++)
+  {
+    field.extent(0,1);
+    selection.offset(0,n);
+    field.write(_frame_buffer,selection);
+    _file.flush(hdf5::file::Scope::GLOBAL);
+  }
 }
