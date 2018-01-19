@@ -3,12 +3,8 @@ set(PNIIOBM_SRC benchmark_factory.cpp
                 pniiobm.cpp 
                 pniiobm_utils.cpp)
 
-
-link_directories(${PNIIO_LIBRARY_DIRS})
-include_directories(${PNIIO_INCLUDE_DIRS})
-
 add_executable(pniiobm ${PNIIOBM_SRC} $<TARGET_OBJECTS:commonobjs>)
-target_link_libraries(pniiobm ${PNIIO_LIBRARIES})
+target_link_libraries(pniiobm pniio)
 
 install(TARGETS pniiobm  DESTINATION ${CMAKE_INSTALL_BINDIR})
 

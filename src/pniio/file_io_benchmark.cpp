@@ -23,12 +23,15 @@
 
 #include "file_io_benchmark.hpp"
 
+FileIOBenchmark::~FileIOBenchmark()
+{}
+
 //-----------------------------------------------------------------------------
-file_io_benchmark::file_io_benchmark():
-    _nx(0),
-    _ny(0),
-    _nframes(0),
-    _filename("pninxbm.h5"),
-    _split_size(size_t(0))
+FileIOBenchmark::FileIOBenchmark():
+        _nx(0),
+        _ny(0),
+        _nframes(0),
+        _filename("pninxbm.h5"),
+        _split_size(size_t(0))
 {}
 
