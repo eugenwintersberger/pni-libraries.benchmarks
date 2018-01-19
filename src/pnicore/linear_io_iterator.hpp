@@ -26,8 +26,6 @@
 #include <pni/core/types.hpp>
 #include <common/data_generator.hpp>
 
-using namespace pni::core;
-
 //!
 //! \brief IO bechmark for linear containers
 //! 
@@ -37,21 +35,21 @@ using namespace pni::core;
 //! 
 //! \tparam CTYPE container type used for benchmarking
 //!
-template<typename DATA> class linear_io_iterator
+template<typename DATA> class LinearIOIterator
 {
     public:
-        typedef typename DATA::value_type value_type;
-        typedef typename DATA::array_type array_type;
-        typedef random_generator<value_type> generator_type;
+        using ValueType = typename DATA::ValueType;
+        using ArrayType = typename DATA::ArrayType;
+        using GeneratorType = RandomGenerator<ValueType>;
     private:
-        shape_t _shape;
+        pni::core::shape_t _shape;
         DATA data;
-        value_type buffer;
+        ValueType buffer;
     public:
-        linear_io_iterator(const shape_t &s):
+        LinearIOIterator(const pni::core::shape_t &s):
             _shape(s),
             data(_shape), 
-            buffer(generator_type()()) 
+            buffer(GeneratorType()())
         {}
 
         //---------------------------------------------------------------------
@@ -60,7 +58,7 @@ template<typename DATA> class linear_io_iterator
             data.allocate(_shape);
             data.initialize();
 
-            buffer = generator_type()();
+            buffer = GeneratorType()();
         }
 
         //---------------------------------------------------------------------
