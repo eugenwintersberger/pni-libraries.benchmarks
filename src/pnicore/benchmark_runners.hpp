@@ -37,7 +37,7 @@
 //! benchmarks.
 //! \return benchmark map with binary benchmark runners
 //!
-benchmark_runners create_binary_benchmarks();
+BenchmarkRunners create_binary_benchmarks();
 
 //-----------------------------------------------------------------------------
 //!
@@ -52,11 +52,11 @@ benchmark_runners create_binary_benchmarks();
 //! \param all more complex expression of binary operators
 //! \return map with functions
 //! 
-benchmark_funcs create_binary_functions(const function_type &add,
-                                        const function_type &sub,
-                                        const function_type &div,
-                                        const function_type &mult,
-                                        const function_type &all);
+BenchmarkFunctions create_binary_functions(const FunctionType &add,
+                                        const FunctionType &sub,
+                                        const FunctionType &div,
+                                        const FunctionType &mult,
+                                        const FunctionType &all);
 
 //-----------------------------------------------------------------------------
 //!
@@ -68,7 +68,7 @@ benchmark_funcs create_binary_functions(const function_type &add,
 //! 
 //! \return map with runners
 //!
-benchmark_runners create_unary_benchmarks();
+BenchmarkRunners create_unary_benchmarks();
 
 //-----------------------------------------------------------------------------
 //!
@@ -86,45 +86,45 @@ benchmark_runners create_unary_benchmarks();
 //! \param div_scalar unary array-scalar division
 //! \return map with functions
 //!
-benchmark_funcs create_unary_functions(const function_type &add_array,
-                                       const function_type &sub_array,
-                                       const function_type &mult_array,
-                                       const function_type &div_array,
-                                       const function_type &add_scalar,
-                                       const function_type &sub_scalar,
-                                       const function_type &mult_scalar,
-                                       const function_type &div_scalar);
+BenchmarkFunctions create_unary_functions(const FunctionType &add_array,
+                                          const FunctionType &sub_array,
+                                          const FunctionType &mult_array,
+                                          const FunctionType &div_array,
+                                          const FunctionType &add_scalar,
+                                          const FunctionType &sub_scalar,
+                                          const FunctionType &mult_scalar,
+                                          const FunctionType &div_scalar);
 
 
 //-----------------------------------------------------------------------------
 template<bool use_ptr_flag,typename ATYPE> 
-void run_inplace_benchmark(size_t nruns,const shape_t &shape,std::ostream &o)
+void run_inplace_benchmark(size_t nruns,const pni::core::shape_t &shape,std::ostream &o)
 {
     //define benchmark type
-    typedef typename inplace_benchmark_type<ATYPE,use_ptr_flag>::benchmark_type 
-                     benchmark_type; 
+    using BenchmarkType = typename InplaceBenchmarkType<ATYPE,use_ptr_flag>::BenchmarkType;
+
     
     //run array benchmarks
-    benchmark_type benchmark(shape);
+    BenchmarkType benchmark(shape);
 
 
-    function_type allocate_data = std::bind(&benchmark_type::allocate,&benchmark);
-    function_type deallocate_data = std::bind(&benchmark_type::deallocate,&benchmark);
+    FunctionType allocate_data = std::bind(&BenchmarkType::allocate,&benchmark);
+    FunctionType deallocate_data = std::bind(&BenchmarkType::deallocate,&benchmark);
 
     //run benchmarks
-    benchmark_runners runners = create_unary_benchmarks();
+    BenchmarkRunners runners = create_unary_benchmarks();
     setup_benchmarks(runners,allocate_data,deallocate_data);
     
     //create the benchmark functions
-    benchmark_funcs functions = create_unary_functions(
-    function_type(std::bind(&benchmark_type::add_array,&benchmark)),
-    function_type(std::bind(&benchmark_type::sub_array,&benchmark)),
-    function_type(std::bind(&benchmark_type::mult_array,&benchmark)),
-    function_type(std::bind(&benchmark_type::div_array,&benchmark)),
-    function_type(std::bind(&benchmark_type::add_scalar,&benchmark)),
-    function_type(std::bind(&benchmark_type::sub_scalar,&benchmark)),
-    function_type(std::bind(&benchmark_type::mult_scalar,&benchmark)),
-    function_type(std::bind(&benchmark_type::div_scalar,&benchmark)));
+    BenchmarkFunctions functions = create_unary_functions(
+    FunctionType(std::bind(&BenchmarkType::add_array,&benchmark)),
+    FunctionType(std::bind(&BenchmarkType::sub_array,&benchmark)),
+    FunctionType(std::bind(&BenchmarkType::mult_array,&benchmark)),
+    FunctionType(std::bind(&BenchmarkType::div_array,&benchmark)),
+    FunctionType(std::bind(&BenchmarkType::add_scalar,&benchmark)),
+    FunctionType(std::bind(&BenchmarkType::sub_scalar,&benchmark)),
+    FunctionType(std::bind(&BenchmarkType::mult_scalar,&benchmark)),
+    FunctionType(std::bind(&BenchmarkType::div_scalar,&benchmark)));
 
 
     run_benchmarks(nruns,runners,functions);
@@ -150,26 +150,25 @@ template<
          bool use_ptr_flag,
          typename ATYPE
         > 
-void run_binary_benchmark(size_t nruns,const shape_t &shape,std::ostream &o)
+void run_binary_benchmark(size_t nruns,const pni::core::shape_t &shape,std::ostream &o)
 {
     //define benchmark type
-    typedef typename binary_benchmark_type<ATYPE,use_ptr_flag>::benchmark_type 
-                     benchmark_type; 
+    using BenchmarkType = typename BinaryBenchmarkType<ATYPE,use_ptr_flag>::BenchmarkType;
 
-    benchmark_type benchmark(shape);
+    BenchmarkType benchmark(shape);
 
-    function_type allocate_data = std::bind(&benchmark_type::allocate,&benchmark);
-    function_type deallocate_data = std::bind(&benchmark_type::deallocate,&benchmark);
+    FunctionType allocate_data = std::bind(&BenchmarkType::allocate,&benchmark);
+    FunctionType deallocate_data = std::bind(&BenchmarkType::deallocate,&benchmark);
 
-    benchmark_runners runners = create_binary_benchmarks();
+    BenchmarkRunners runners = create_binary_benchmarks();
     setup_benchmarks(runners,allocate_data,deallocate_data);
     //define benchmark functions
-    benchmark_funcs funcs = create_binary_functions(
-    function_type(std::bind(&benchmark_type::add,&benchmark)),
-    function_type(std::bind(&benchmark_type::sub,&benchmark)),
-    function_type(std::bind(&benchmark_type::div,&benchmark)),
-    function_type(std::bind(&benchmark_type::mult,&benchmark)),
-    function_type(std::bind(&benchmark_type::all,&benchmark)));
+    BenchmarkFunctions funcs = create_binary_functions(
+    FunctionType(std::bind(&BenchmarkType::add,&benchmark)),
+    FunctionType(std::bind(&BenchmarkType::sub,&benchmark)),
+    FunctionType(std::bind(&BenchmarkType::div,&benchmark)),
+    FunctionType(std::bind(&BenchmarkType::mult,&benchmark)),
+    FunctionType(std::bind(&BenchmarkType::all,&benchmark)));
 
    
     run_benchmarks(nruns,runners,funcs);

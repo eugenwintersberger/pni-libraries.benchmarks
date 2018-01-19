@@ -21,10 +21,10 @@
 //      Author: Eugen Wintersberger <eugen.wintersberger@desy.de>
 //
 #pragma once
-#include "inplace_arithmetic_benchmark.hpp"
-#include "inplace_arithmetic_benchmark_ptr.hpp"
 #include "binary_arithmetic_benchmark.hpp"
-#include "binary_arithmetic_benchmark_ptr.hpp"
+#include "binary_arithmetic_benchmark_pointer.hpp"
+#include "inplace_arithmetic_benchmark_pointer.hpp"
+#include "inplace_arithmetic_benchmark.hpp"
 
 //!
 //! \brief select inplace benchmark type
@@ -36,7 +36,7 @@
 //! \tparam ATYPE array type
 //! \tparam use_ptr_flag if true use pointer benchmark
 //!
-template<typename ATYPE,bool use_ptr_flag> struct inplace_benchmark_type;
+template<typename ATYPE,bool use_ptr_flag> struct InplaceBenchmarkType;
 
 //!
 //! \brief select pointer inplace benchmark
@@ -46,10 +46,10 @@ template<typename ATYPE,bool use_ptr_flag> struct inplace_benchmark_type;
 //!
 //! \tparam ATYPE array type
 //!
-template<typename ATYPE> struct inplace_benchmark_type<ATYPE,true>
+template<typename ATYPE> struct InplaceBenchmarkType<ATYPE,true>
 {
     //! inplace pointer benchmark type
-    typedef inplace_arithmetic_benchmark_ptr<ATYPE> benchmark_type;
+    using BenchmarkType = InplaceArithmeticBenchmarkPointer<ATYPE>;
 };
 
 //!
@@ -60,10 +60,10 @@ template<typename ATYPE> struct inplace_benchmark_type<ATYPE,true>
 //! 
 //! \tparam ATYPE array type
 //!
-template<typename ATYPE> struct inplace_benchmark_type<ATYPE,false>
+template<typename ATYPE> struct InplaceBenchmarkType<ATYPE,false>
 {
     //! inplace array benchmark type
-    typedef inplace_arithmetic_benchmark<ATYPE> benchmark_type;
+    using BenchmarkType = InplaceArithmeticBenchmark<ATYPE>;
 };
 
 //-----------------------------------------------------------------------------
@@ -79,7 +79,7 @@ template<typename ATYPE> struct inplace_benchmark_type<ATYPE,false>
 //! \tparam ATYPE array type
 //! \tparam use_ptr_flag boolean flag deciding which type to use
 //!
-template<typename ATYPE,bool use_ptr_flag> struct binary_benchmark_type;
+template<typename ATYPE,bool use_ptr_flag> struct BinaryBenchmarkType;
 
 //----------------------------------------------------------------------------
 //!
@@ -88,10 +88,10 @@ template<typename ATYPE,bool use_ptr_flag> struct binary_benchmark_type;
 //! Select the pointer type for binary benchmarks.
 //! \tparam ATYPE array type
 //!
-template<typename ATYPE> struct binary_benchmark_type<ATYPE,true>
+template<typename ATYPE> struct BinaryBenchmarkType<ATYPE,true>
 {
     //! binary pointer benchmark type
-    typedef binary_arithmetic_benchmark_ptr<ATYPE> benchmark_type;
+    using BenchmarkType = BinaryArithmeticBenchmarkPointer<ATYPE>;
 };
 
 //----------------------------------------------------------------------------
@@ -102,9 +102,9 @@ template<typename ATYPE> struct binary_benchmark_type<ATYPE,true>
 //!
 //! \tparam ATYPE array type
 //!
-template<typename ATYPE> struct binary_benchmark_type<ATYPE,false>
+template<typename ATYPE> struct BinaryBenchmarkType<ATYPE,false>
 {
     //! binary array benchmark type
-    typedef binary_arithmetic_benchmark<ATYPE> benchmark_type;
+    using BenchmarkType = BinaryArithmeticBenchmark<ATYPE>;
 };
 
