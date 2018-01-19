@@ -23,13 +23,12 @@
 #pragma once                
 
 #include <typeinfo>
+#include <array>
 #include <pni/core/types.hpp>
 #include <pni/core/arrays.hpp>
 #include <pni/core/utilities.hpp>
 
 #include <common/data_generator.hpp>
-
-using namespace pni::core;
 
 //!
 //! \brief multiindex array benchmark
@@ -50,37 +49,36 @@ array(i,j) = 5.;
 //! \tparam ATYPE array type to run the test for
 //!
 template<typename ATYPE> 
-class multiindex_io_array
+class MultiindexIOArray
 {
     public:
-        typedef ATYPE array_type;
-        typedef array_view<array_type> view_type;
-        typedef typename array_type::value_type value_type;
-        typedef array_factory<array_type> factory_type;
-        typedef random_generator<value_type> generator_type;
-        typedef std::vector<size_t> vindex_type;
-        typedef std::array<size_t,2> aindex_type;
+        using ArrayType = ATYPE;
+        using ViewType = pni::core::array_view<ArrayType>;
+        using ValueType = typename ArrayType::value_type;
+        using GeneratorType = RandomGenerator<ValueType>;
+        using VIndexType = std::vector<size_t>;
+        using AIndexType = std::array<size_t,2>;
     private:
-        shape_t _shape;    //!< array shape
+        pni::core::shape_t _shape;    //!< array shape
         size_t _nx;        //!< number of elements along the first dimension
         size_t _ny;        //!< number of elements along the second dimension
-        array_type _array; //!< instance of the array
-        view_type  _view;  //!< view on the entire array
-        value_type *_ptr;  //!< pointer to the data
-        value_type  _buffer; 
-        vindex_type _vindex;
-        aindex_type _aindex;
+        ArrayType _array; //!< instance of the array
+        ViewType  _view;  //!< view on the entire array
+        ValueType *_ptr;  //!< pointer to the data
+        ValueType  _buffer;
+        VIndexType _vindex;
+        AIndexType _aindex;
     public:
-        //==================construtors========================================
+        //==================constructors========================================
         //! constructor
-        multiindex_io_array(const shape_t &shape):
+        MultiindexIOArray(const pni::core::shape_t &shape):
             _shape(shape),
             _nx(shape[0]),
             _ny(shape[1]),
-            _array(factory_type::create(shape)),
-            _view(_array(slice(0,_nx),slice(0,_ny))),
-            _ptr(const_cast<value_type*>(_array.data())),
-            _buffer(generator_type()()),
+            _array(ArrayType::create(shape)),
+            _view(_array(pni::core::slice(0,_nx),pni::core::slice(0,_ny))),
+            _ptr(const_cast<ValueType*>(_array.data())),
+            _buffer(GeneratorType()()),
             _vindex(2),
             _aindex()
         { }
@@ -88,13 +86,13 @@ class multiindex_io_array
         //---------------------------------------------------------------------
         void allocate()
         {
-            _array = factory_type::create(_shape);
-            std::generate(_array.begin(),_array.end(),random_generator<value_type>());
+            _array = ArrayType::create(_shape);
+            std::generate(_array.begin(),_array.end(),RandomGenerator<ValueType>());
 
-            _view = _array(slice(0,_nx),slice(0,_ny));
-            _ptr = const_cast<value_type*>(_array.data());
+            _view = _array(pni::core::slice(0,_nx),pni::core::slice(0,_ny));
+            _ptr = const_cast<ValueType*>(_array.data());
 
-            _buffer = generator_type()();
+            _buffer = GeneratorType()();
         }
 
         void deallocate() {}

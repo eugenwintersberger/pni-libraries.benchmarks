@@ -26,6 +26,7 @@
 #include <ratio>
 #include <ctime>
 #include <utility>
+#include <pni/core/configuration.hpp>
 
 #include <common/types.hpp>
 #include <common/utils.hpp>
@@ -35,22 +36,22 @@
 using namespace pni::core;
 
 //define som array types
-typedef dynamic_array<float64> darray_type;
-typedef fixed_dim_array<float64,2> farray_type;
-typedef static_array<float64,500,500> sarray_type;
+using DynamicArray = dynamic_array<float64>;
+using FixedDimArray = fixed_dim_array<float64,2>;
+using StaticArray = static_array<float64,500,500>;
 
 
 //darray multiindex benchmark type
-typedef multiindex_io_array<darray_type>  darray_bm_type; 
+using DynamicArrayBenchmark = MultiindexIOArray<DynamicArray>;
 //fixed dim multiindex benchmark type
-typedef multiindex_io_array<farray_type>  farray_bm_type; 
+using FixedDimArrayBenchmark = MultiindexIOArray<FixedDimArray>;
 //static array multiindex benchmark type
-typedef multiindex_io_array<sarray_type>  sarray_bm_type;
+using StaticArrayBenchmark = MultiindexIOArray<StaticArray>;
 
 template<typename BMARKT>
-benchmark_funcs setup_funcs(BMARKT &benchmark,const string &access,bool view_flag)
+BenchmarkFunctions setup_funcs(BMARKT &benchmark,const string &access,bool view_flag)
 {
-    typedef BMARKT benchmark_type;
+    using Benchmark = BMARKT;
 
     if(view_flag)
     {
@@ -58,23 +59,23 @@ benchmark_funcs setup_funcs(BMARKT &benchmark,const string &access,bool view_fla
         if(access == "variadic")
         {
             std::cout<<"variadic access"<<std::endl;
-            return benchmark_funcs{
-            {"write",std::bind(&benchmark_type::variadic_write_view,&benchmark)},
-            {"read",std::bind(&benchmark_type::variadic_read_view,&benchmark)}};
+            return BenchmarkFunctions{
+            {"write",std::bind(&Benchmark::variadic_write_view,&benchmark)},
+            {"read",std::bind(&Benchmark::variadic_read_view,&benchmark)}};
         }
         else if(access == "vector")
         {
             std::cout<<"vector access"<<std::endl;
-            return benchmark_funcs{
-            {"write",std::bind(&benchmark_type::vector_write_view,&benchmark)},
-            {"read",std::bind(&benchmark_type::vector_read_view,&benchmark)}};
+            return BenchmarkFunctions{
+            {"write",std::bind(&Benchmark::vector_write_view,&benchmark)},
+            {"read",std::bind(&Benchmark::vector_read_view,&benchmark)}};
         }
         else if(access == "array")
         {
             std::cout<<"array access"<<std::endl;
-            return benchmark_funcs{
-            {"write",std::bind(&benchmark_type::array_write_view,&benchmark)},
-            {"read",std::bind(&benchmark_type::array_read_view,&benchmark)}};
+            return BenchmarkFunctions{
+            {"write",std::bind(&Benchmark::array_write_view,&benchmark)},
+            {"read",std::bind(&Benchmark::array_read_view,&benchmark)}};
         }
         else if(access == "pointer")
         {
@@ -88,30 +89,30 @@ benchmark_funcs setup_funcs(BMARKT &benchmark,const string &access,bool view_fla
         if(access == "variadic")
         {
             std::cout<<"variadic access"<<std::endl;
-            return benchmark_funcs{
-            {"write",std::bind(&benchmark_type::variadic_write_array,&benchmark)},
-            {"read",std::bind(&benchmark_type::variadic_read_array,&benchmark)}};
+            return BenchmarkFunctions{
+            {"write",std::bind(&Benchmark::variadic_write_array,&benchmark)},
+            {"read",std::bind(&Benchmark::variadic_read_array,&benchmark)}};
         }
         else if(access == "vector")
         {
             std::cout<<"vector access"<<std::endl;
-            return benchmark_funcs{
-            {"write",std::bind(&benchmark_type::vector_write_array,&benchmark)},
-            {"read",std::bind(&benchmark_type::vector_read_array,&benchmark)}};
+            return BenchmarkFunctions{
+            {"write",std::bind(&Benchmark::vector_write_array,&benchmark)},
+            {"read",std::bind(&Benchmark::vector_read_array,&benchmark)}};
         }
         else if(access == "array")
         {
             std::cout<<"array access"<<std::endl;
-            return benchmark_funcs{
-            {"write",std::bind(&benchmark_type::array_write_array,&benchmark)},
-            {"read",std::bind(&benchmark_type::array_read_array,&benchmark)}};
+            return BenchmarkFunctions{
+            {"write",std::bind(&Benchmark::array_write_array,&benchmark)},
+            {"read",std::bind(&Benchmark::array_read_array,&benchmark)}};
         }
         else if(access == "pointer")
         {
             std::cout<<"pointer access"<<std::endl;
-            return benchmark_funcs{
-            {"write",std::bind(&benchmark_type::pointer_write_array,&benchmark)},
-            {"read",std::bind(&benchmark_type::pointer_read_array,&benchmark)}};
+            return BenchmarkFunctions{
+            {"write",std::bind(&Benchmark::pointer_write_array,&benchmark)},
+            {"read",std::bind(&Benchmark::pointer_read_array,&benchmark)}};
         }
 
     }
@@ -121,16 +122,16 @@ template<typename BMARKT>
 void run_benchmark(size_t nruns,const shape_t &shape,const string &access,
                    bool view_flag)
 {
-    typedef BMARKT benchmark_type; 
+    using Benchmark = BMARKT;
 
-    benchmark_type benchmark(shape);
-    function_type allocate_data = std::bind(&benchmark_type::allocate,&benchmark);
-    function_type deallocate_data = std::bind(&benchmark_type::deallocate,&benchmark);
+    Benchmark benchmark(shape);
+    FunctionType allocate_data = std::bind(&Benchmark::allocate,&benchmark);
+    FunctionType deallocate_data = std::bind(&Benchmark::deallocate,&benchmark);
     
-    benchmark_runners runners{{"write",benchmark_runner()},
-                              {"read",benchmark_runner()}};
+    BenchmarkRunners runners{{"write",benchmark_runner()},
+                             {"read",benchmark_runner()}};
 
-    benchmark_funcs funcs = setup_funcs(benchmark,access,view_flag);
+    BenchmarkFunctions funcs = setup_funcs(benchmark,access,view_flag);
 
     run_benchmarks(nruns,runners,funcs);
     
@@ -181,17 +182,17 @@ int main(int argc,char **argv)
     if(type == "darray")
     {
         std::cout<<"# darray";
-        run_benchmark<darray_bm_type>(nruns,shape,access,view_flag);
+        run_benchmark<DynamicArrayBenchmark>(nruns,shape,access,view_flag);
     }
     else if(type == "farray")
     {
         std::cout<<"# farray";
-        run_benchmark<farray_bm_type>(nruns,shape,access,view_flag);
+        run_benchmark<FixedDimArrayBenchmark>(nruns,shape,access,view_flag);
     }
     else if(type == "sarray")
     {
         std::cout<<"# sarray";
-        run_benchmark<sarray_bm_type>(nruns,shape,access,view_flag);
+        run_benchmark<StaticArrayBenchmark>(nruns,shape,access,view_flag);
     }
     else
         std::cerr<<"Unknown benchmark type"<<std::endl;
