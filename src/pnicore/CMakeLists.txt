@@ -17,8 +17,8 @@ target_link_libraries(iteratorbm pniio)
 add_executable(multiindexbm ${MULTIINDEX_BM_SRC} $<TARGET_OBJECTS:commonobjs>)
 target_link_libraries(multiindexbm pniio)
 
-#add_executable(indexmapbm ${INDEXMAP_BM_SRC} $<TARGET_OBJECTS:commonobjs>)
-#target_link_libraries(indexmapbm pniio )
+add_executable(indexmapbm ${INDEXMAP_BM_SRC} $<TARGET_OBJECTS:commonobjs>)
+target_link_libraries(indexmapbm pniio )
 
 #install(TARGETS arithmeticbm  
 #                iteratorbm 
