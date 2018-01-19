@@ -24,102 +24,104 @@
 
 #include "types.hpp"
 #include "data_generator.hpp"
+//#include <pni/core/arrays.hpp>
+#include <algorithm>
 
 
 //!
 //! \brief array manger
 //! 
-//! This tempalte holds a particular array and provides methods to access the 
+//! This template holds a particular array and provides methods to access the
 //! array as well as allocate, deallocate, and initialize it with random data. 
 //!
 //! \tparam ATYPE array type
 //!
 template<typename ATYPE> 
-class array_benchmark_data
+class ArrayBenchmarkData
 {
-    public:
-        //! array type
-        typedef ATYPE array_type;
-        //! value type
-        typedef typename array_type::value_type value_type;
-        //! array factory type
-        typedef array_factory<array_type> factory_type;
-        //! generator type
-        typedef random_generator<value_type> generator_type;
-    private:
-        array_type _data; //!< the array wit hdata
-    public:
-        //---------------------------------------------------------------------
-        //!
-        //! \brief constructor 
-        //!
-        //! Construct the array data from a shape. 
-        //!
-        //! \tparam CTYPE container type with shape information
-        //!
-        //! \param shape reference to a CTYPE instance 
-        //!
-        template<typename CTYPE> 
-        array_benchmark_data(const CTYPE &shape):
-            _data(array_type::template create(shape))
-        {
-            this->initialize();
-        }
+  public:
+    //! array type
+    using ArrayType =  ATYPE;
+    //! value type
+    using ValueType = typename ArrayType::value_type;
+    //! array factory type
+    //using FactoryType = pni::core::array_factory<ArrayType>;
+    //! generator type
+    using GeneratorType = RandomGenerator<ValueType>;
+  private:
+    ArrayType _data; //!< the array wit hdata
+  public:
+    //---------------------------------------------------------------------
+    //!
+    //! \brief constructor
+    //!
+    //! Construct the array data from a shape.
+    //!
+    //! \tparam CTYPE container type with shape information
+    //!
+    //! \param shape reference to a CTYPE instance
+    //!
+    template<typename CTYPE>
+    ArrayBenchmarkData(const CTYPE &shape):
+    _data(ArrayType::template create(shape))
+    {
+      this->initialize();
+    }
 
-        //---------------------------------------------------------------------
-        //!
-        //! \brief allocate array data
-        //! 
-        //! Allocate new memory for the array. The shape information is 
-        //! provided to the method by a STL compliant container.
-        //!
-        //! \tparam CTYPE container type with shape 
-        //! \param shape reference to the shape container
-        //!
-        template<typename CTYPE> 
-        void allocate(const CTYPE &shape) 
-        {
-            _data = array_type::template create(shape);
-        }
+    //---------------------------------------------------------------------
+    //!
+    //! \brief allocate array data
+    //!
+    //! Allocate new memory for the array. The shape information is
+    //! provided to the method by a STL compliant container.
+    //!
+    //! \tparam CTYPE container type with shape
+    //! \param shape reference to the shape container
+    //!
+    template<typename CTYPE>
+    void allocate(const CTYPE &shape)
+    {
+      _data = ArrayType::template create(shape);
+    }
 
-        //---------------------------------------------------------------------
-        //!
-        //! \brief initialize the array 
-        //!
-        //! This method initializes the internal array with random data.
-        //!
-        void initialize()
-        {
-            std::generate(_data.begin(),_data.end(),generator_type());
-        }
+    //---------------------------------------------------------------------
+    //!
+    //! \brief initialize the array
+    //!
+    //! This method initializes the internal array with random data.
+    //!
+    void initialize()
+    {
+      std::generate(_data.begin(),_data.end(),GeneratorType());
+    }
 
-        //---------------------------------------------------------------------
-        //!
-        //! \brief deallocate the array
-        //!
-        //! Basically this function does nothing. As we do array allocation 
-        //! using rvalue reference to original data will be dropped when 
-        //! allocating memory automatically. 
-        //!
-        void deallocate() {  }
+    //---------------------------------------------------------------------
+    //!
+    //! \brief deallocate the array
+    //!
+    //! Basically this function does nothing. As we do array allocation
+    //! using rvalue reference to original data will be dropped when
+    //! allocating memory automatically.
+    //!
+    void deallocate() {  }
 
-        //---------------------------------------------------------------------
-        //!
-        //! \brief get reference to array
-        //!
-        //! Return a reference to the array stored in the class. 
-        //! \return array reference 
-        //!
-        array_type &data() { return _data; }
-        
-        //---------------------------------------------------------------------
-        //!
-        //! \brief get const reference to the array
-        //!
-        //! Return a const reference to the array stored in the class.
-        //!
-        //! \return const reference to the array
-        //!
-        const array_type &data() const { return _data; }
-    
+    //---------------------------------------------------------------------
+    //!
+    //! \brief get reference to array
+    //!
+    //! Return a reference to the array stored in the class.
+    //! \return array reference
+    //!
+    ArrayType &data() { return _data; }
+
+    //---------------------------------------------------------------------
+    //!
+    //! \brief get const reference to the array
+    //!
+    //! Return a const reference to the array stored in the class.
+    //!
+    //! \return const reference to the array
+    //!
+    const ArrayType &data() const { return _data; }
+
 };

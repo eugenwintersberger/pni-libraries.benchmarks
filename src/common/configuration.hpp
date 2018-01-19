@@ -22,10 +22,8 @@
 //
 #pragma once                
 
-#include <pni/core/types.hpp>
+#include <string>
 #include <pni/core/configuration.hpp>
-
-using namespace pni::core;
 
 //!
 //! \brief create the default configuration
@@ -43,7 +41,7 @@ using namespace pni::core;
 //! 
 //! \return configuration object
 //!
-configuration create_default_config();
+pni::core::configuration create_default_config();
 
 
 //----------------------------------------------------------------------------
@@ -56,4 +54,4 @@ configuration create_default_config();
 //! \param argv pointer to arguments and options
 //! \return concatenated string
 //! 
-string cli_options_string(int argc,char **argv);
+std::string cli_options_string(int argc,char **argv);

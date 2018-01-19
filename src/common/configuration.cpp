@@ -23,32 +23,33 @@
 
 #include "configuration.hpp"
 
-configuration create_default_config()
+pni::core::configuration create_default_config()
 {
-    configuration config;
-    
-    config.add_option(config_option<bool>("help","h",
-                      "show help text",false));
-    config.add_option(config_option<bool>("logfile-overwrite","",
-                "overwrite existing logfile",false));
-    config.add_option(config_option<string>("logfile","l",
-                "name of the logfile","benchmark.nxs"));
-    config.add_option(config_option<size_t>("nruns","r",
-                "number of benchmark_runs",size_t(1)));
-    config.add_option(config_option<string>("entry","e",
-                "Name of the entry in the logfile","benchmark"));
+  using namespace pni::core;
+  configuration config;
 
-    return config;
+  config.add_option(config_option<bool>("help","h",
+                                        "show help text",false));
+  config.add_option(config_option<bool>("logfile-overwrite","",
+                                        "overwrite existing logfile",false));
+  config.add_option(config_option<std::string>("logfile","l",
+                                          "name of the logfile","benchmark.nxs"));
+  config.add_option(config_option<size_t>("nruns","r",
+                                          "number of benchmark_runs",size_t(1)));
+  config.add_option(config_option<std::string>("entry","e",
+                                          "Name of the entry in the logfile","benchmark"));
+
+  return config;
 }
 
 //----------------------------------------------------------------------------
-string cli_options_string(int argc,char **argv)
+std::string cli_options_string(int argc,char **argv)
 {
-    string output;
+  std::string output;
 
-    if(argc<2) return output;
+  if(argc<2) return output;
 
-    for(size_t i=1;i<argc;++i) output += " "+string(argv[i]);
+  for(size_t i=1;i<argc;++i) output += " "+std::string(argv[i]);
 
-    return output;
+  return output;
 }

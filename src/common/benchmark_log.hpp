@@ -24,66 +24,73 @@
 
 #include <map>
 #include <pni/core/types.hpp>
-#include <pni/io/nx/nx.hpp>
+#include <pni/io/nexus.hpp>
+#include <h5cpp/hdf5.hpp>
 
-using namespace pni::core;
-using namespace pni::io::nx::h5;
 
-class benchmark_log
+class BenchmarkLog
 {
-    private:
-        nxgroup _group;
-        nxgroup _data_group;
-        nxgroup _params_group;
-    public:
-        //! default constructor
-        benchmark_log();
+  private:
+    hdf5::node::Group _group;
+    hdf5::node::Group _data_group;
+    hdf5::node::Group _params_group;
+  public:
+    //! default constructor
+    BenchmarkLog();
 
-        //--------------------------------------------------------------------
-        //! constructor
-        benchmark_log(const nxgroup &g);
-    
-        //--------------------------------------------------------------------
-        //!
-        //! \brief create a new data item
-        //! 
-        //! This method creates a new data item in the log. 
-        //! 
-        //! \param name the logical name of the item
-        //! \param unit the physical unit of the item
-        //! \return instance of nxfield representing the data item
-        //! 
-        template<typename T>
-        void create_item(const string &name,const string &unit)
-        {
-            nxfield f = _data_group.create_field<T>(name);
-            f.attributes.create<string>("units").write(unit);
-        }
+    //--------------------------------------------------------------------
+    //! constructor
+    BenchmarkLog(const hdf5::node::Group &g);
 
-        //--------------------------------------------------------------------
-        //! 
-        //! \brief append data to item
-        //! 
-        //! Append a new value to a data item
-        //! 
-        //! \param name the name of the data item
-        //! 
-        template<typename T> 
-        void append_data(const string &name,T value)
-        {
-            nxfield f = _data_group[name];
-            
-            f.grow(0,1);
-            f(f.size()-1).write(value);
-        }
+    //--------------------------------------------------------------------
+    //!
+    //! \brief create a new data item
+    //!
+    //! This method creates a new data item in the log.
+    //!
+    //! \param name the logical name of the item
+    //! \param unit the physical unit of the item
+    //! \return instance of nxfield representing the data item
+    //!
+    template<typename T>
+    void create_item(const std::string &name,const std::string &unit)
+    {
+      auto type = hdf5::datatype::create<T>();
+      hdf5::dataspace::Simple dataspace{{0},{hdf5::dataspace::Simple::UNLIMITED}};
 
-        //--------------------------------------------------------------------
-        template<typename T> 
-        void add_parameter(const string &name,T value,const string &unit)
-        {
-            nxfield f = _params_group.create_field<T>(name);
-            f.write(value);
-            f.attributes.create<string>("units").write(unit);
-        }
+      hdf5::node::ChunkedDataset f(_data_group,name,type,dataspace,{1024});
+      f.attributes.create<std::string>("units").write(unit);
+    }
+
+    //--------------------------------------------------------------------
+    //!
+    //! \brief append data to item
+    //!
+    //! Append a new value to a data item
+    //!
+    //! \param name the name of the data item
+    //!
+    template<typename T>
+    void append_data(const std::string &name,T value)
+    {
+      hdf5::node::Dataset f = _data_group[name];
+
+      f.extent(0,1);
+      hdf5::dataspace::Simple space = f.dataspace();
+      hdf5::dataspace::Hyperslab selection{{space.size()-1},{1}};
+      f.write(value,selection);
+    }
+
+    //--------------------------------------------------------------------
+    template<typename T>
+    void add_parameter(const std::string &name,T value,const std::string &unit)
+    {
+      auto type = hdf5::datatype::create<T>(value);
+      hdf5::dataspace::Scalar space;
+
+      hdf5::node::Dataset f(_params_group,name,type,space);
+      f.write(value);
+      f.attributes.create<std::string>("units").write(unit);
+    }
 
 };

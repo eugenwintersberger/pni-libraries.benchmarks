@@ -24,111 +24,93 @@
 #pragma once
 
 #include <sstream>
+#include <random>
+#include <complex>
 #include <pni/core/types.hpp>
 #include <boost/lexical_cast.hpp>
 
-#ifdef NOCPPRAND
-#include <boost/random/uniform_int.hpp>
-#include <boost/random/uniform_real.hpp>
-#include <boost/random/mersenne_twister.hpp>
-#else
-#include <random>
-#endif
-
-using namespace pni::core;
 
 //=============we need different distributions for integer and float============
-template<typename T,bool is_int> struct distribution_map;
+template<typename T,bool is_int> struct DistributionMap;
 
 //------------distribution for integral types-----------------------------------
-template<typename T> struct distribution_map<T,true>
+template<typename T> struct DistributionMap<T,true>
 {
-#ifdef NOCPPRAND
-    typedef boost::uniform_int<T> distribution_type;
-#else
-    typedef std::uniform_int_distribution<T> distribution_type;
-#endif
+    using DistributionType = std::uniform_int_distribution<T>;
 };
 
 //------------------distribution for floating point types-----------------------
-template<typename T> struct distribution_map<T,false>
+template<typename T> struct DistributionMap<T,false>
 {
-#ifdef NOCPPRAND
-    typedef boost::uniform_real<T> distribution_type;
-#else
-    typedef std::uniform_real_distribution<T> distribution_type;
-#endif
+    using DistributionType = std::uniform_real_distribution<T>;
 };
 
 //=================the default generator=======================================
-template<typename T> class random_generator
+template<typename T> class RandomGenerator
 {
-    private:
-#ifdef NOCPPRAND
-        boost::mt19937 _engine;
-#else
-        std::mt19937_64 _engine;
-#endif
-        typename distribution_map<T,type_info<T>::is_integer>::distribution_type _distribution;
+  private:
+    std::mt19937_64 _engine;
+    typename DistributionMap<T,pni::core::type_info<T>::is_integer>::DistributionType _distribution;
 
-    public:
-        random_generator(T a,T b):
-            _engine(std::random_device()()),
-            _distribution(a,b)
-        {}
+  public:
+    RandomGenerator(T a,T b):
+      _engine(std::random_device()()),
+      _distribution(a,b)
+  {}
 
-        random_generator():
-            _engine(std::random_device()()),
-            _distribution(0.2*type_info<T>::min(),0.2*type_info<T>::max())
-        { 
-        }
+    RandomGenerator():
+      _engine(std::random_device()()),
+      _distribution(0.2*pni::core::type_info<T>::min(),
+                    0.2*pni::core::type_info<T>::max())
+    {
+    }
 
-        T operator()()
-        {
-            return _distribution(_engine);
-        }
+    T operator()()
+    {
+      return _distribution(_engine);
+    }
 };
 
 //-----------------------------------------------------------------------------
-template<typename T> class random_generator<std::complex<T>>
+template<typename T> class RandomGenerator<std::complex<T>>
 {
-    private:
-        random_generator<T> _real_generator;
-        random_generator<T> _imag_generator;
-    public:
-        random_generator(T a,T b):
-            _real_generator(a,b),
-            _imag_generator(a,b)
-        {}
+  private:
+    RandomGenerator<T> _real_generator;
+    RandomGenerator<T> _imag_generator;
+  public:
+    RandomGenerator(T a,T b):
+      _real_generator(a,b),
+      _imag_generator(a,b)
+  {}
 
-        random_generator():
-            _real_generator(),
-            _imag_generator()
-        {}
-        
-        std::complex<T> operator()()
-        {
-            return std::complex<T>(_real_generator(),
-                                   _imag_generator());
-        }
+    RandomGenerator():
+      _real_generator(),
+      _imag_generator()
+    {}
+
+    std::complex<T> operator()()
+    {
+      return std::complex<T>(_real_generator(),
+                             _imag_generator());
+    }
 };
 
 //-----------------------------------------------------------------------------
-template<> class random_generator<string>
+template<> class RandomGenerator<std::string>
 {
-    private:
-        random_generator<unsigned long> _generator;
-    public:
-        random_generator(unsigned long a,unsigned long b):
-            _generator(a,b)
-        {}
+  private:
+    RandomGenerator<unsigned long> _generator;
+  public:
+    RandomGenerator(unsigned long a,unsigned long b):
+      _generator(a,b)
+  {}
 
-        random_generator(){}
+    RandomGenerator(){}
 
-        string operator()()
-        {
-            return boost::lexical_cast<string>(_generator());
-        }
+    std::string operator()()
+    {
+      return boost::lexical_cast<std::string>(_generator());
+    }
 };
 
     

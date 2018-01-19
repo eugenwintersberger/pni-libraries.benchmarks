@@ -25,9 +25,9 @@
 #include <iomanip>
 #include "utils.hpp"
 
-void write_result(const benchmark_runners &runners, std::ostream &o)
+void write_result(const BenchmarkRunners &runners, std::ostream &o)
 {
-    typedef benchmark_runner::const_iterator iterator_type;
+    using IteratorType =  pni::core::benchmark_runner::const_iterator;
 
     o<<"# ";
     for(auto runner: runners) o<<runner.first<<"\t";
@@ -35,10 +35,10 @@ void write_result(const benchmark_runners &runners, std::ostream &o)
     o<<std::endl;
     o<<std::scientific<<std::setprecision(16);
 
-    std::vector<iterator_type> iterators;
+    std::vector<IteratorType> iterators;
 
     //generate a list of iterators
-    iterator_type stop_iter;
+    IteratorType stop_iter;
     for(auto &runner: runners) 
     {
         iterators.push_back(runner.second.begin());
@@ -56,8 +56,8 @@ void write_result(const benchmark_runners &runners, std::ostream &o)
 }
 
 //-----------------------------------------------------------------------------
-void setup_benchmarks(benchmark_runners &runners,const function_type &pre,
-                                         const function_type &post)
+void setup_benchmarks(BenchmarkRunners &runners,const FunctionType &pre,
+                                                const FunctionType &post)
 {
     for(auto &runner: runners)
     {
@@ -67,8 +67,8 @@ void setup_benchmarks(benchmark_runners &runners,const function_type &pre,
 }
 
 //-----------------------------------------------------------------------------
-void run_benchmarks(size_t nruns,benchmark_runners &runners,benchmark_funcs &funcs)
+void run_benchmarks(size_t nruns,BenchmarkRunners &runners,BenchmarkFunctions &funcs)
 {
     for(auto &runner: runners)
-        runner.second.run<timer_type>(nruns,funcs[runner.first]);
+        runner.second.run<TimerType>(nruns,funcs[runner.first]);
 }
