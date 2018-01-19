@@ -22,13 +22,16 @@
 //
 #pragma once
 
-#include <pni/core/types.hpp>
 #include "../common/data_generator.hpp"
 
-template<typename ATYPE> class BinaryArithmeticBenchmark
+template<typename ATYPE> 
+class BinaryArithmeticBenchmarkPointer
 {
-  private:
+
+  public:
     using ArrayType = ATYPE;
+    using ValueType = typename ArrayType::value_type;
+  private:
     pni::core::shape_t _shape;
     ArrayType _a;
     ArrayType _b;
@@ -36,18 +39,36 @@ template<typename ATYPE> class BinaryArithmeticBenchmark
     ArrayType _d;
     ArrayType _e;
     ArrayType _f;
+    size_t _size;
+    ValueType *_a_ptr;
+    ValueType *_b_ptr;
+    ValueType *_c_ptr;
+    ValueType *_d_ptr;
+    ValueType *_e_ptr;
+    ValueType *_f_ptr;
   public:
-    BinaryArithmeticBenchmark(const pni::core::shape_t &s):
-      _shape(s)
+    BinaryArithmeticBenchmarkPointer(const pni::core::shape_t &s):
+      _shape(s),
+      _a(),
+      _b(),
+      _c(),
+      _d(),
+      _e(),
+      _f(),
+      _size(0),
+      _a_ptr(nullptr),
+      _b_ptr(nullptr),
+      _c_ptr(nullptr),
+      _d_ptr(nullptr),
+      _e_ptr(nullptr),
+      _f_ptr(nullptr)
   {
   }
 
     void allocate()
     {
-      using ValueType = typename ArrayType::value_type;
 
-
-      deallocate();
+      deallocate(); //to be on the safe side first deallocate memory
 
       _a = ArrayType::create(_shape);
       _b = ArrayType::create(_shape);
@@ -63,6 +84,14 @@ template<typename ATYPE> class BinaryArithmeticBenchmark
       std::generate(_e.begin(),_e.end(),RandomGenerator<ValueType>());
       std::generate(_f.begin(),_f.end(),RandomGenerator<ValueType>());
 
+      _a_ptr = const_cast<ValueType*>(_a.data());
+      _b_ptr = const_cast<ValueType*>(_b.data());
+      _c_ptr = const_cast<ValueType*>(_c.data());
+      _d_ptr = const_cast<ValueType*>(_d.data());
+      _e_ptr = const_cast<ValueType*>(_e.data());
+      _f_ptr = const_cast<ValueType*>(_f.data());
+      _size = _a.size();
+
     }
 
     void deallocate()
@@ -73,17 +102,38 @@ template<typename ATYPE> class BinaryArithmeticBenchmark
       _d = ArrayType();
       _e = ArrayType();
       _f = ArrayType();
+      _size = _a.size();
     }
 
-    void add() { _c = _a + _b; }
+    void add()
+    {
+      for(size_t i=0;i<_size;++i)
+        _c_ptr[i] = _a_ptr[i] + _b_ptr[i];
+    }
 
-    void sub() { _c = _a - _b; }
+    void sub()
+    {
+      for(size_t i=0;i<_size;++i)
+        _c_ptr[i] = _a_ptr[i] - _b_ptr[i];
+    }
 
 
-    void mult() { _c = _a * _b; }
+    void mult()
+    {
+      for(size_t i=0;i<_size;++i)
+        _c_ptr[i] = _a_ptr[i] * _b_ptr[i];
+    }
 
-    void div() { _c= _a/_b; }
+    void div()
+    {
+      for(size_t i=0;i<_size;++i)
+        _c_ptr[i] = _a_ptr[i] / _b_ptr[i];
+    }
 
-    void all() { _c = (_a*_b) + (_d-_e)/_f; }
+    void all()
+    {
+      for(size_t i=0;i<_size;++i)
+        _c_ptr[i] = _a_ptr[i]*_b_ptr[i] + (_d_ptr[i]-_e_ptr[i])/_f_ptr[i];
+    }
 
 };

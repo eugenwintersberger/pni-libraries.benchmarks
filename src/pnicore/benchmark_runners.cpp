@@ -25,62 +25,62 @@
 #include "fortran_arithmeticbm.hpp"
 
 
-benchmark_runners create_binary_benchmarks()
+BenchmarkRunners create_binary_benchmarks()
 {
-    return benchmark_runners{{"c=a+b",benchmark_runner()},
-                             {"c=a-b",benchmark_runner()},
-                             {"c=a/b",benchmark_runner()},
-                             {"c=a*b",benchmark_runner()},
-                             {"c=a*b+(d-e)/f",benchmark_runner()}};
+    return BenchmarkRunners{{"c=a+b",pni::core::benchmark_runner()},
+                             {"c=a-b",pni::core::benchmark_runner()},
+                             {"c=a/b",pni::core::benchmark_runner()},
+                             {"c=a*b",pni::core::benchmark_runner()},
+                             {"c=a*b+(d-e)/f",pni::core::benchmark_runner()}};
 }
 
 //-----------------------------------------------------------------------------
-benchmark_runners create_unary_benchmarks()
+BenchmarkRunners create_unary_benchmarks()
 {
-    return benchmark_runners{{"a+=b",benchmark_runner()},
-                             {"a*=b",benchmark_runner()},
-                             {"a-=b",benchmark_runner()},
-                             {"a/=b",benchmark_runner()},
-                             {"a+=s",benchmark_runner()},
-                             {"a*=s",benchmark_runner()},
-                             {"a-=s",benchmark_runner()},
-                             {"a/=s",benchmark_runner()}};
-
-}
-
-//-----------------------------------------------------------------------------
-benchmark_funcs create_unary_functions(const function_type &add_array,
-                                       const function_type &sub_array,
-                                       const function_type &mult_array,
-                                       const function_type &div_array,
-                                       const function_type &add_scalar,
-                                       const function_type &sub_scalar,
-                                       const function_type &mult_scalar,
-                                       const function_type &div_scalar)
-{
-    return benchmark_funcs{{"a+=b",add_array},
-                           {"a*=b",mult_array},
-                           {"a-=b",sub_array},
-                           {"a/=b",div_array},
-                           {"a+=s",add_scalar},
-                           {"a*=s",mult_scalar},
-                           {"a-=s",sub_scalar},
-                           {"a/=s",div_scalar}};
+    return BenchmarkRunners{{"a+=b",pni::core::benchmark_runner()},
+                             {"a*=b",pni::core::benchmark_runner()},
+                             {"a-=b",pni::core::benchmark_runner()},
+                             {"a/=b",pni::core::benchmark_runner()},
+                             {"a+=s",pni::core::benchmark_runner()},
+                             {"a*=s",pni::core::benchmark_runner()},
+                             {"a-=s",pni::core::benchmark_runner()},
+                             {"a/=s",pni::core::benchmark_runner()}};
 
 }
 
 //-----------------------------------------------------------------------------
-benchmark_funcs create_binary_functions(const function_type &add,
-                                        const function_type &sub,
-                                        const function_type &div,
-                                        const function_type &mult,
-                                        const function_type &all)
+BenchmarkFunctions create_unary_functions(const FunctionType &add_array,
+                                         const FunctionType &sub_array,
+                                       const FunctionType &mult_array,
+                                       const FunctionType &div_array,
+                                       const FunctionType &add_scalar,
+                                       const FunctionType &sub_scalar,
+                                       const FunctionType &mult_scalar,
+                                       const FunctionType &div_scalar)
 {
-    return benchmark_funcs{{"c=a+b",add},
-                           {"c=a/b",div},
-                           {"c=a*b",mult},
-                           {"c=a-b",sub},
-                           {"c=a*b+(d-e)/f",all}};
+    return BenchmarkFunctions{{"a+=b",add_array},
+                              {"a*=b",mult_array},
+                              {"a-=b",sub_array},
+                              {"a/=b",div_array},
+                              {"a+=s",add_scalar},
+                              {"a*=s",mult_scalar},
+                              {"a-=s",sub_scalar},
+                              {"a/=s",div_scalar}};
+
+}
+
+//-----------------------------------------------------------------------------
+BenchmarkFunctions create_binary_functions(const FunctionType &add,
+                                        const FunctionType &sub,
+                                        const FunctionType &div,
+                                        const FunctionType &mult,
+                                        const FunctionType &all)
+{
+    return BenchmarkFunctions{{"c=a+b",add},
+                              {"c=a/b",div},
+                              {"c=a*b",mult},
+                              {"c=a-b",sub},
+                              {"c=a*b+(d-e)/f",all}};
 }
 
 
@@ -88,18 +88,18 @@ benchmark_funcs create_binary_functions(const function_type &add,
 void run_binary_fortran_benchmark(size_t nruns,size_t nx,size_t ny,std::ostream
         &o)
 {
-    function_type allocate_data = std::bind(f90::allocate_data,int(nx),int(ny));
-    function_type deallocate_data = std::bind(f90::deallocate_data);
+    FunctionType allocate_data = std::bind(f90::allocate_data,int(nx),int(ny));
+    FunctionType deallocate_data = std::bind(f90::deallocate_data);
 
-    benchmark_runners runners = create_binary_benchmarks(); 
+    BenchmarkRunners runners = create_binary_benchmarks();
     setup_benchmarks(runners,allocate_data,deallocate_data);
 
-    benchmark_funcs funcs = create_binary_functions(
-                            function_type(std::bind(f90::binary_run_add)),
-                            function_type(std::bind(f90::binary_run_sub)),
-                            function_type(std::bind(f90::binary_run_div)),
-                            function_type(std::bind(f90::binary_run_mult)),
-                            function_type(std::bind(f90::binary_run_all)));
+    BenchmarkFunctions funcs = create_binary_functions(
+                            FunctionType(std::bind(f90::binary_run_add)),
+                            FunctionType(std::bind(f90::binary_run_sub)),
+                            FunctionType(std::bind(f90::binary_run_div)),
+                            FunctionType(std::bind(f90::binary_run_mult)),
+                            FunctionType(std::bind(f90::binary_run_all)));
 
    
     run_benchmarks(nruns,runners,funcs);
@@ -111,21 +111,21 @@ void run_unary_fortran_benchmark(size_t nruns,size_t nx,size_t ny,std::ostream
         &o)
 {
 
-    function_type allocate_data = std::bind(f90::allocate_data,int(nx),int(ny));
-    function_type deallocate_data = std::bind(f90::deallocate_data);
+    FunctionType allocate_data = std::bind(f90::allocate_data,int(nx),int(ny));
+    FunctionType deallocate_data = std::bind(f90::deallocate_data);
 
-    benchmark_runners runners = create_unary_benchmarks(); 
+    BenchmarkRunners runners = create_unary_benchmarks();
     setup_benchmarks(runners,allocate_data,deallocate_data);
 
-    benchmark_funcs funcs = create_unary_functions(
-            function_type(std::bind(f90::unary_run_add_array)),
-            function_type(std::bind(f90::unary_run_sub_array)),
-            function_type(std::bind(f90::unary_run_mult_array)),
-            function_type(std::bind(f90::unary_run_div_array)),
-            function_type(std::bind(f90::unary_run_add_scalar)),
-            function_type(std::bind(f90::unary_run_sub_scalar)),
-            function_type(std::bind(f90::unary_run_mult_scalar)),
-            function_type(std::bind(f90::unary_run_div_scalar)));
+    BenchmarkFunctions funcs = create_unary_functions(
+            FunctionType(std::bind(f90::unary_run_add_array)),
+            FunctionType(std::bind(f90::unary_run_sub_array)),
+            FunctionType(std::bind(f90::unary_run_mult_array)),
+            FunctionType(std::bind(f90::unary_run_div_array)),
+            FunctionType(std::bind(f90::unary_run_add_scalar)),
+            FunctionType(std::bind(f90::unary_run_sub_scalar)),
+            FunctionType(std::bind(f90::unary_run_mult_scalar)),
+            FunctionType(std::bind(f90::unary_run_div_scalar)));
 
    
     run_benchmarks(nruns,runners,funcs);

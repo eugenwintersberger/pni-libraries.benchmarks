@@ -22,60 +22,58 @@
 //
 #pragma once
 
-#include <pni/core/arrays.hpp>
+#include <pni/core/types.hpp>
+#include <algorithm>
 
 #include "../common/data_generator.hpp"
 
-using namespace pni::core;
-
-template<typename ATYPE> class inplace_arithmetic_benchmark
+template<typename ATYPE> class InplaceArithmeticBenchmark
 {
-    public:
-        typedef typename ATYPE::value_type value_type;
-        typedef array_factory<ATYPE> factory_type;
-    private:
-        shape_t _shape;
-        ATYPE _a;
-        ATYPE _b;
-        value_type _s;
-    public:
-        inplace_arithmetic_benchmark(const shape_t &s):
-            _shape(s)
-        {}
+  public:
+    using ArrayType = ATYPE;
+    using ValueType =  typename ArrayType::value_type;
+  private:
+    pni::core::shape_t _shape;
+    ArrayType _a;
+    ArrayType _b;
+    ValueType _s;
+  public:
+    InplaceArithmeticBenchmark(const pni::core::shape_t &s):
+      _shape(s)
+  {}
 
-        void allocate()
-        {
-            _a = factory_type::create(_shape);
-            _b = factory_type::create(_shape);
+    void allocate()
+    {
+      _a = ArrayType::create(_shape);
+      _b = ArrayType::create(_shape);
 
-            std::generate(_a.begin(),_a.end(),random_generator<value_type>());
-            std::generate(_b.begin(),_b.end(),random_generator<value_type>());
+      std::generate(_a.begin(),_a.end(),RandomGenerator<ValueType>());
+      std::generate(_b.begin(),_b.end(),RandomGenerator<ValueType>());
 
-            _s = random_generator<value_type>()();
-        }
+      _s = RandomGenerator<ValueType>()();
+    }
 
-        void deallocate()
-        {
-            _a = ATYPE();
-            _b = ATYPE();
-            _s = value_type(0);
-        }
+    void deallocate()
+    {
+      _a = ArrayType();
+      _b = ArrayType();
+      _s = ValueType(0);
+    }
 
 
-        void add_scalar() { _a += _s; }
+    void add_scalar() { _a += _s; }
 
-        void add_array() { _a += _b; }
+    void add_array() { _a += _b; }
 
-        void sub_scalar() { _a -= _s; }
+    void sub_scalar() { _a -= _s; }
 
-        void sub_array() { _a -= _b; }
+    void sub_array() { _a -= _b; }
 
-        void mult_scalar() { _a *= _s; }
+    void mult_scalar() { _a *= _s; }
 
-        void mult_array() { _a *= _b; }
+    void mult_array() { _a *= _b; }
 
-        void div_scalar() { _a /= _s; }
+    void div_scalar() { _a /= _s; }
 
-        void div_array() { _a /= _b; }
-
+    void div_array() { _a /= _b; }
 };

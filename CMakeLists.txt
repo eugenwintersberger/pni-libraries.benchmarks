@@ -38,6 +38,6 @@ include_directories("${CMAKE_CURRENT_BINARY_DIR}/src")
 #need this to get the generated header files into the build.
 add_subdirectory("src/common")
 add_subdirectory("test")
-#add_subdirectory("src/pnicore")
+add_subdirectory("src/pnicore")
 #add_subdirectory("src/pniio")
 

@@ -25,6 +25,10 @@
 #include <chrono>
 #include <vector>
 #include <array>
+#include <algorithm>
+#include <array>
+#include <pni/core/configuration.hpp>
+#include <pni/core/arrays.hpp>
 
 #include <common/types.hpp>
 #include <common/utils.hpp>
@@ -33,120 +37,122 @@
 
 template<typename STYPE,typename MTYPE> STYPE get_shape(const MTYPE &map)
 { 
-    STYPE c(map.size());
+  STYPE c(map.size());
 
-    std::copy(map.begin(),map.end(),c.begin());
-    return c;
+  std::copy(map.begin(),map.end(),c.begin());
+  return c;
 }
 
 
-template<typename MAP> class variant_bm
+template<typename MAP> class VariantBenchmark
 {
-    private:
-        typedef std::vector<size_t> vindex_type;
-        typedef std::array<size_t,2> aindex_type;
-        size_t _nx;
-        size_t _ny;
-        size_t _offset;
-        vindex_type _vindex;
-        aindex_type _aindex;
-        MAP    _map;
-    public:
-        variant_bm(const MAP& map):
-            _map(map), 
-            _nx(0),
-            _ny(0),
-            _offset(0)
-        {
-            auto shape = get_shape<shape_t>(map);
-            _nx = shape[0];
-            _ny = shape[1];
-            _vindex = std::vector<size_t>(2);
+  private:
+    using VectorIndex = std::vector<size_t>;
+    using ArrayIndex  = std::array<size_t,2>;
+    size_t _nx;
+    size_t _ny;
+    size_t _offset;
+    VectorIndex _vindex;
+    ArrayIndex _aindex;
+    MAP    _map;
+  public:
+    VariantBenchmark(const MAP& map):
+      _map(map),
+      _nx(0),
+      _ny(0),
+      _offset(0)
+  {
+      auto shape = get_shape<pni::core::shape_t>(map);
+      _nx = shape[0];
+      _ny = shape[1];
+      _vindex = std::vector<size_t>(2);
 
-        }
-        void variadic_offset()
-        {
-            _offset = 0;
+  }
+    void variadic_offset()
+    {
+      _offset = 0;
 
-            for(size_t i=0;i<_nx;i++)
-                for(size_t j=0;j<_ny;++j)
-                    _offset += _map.template offset(std::array<size_t,2>{{i,j}});
-        }
+      for(size_t i=0;i<_nx;i++)
+        for(size_t j=0;j<_ny;++j)
+          _offset += _map.template offset(std::array<size_t,2>{{i,j}});
+    }
 
-        void vector_offset()
-        {
-            _offset = 0;
+    void vector_offset()
+    {
+      _offset = 0;
 
-            for(_vindex[0]=0;_vindex[0]<_nx;_vindex[0]++)
-                for(_vindex[1]=0;_vindex[1]<_ny;_vindex[1]++)
-                    _offset += _map.template offset(_vindex);
-        }
+      for(_vindex[0]=0;_vindex[0]<_nx;_vindex[0]++)
+        for(_vindex[1]=0;_vindex[1]<_ny;_vindex[1]++)
+          _offset += _map.template offset(_vindex);
+    }
 
-        void vector_index()
-        {
-            for(size_t i=0;i<_map.max_elements();++i)
-                _vindex = _map.template index<vindex_type>(i);
-        }
-        
-        void array_offset()
-        {
-            _offset = 0;
+    void vector_index()
+    {
+      for(size_t i=0;i<_map.max_elements();++i)
+        _vindex = _map.template index<VectorIndex>(i);
+    }
 
-            for(_aindex[0]=0;_aindex[0]<_nx;_aindex[0]++)
-                for(_aindex[1]=0;_aindex[1]<_ny;_aindex[1]++)
-                    _offset += _map.template offset(_aindex);
-        }
+    void array_offset()
+    {
+      _offset = 0;
 
-        void array_index()
-        {
-            for(size_t i=0;i<_map.max_elements();++i)
-                _aindex = _map.template index<aindex_type>(i);
-        }
+      for(_aindex[0]=0;_aindex[0]<_nx;_aindex[0]++)
+        for(_aindex[1]=0;_aindex[1]<_ny;_aindex[1]++)
+          _offset += _map.template offset(_aindex);
+    }
+
+    void array_index()
+    {
+      for(size_t i=0;i<_map.max_elements();++i)
+        _aindex = _map.template index<ArrayIndex>(i);
+    }
 };
 
-benchmark_runners create_runners()
+BenchmarkRunners create_runners()
 {
-    return benchmark_runners{
-        {"offset_variadic",benchmark_runner()},
-        {"offset_vector",benchmark_runner()},
-        {"offset_array",benchmark_runner()},
-        {"index_vector",benchmark_runner()},
-        {"index_array",benchmark_runner()}};
+  using namespace pni::core;
+  return BenchmarkRunners{
+    {"offset_variadic",benchmark_runner()},
+    {"offset_vector",benchmark_runner()},
+    {"offset_array",benchmark_runner()},
+    {"index_vector",benchmark_runner()},
+    {"index_array",benchmark_runner()}};
 }
 
-template<typename BMT> benchmark_funcs create_funcs(BMT &bm)
+template<typename BMT> BenchmarkFunctions create_funcs(BMT &bm)
 {
-    typedef BMT benchmark_type;
-   
-    return benchmark_funcs{
-        {"offset_variadic",function_type(std::bind(&benchmark_type::variadic_offset,&bm))},
-        {"offset_vector",function_type(std::bind(&benchmark_type::vector_offset,&bm))},
-        {"offset_array",function_type(std::bind(&benchmark_type::array_offset,&bm))},
-        {"index_vector",function_type(std::bind(&benchmark_type::vector_index,&bm))},
-        {"index_array",function_type(std::bind(&benchmark_type::array_index,&bm))}};
+  using Benchmark = BMT;
+
+  return BenchmarkFunctions{
+    {"offset_variadic",FunctionType(std::bind(&Benchmark::variadic_offset,&bm))},
+    {"offset_vector",FunctionType(std::bind(&Benchmark::vector_offset,&bm))},
+    {"offset_array",FunctionType(std::bind(&Benchmark::array_offset,&bm))},
+    {"index_vector",FunctionType(std::bind(&Benchmark::vector_index,&bm))},
+    {"index_array",FunctionType(std::bind(&Benchmark::array_index,&bm))}};
 }
 
 
-template<typename MAPT> void run_benchmark(size_t nruns,const shape_t &shape)
+template<typename MAPT> void run_benchmark(size_t nruns,const pni::core::shape_t &shape)
 {
-    typedef MAPT map_type;
-    typedef map_utils<map_type> utils_type;
-    typedef variant_bm<map_type> benchmark_type;
+  using IndexMap = MAPT;
+  using MapUtilities = pni::core::map_utils<IndexMap>;
+  using Benchmark =  VariantBenchmark<IndexMap>;
 
-    benchmark_type bm(utils_type::create(shape));
+  Benchmark bm(MapUtilities::create(shape));
 
-    benchmark_runners runners = create_runners();
-    benchmark_funcs funcs = create_funcs(bm);
-    
-    run_benchmarks(nruns,runners,funcs);
+  BenchmarkRunners runners = create_runners();
+  BenchmarkFunctions funcs = create_funcs(bm);
 
-    write_result(runners,std::cout);
+  run_benchmarks(nruns,runners,funcs);
 
-    
+  write_result(runners,std::cout);
+
+
 }
 
 int main(int argc,char **argv)
 {
+  using namespace pni::core;
     //create the index maps
     auto dindex_map = map_utils<dynamic_cindex_map>::create(shape_t{100,100});
     auto sindex_map = map_utils<static_cindex_map<100,100>>::create(shape_t{100,100});

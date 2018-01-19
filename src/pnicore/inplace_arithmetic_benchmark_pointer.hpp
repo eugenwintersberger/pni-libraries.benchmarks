@@ -17,73 +17,85 @@
 // along with libpniutils.  If not, see <http://www.gnu.org/licenses/>.
 // ===========================================================================
 //
-//  Created on: Feb 19, 2013
+//  Created on: Feb 19, 2012
 //      Author: Eugen Wintersberger <eugen.wintersberger@desy.de>
 //
 #pragma once
 
 #include <pni/core/types.hpp>
+
 #include "../common/data_generator.hpp"
 
-template<typename ATYPE> class BinaryArithmeticBenchmark
+template<typename ATYPE> 
+class InplaceArithmeticBenchmarkPointer
 {
-  private:
+  public:
     using ArrayType = ATYPE;
+    using ValueType = typename ArrayType::value_type;
+
+  private:
     pni::core::shape_t _shape;
+
     ArrayType _a;
     ArrayType _b;
-    ArrayType _c;
-    ArrayType _d;
-    ArrayType _e;
-    ArrayType _f;
+    ValueType _s;
+    ValueType *_a_ptr;
+    ValueType *_b_ptr;
+    size_t _size;
   public:
-    BinaryArithmeticBenchmark(const pni::core::shape_t &s):
-      _shape(s)
+    InplaceArithmeticBenchmarkPointer(const pni::core::shape_t &s):
+      _shape(s),
+      _a(),
+      _b(),
+      _s(),
+      _a_ptr(nullptr),
+      _b_ptr(nullptr),
+      _size(0)
   {
   }
 
     void allocate()
     {
-      using ValueType = typename ArrayType::value_type;
-
-
-      deallocate();
-
       _a = ArrayType::create(_shape);
       _b = ArrayType::create(_shape);
-      _c = ArrayType::create(_shape);
-      _d = ArrayType::create(_shape);
-      _e = ArrayType::create(_shape);
-      _f = ArrayType::create(_shape);
 
       std::generate(_a.begin(),_a.end(),RandomGenerator<ValueType>());
       std::generate(_b.begin(),_b.end(),RandomGenerator<ValueType>());
-      std::generate(_c.begin(),_c.end(),RandomGenerator<ValueType>());
-      std::generate(_d.begin(),_d.end(),RandomGenerator<ValueType>());
-      std::generate(_e.begin(),_e.end(),RandomGenerator<ValueType>());
-      std::generate(_f.begin(),_f.end(),RandomGenerator<ValueType>());
 
+      _s = RandomGenerator<ValueType>()();
+
+      _a_ptr = const_cast<ValueType*>(_a.data());
+      _b_ptr = const_cast<ValueType*>(_b.data());
+
+      _size = _a.size();
     }
 
     void deallocate()
     {
       _a = ArrayType();
       _b = ArrayType();
-      _c = ArrayType();
-      _d = ArrayType();
-      _e = ArrayType();
-      _f = ArrayType();
+      _s = ValueType(0);
+
+      _a_ptr = nullptr;
+      _b_ptr = nullptr;
     }
 
-    void add() { _c = _a + _b; }
 
-    void sub() { _c = _a - _b; }
+    void add_scalar() { for(size_t i=0;i<_size;++i) _a_ptr[i] += _s; }
 
+    void add_array() { for(size_t i=0;i<_size;++i) _a_ptr[i] += _b_ptr[i]; }
 
-    void mult() { _c = _a * _b; }
+    void sub_scalar() { for(size_t i=0;i<_size;++i) _a_ptr[i] -= _s; }
 
-    void div() { _c= _a/_b; }
+    void sub_array() { for(size_t i=0;i<_size;++i) _a_ptr[i] -= _b_ptr[i]; }
 
-    void all() { _c = (_a*_b) + (_d-_e)/_f; }
+    void mult_scalar() { for(size_t i=0;i<_size;++i) _a_ptr[i] *= _s; }
+
+    void mult_array() { for(size_t i=0;i<_size;++i) _a_ptr[i] *= _b_ptr[i]; }
+
+    void div_scalar() { for(size_t i=0;i<_size;++i) _a_ptr[i] /=_s; }
+
+    void div_array() { for(size_t i=0;i<_size;++i) _a_ptr[i] /= _b_ptr[i];
+    }
 
 };

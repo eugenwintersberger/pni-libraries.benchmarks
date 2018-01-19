@@ -24,8 +24,13 @@
 #include <iostream>
 #include <fstream>
 
+#include <pni/core/configuration.hpp>
+#include <pni/core/arrays.hpp>
 #include <common/types.hpp>
+
 #include "benchmark_runners.hpp"
+
+using namespace pni::core;
 
 configuration create_config()
 {

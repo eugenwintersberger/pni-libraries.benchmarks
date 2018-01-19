@@ -22,6 +22,8 @@
 ///
 #include <iostream>
 #include <fstream>
+#include <pni/core/arrays.hpp>
+#include <pni/core/configuration.hpp>
 #include "linear_io_pointer.hpp"
 #include "linear_io_iterator.hpp"
 
@@ -30,44 +32,45 @@
 #include <common/array_benchmark_data.hpp>
 #include <common/view_benchmark_data.hpp>
 
+using namespace pni::core;
 
 //define some benchmark types
-typedef array_benchmark_data<dynamic_array<float64>> darray_data;
-typedef array_benchmark_data<fixed_dim_array<float64,2>> farray_data;
-typedef array_benchmark_data<static_array<float64,512,512>> sarray_data;
-typedef view_benchmark_data<dynamic_array<float64>> dview_data;
-typedef view_benchmark_data<fixed_dim_array<float64,2>> fview_data;
-typedef view_benchmark_data<static_array<float64,512,512>> sview_data;
+using DArrayData = ArrayBenchmarkData<dynamic_array<float64>>;
+using FArrayData = ArrayBenchmarkData<fixed_dim_array<float64,2>>;
+using SArrayData = ArrayBenchmarkData<static_array<float64,512,512>>;
+using DViewData = ViewBenchmarkData<dynamic_array<float64>>;
+using FViewData = ViewBenchmarkData<fixed_dim_array<float64,2>>;
+using SViewData = ViewBenchmarkData<static_array<float64,512,512>>;
 
-typedef linear_io_iterator<darray_data> darray_iterator_bm;
-typedef linear_io_iterator<farray_data> farray_iterator_bm;
-typedef linear_io_iterator<sarray_data> sarray_iterator_bm;
-typedef linear_io_iterator<dview_data>  dview_iterator_bm;
-typedef linear_io_iterator<fview_data>  fview_iterator_bm;
-typedef linear_io_iterator<sview_data>  sview_iterator_bm;
+using DArrayIteratorBenchmark = LinearIOIterator<DArrayData>;
+using FArrayIteratorBenchmark = LinearIOIterator<FArrayData>;
+using SArrayIteratorBenchmark = LinearIOIterator<SArrayData>;
+using DViewIteratorBenchmark = LinearIOIterator<DViewData>;
+using FViewIteratorBenchmark = LinearIOIterator<FViewData>;
+using SViewIteratorBenchmark = LinearIOIterator<SViewData>;
 
-typedef linear_io_pointer<darray_data> darray_pointer_bm;
-typedef linear_io_pointer<farray_data> farray_pointer_bm;
-typedef linear_io_pointer<sarray_data> sarray_pointer_bm;
+using DArrayPointerBenchmark = LinearIOPointer<DArrayData>;
+using FArrayPointerBenchmark = LinearIOPointer<FArrayData>;
+using SArrayPointerBenchmark = LinearIOPointer<SArrayData>;
 
 
 template<typename BMARKT> 
 void run_benchmark(size_t nruns,const shape_t &shape,std::ostream &o)
 {
-    typedef BMARKT benchmark_type;
+    using BenchmarkType = BMARKT;
 
-    benchmark_runners runners{{"write",benchmark_runner()},
+    BenchmarkRunners runners{{"write",benchmark_runner()},
                               {"read",benchmark_runner()}};
 
-    benchmark_type benchmark(shape);
-    function_type allocate_data = std::bind(&benchmark_type::allocate,&benchmark);
-    function_type deallocate_data = std::bind(&benchmark_type::deallocate,&benchmark);
+    BenchmarkType benchmark(shape);
+    FunctionType allocate_data = std::bind(&BenchmarkType::allocate,&benchmark);
+    FunctionType deallocate_data = std::bind(&BenchmarkType::deallocate,&benchmark);
 
     setup_benchmarks(runners,allocate_data,deallocate_data);
 
-    benchmark_funcs funcs{
-        {"write",std::bind(&benchmark_type::write_data,&benchmark)},
-        {"read",std::bind(&benchmark_type::read_data,&benchmark)}};
+    BenchmarkFunctions funcs{
+        {"write",std::bind(&BenchmarkType::write_data,&benchmark)},
+        {"read",std::bind(&BenchmarkType::read_data,&benchmark)}};
 
     run_benchmarks(nruns,runners,funcs);
     write_result(runners,o);
@@ -123,17 +126,17 @@ int main(int argc,char **argv)
         if(conf.value<bool>("ptr") && !conf.value<bool>("view"))
         {
             *ostream<<"pointer access"<<std::endl;
-            run_benchmark<darray_pointer_bm>(nruns,shape,*ostream);
+            run_benchmark<DArrayPointerBenchmark>(nruns,shape,*ostream);
         }
         else if(conf.value<bool>("view"))
         {
             *ostream<<"iterator view access"<<std::endl;
-            run_benchmark<dview_iterator_bm>(nruns,shape,*ostream);
+            run_benchmark<DViewIteratorBenchmark>(nruns,shape,*ostream);
         }
         else
         {
             *ostream<<"iterator access"<<std::endl;
-            run_benchmark<darray_iterator_bm>(nruns,shape,*ostream);
+            run_benchmark<DArrayIteratorBenchmark>(nruns,shape,*ostream);
         }
     }
     else if(bm_type == "farray")
@@ -142,17 +145,17 @@ int main(int argc,char **argv)
         if(conf.value<bool>("ptr")&& !conf.value<bool>("view"))
         {
             *ostream<<"pointer access"<<std::endl;
-            run_benchmark<farray_pointer_bm>(nruns,shape,*ostream);
+            run_benchmark<FArrayPointerBenchmark>(nruns,shape,*ostream);
         }
         else if(conf.value<bool>("view"))
         {
             *ostream<<"iterator view access"<<std::endl;
-            run_benchmark<fview_iterator_bm>(nruns,shape,*ostream);
+            run_benchmark<FViewIteratorBenchmark>(nruns,shape,*ostream);
         }
         else
         {
             *ostream<<"iterator access"<<std::endl;
-            run_benchmark<farray_iterator_bm>(nruns,shape,*ostream);
+            run_benchmark<FArrayIteratorBenchmark>(nruns,shape,*ostream);
         }
     }
     else if(bm_type == "sarray")
@@ -161,17 +164,17 @@ int main(int argc,char **argv)
         if(conf.value<bool>("ptr") && !conf.value<bool>("view"))
         {
             *ostream<<"pointer access"<<std::endl;
-            run_benchmark<sarray_pointer_bm>(nruns,shape,*ostream);
+            run_benchmark<SArrayPointerBenchmark>(nruns,shape,*ostream);
         }
         else if(conf.value<bool>("view"))
         {
             *ostream<<"iterator view access"<<std::endl;
-            run_benchmark<sview_iterator_bm>(nruns,shape,*ostream);
+            run_benchmark<SViewIteratorBenchmark>(nruns,shape,*ostream);
         }
         else
         {
             *ostream<<"iterator access"<<std::endl;
-            run_benchmark<sarray_iterator_bm>(nruns,shape,*ostream);
+            run_benchmark<SArrayIteratorBenchmark>(nruns,shape,*ostream);
         }
     }
     else
